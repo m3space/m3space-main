@@ -1,0 +1,54 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="GroundControl.Gui.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="ComPort" Description="COM port name" Type="System.String" Scope="User">
+      <Value Profile="(Default)">COM1</Value>
+    </Setting>
+    <Setting Name="DataDirectory" Description="Data directory path" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="MainWindowLocation" Type="System.Drawing.Point" Scope="User">
+      <Value Profile="(Default)">0, 0</Value>
+    </Setting>
+    <Setting Name="MainWindowSize" Type="System.Drawing.Size" Scope="User">
+      <Value Profile="(Default)">750, 450</Value>
+    </Setting>
+    <Setting Name="MainWindowMaximized" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="TelemetryWindowLocation" Type="System.Drawing.Point" Scope="User">
+      <Value Profile="(Default)">0, 0</Value>
+    </Setting>
+    <Setting Name="LogWindowLocation" Type="System.Drawing.Point" Scope="User">
+      <Value Profile="(Default)">260, 280</Value>
+    </Setting>
+    <Setting Name="LogWindowSize" Type="System.Drawing.Size" Scope="User">
+      <Value Profile="(Default)">400, 140</Value>
+    </Setting>
+    <Setting Name="MapWindowLocation" Type="System.Drawing.Point" Scope="User">
+      <Value Profile="(Default)">165, 0</Value>
+    </Setting>
+    <Setting Name="MapWindowSize" Type="System.Drawing.Size" Scope="User">
+      <Value Profile="(Default)">400, 275</Value>
+    </Setting>
+    <Setting Name="LiveImageWindowLocation" Type="System.Drawing.Point" Scope="User">
+      <Value Profile="(Default)">0, 280</Value>
+    </Setting>
+    <Setting Name="LiveImageWindowSize" Type="System.Drawing.Size" Scope="User">
+      <Value Profile="(Default)">250, 140</Value>
+    </Setting>
+    <Setting Name="WebAccessEnabled" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="WebAccessUrl" Type="System.String" Scope="User">
+      <Value Profile="(Default)">http://localhost/live/</Value>
+    </Setting>
+    <Setting Name="GraphWindowLocation" Type="System.Drawing.Point" Scope="User">
+      <Value Profile="(Default)">0, 0</Value>
+    </Setting>
+    <Setting Name="GraphWindowSize" Type="System.Drawing.Size" Scope="User">
+      <Value Profile="(Default)">500, 200</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
