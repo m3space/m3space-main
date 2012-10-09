@@ -5,7 +5,6 @@ namespace BalloonFirmware
 {
     public class DataProtocol
     {
-        private const int BufferSize = 1000;
         private const byte Sync = 0x7E;
         private const byte Esc = 0x7D;
         private const byte TransmitTelemetry = 0x01;
@@ -13,107 +12,74 @@ namespace BalloonFirmware
         private const byte ImageData = 0x03;
         private const byte EndImage = 0x04;
 
-        private byte[] buf;
-        private int bufPos;
-
-        public DataProtocol()
-        {
-            buf = new byte[BufferSize];
-        }
 
         public byte[] GetTelemetry(TelemetryData data)
         {
-            Monitor.Enter(buf);
-            bufPos = 0;
-            buf[bufPos++] = Sync;
-            buf[bufPos++] = TransmitTelemetry;
-            bufPos += WriteEscapedBytes(buf, bufPos, BitConverter.GetBytes((ushort)34));
-            bufPos += WriteEscapedBytes(buf, bufPos, BitConverter.GetBytes(data.UtcTimestamp.Ticks));
-            bufPos += WriteEscapedBytes(buf, bufPos, BitConverter.GetBytes(data.GpsData.Latitude));
-            bufPos += WriteEscapedBytes(buf, bufPos, BitConverter.GetBytes(data.GpsData.Longitude));
-            bufPos += WriteEscapedBytes(buf, bufPos, BitConverter.GetBytes(data.GpsData.Altitude));
-            bufPos += WriteEscapedBytes(buf, bufPos, BitConverter.GetBytes(data.GpsData.Heading));
-            bufPos += WriteEscapedBytes(buf, bufPos, BitConverter.GetBytes(data.GpsData.Speed));
-            bufPos += WriteEscapedBytes(buf, bufPos, new byte[] { data.GpsData.Satellites });
-            bufPos += WriteEscapedBytes(buf, bufPos, BitConverter.GetBytes(data.IntTemperatureRaw));
-            bufPos += WriteEscapedBytes(buf, bufPos, BitConverter.GetBytes(data.ExtTemperatureRaw));
-            bufPos += WriteEscapedBytes(buf, bufPos, BitConverter.GetBytes(data.PressureRaw));
-            bufPos += WriteEscapedBytes(buf, bufPos, BitConverter.GetBytes(data.VinRaw));
-            bufPos += WriteEscapedBytes(buf, bufPos, new byte[] { data.DutyCycle });
-            buf[bufPos++] = Sync;
-            byte[] txData = new byte[bufPos];
-            Array.Copy(buf, 0, txData, 0, bufPos);
-            Monitor.Exit(buf);
-            return txData;
+            byte[] packet = new byte[37];
+            packet[0] = TransmitTelemetry;
+            Array.Copy(BitConverter.GetBytes((ushort)34), 0, packet, 1, 2);
+            Array.Copy(BitConverter.GetBytes(data.UtcTimestamp.Ticks), 0, packet, 3, 8);
+            Array.Copy(BitConverter.GetBytes(data.GpsData.Latitude), 0, packet, 11, 4);
+            Array.Copy(BitConverter.GetBytes(data.GpsData.Longitude), 0, packet, 15, 4);
+            Array.Copy(BitConverter.GetBytes(data.GpsData.Altitude), 0, packet, 19, 2);
+            Array.Copy(BitConverter.GetBytes(data.GpsData.Heading), 0, packet, 21, 2);
+            Array.Copy(BitConverter.GetBytes(data.GpsData.Speed), 0, packet, 23, 4);
+            packet[27] = data.GpsData.Satellites;
+            Array.Copy(BitConverter.GetBytes(data.IntTemperatureRaw), 0, packet, 28, 2);
+            Array.Copy(BitConverter.GetBytes(data.ExtTemperatureRaw), 0, packet, 30, 2);
+            Array.Copy(BitConverter.GetBytes(data.PressureRaw), 0, packet, 32, 2);
+            Array.Copy(BitConverter.GetBytes(data.VinRaw), 0, packet, 34, 2);
+            packet[36] = data.DutyCycle;
+            return packet;
         }
 
         public byte[] GetBeginImage(DateTime utcTs)
         {
-            Monitor.Enter(buf);
-            bufPos = 0;
-            buf[bufPos++] = Sync;
-            buf[bufPos++] = BeginImage;
-            bufPos += WriteEscapedBytes(buf, bufPos, BitConverter.GetBytes((ushort)8));
-            bufPos += WriteEscapedBytes(buf, bufPos, BitConverter.GetBytes(utcTs.Ticks));
-            buf[bufPos++] = Sync;
-            byte[] txData = new byte[bufPos];
-            Array.Copy(buf, 0, txData, 0, bufPos);
-            Monitor.Exit(buf);
-            return txData;
+            byte[] packet = new byte[11];
+            packet[0] = BeginImage;
+            Array.Copy(BitConverter.GetBytes((ushort)8), 0, packet, 1, 2);
+            Array.Copy(BitConverter.GetBytes(utcTs.Ticks), 0, packet, 3, 8);
+            return packet;
         }
 
         public byte[] GetEndImage()
         {
-            Monitor.Enter(buf);
-            bufPos = 0;
-            buf[bufPos++] = Sync;
-            buf[bufPos++] = EndImage;
-            bufPos += WriteEscapedBytes(buf, bufPos, BitConverter.GetBytes((ushort)0));
-            buf[bufPos++] = Sync;
-            byte[] txData = new byte[bufPos];
-            Array.Copy(buf, 0, txData, 0, bufPos);
-            Monitor.Exit(buf);
-            return txData;
+            byte[] packet = new byte[3];
+            packet[0] = EndImage;
+            Array.Copy(BitConverter.GetBytes((ushort)0), 0, packet, 1, 2);
+            return packet;
         }
 
         public byte[] GetImageData(byte[] data, int length)
         {
-            Monitor.Enter(buf);
-            bufPos = 0;
-            buf[bufPos++] = Sync;
-            buf[bufPos++] = ImageData;
-            bufPos += WriteEscapedBytes(buf, bufPos, BitConverter.GetBytes((ushort)length));
-            bufPos += WriteEscapedBytes(buf, bufPos, data, length);
-            buf[bufPos++] = Sync;
-            byte[] txData = new byte[bufPos];
-            Array.Copy(buf, 0, txData, 0, bufPos);
-            Monitor.Exit(buf);
-            return txData;
+            byte[] packet = new byte[length + 3];
+            packet[0] = ImageData;
+            Array.Copy(BitConverter.GetBytes((ushort)length), 0, packet, 1, 2);
+            Array.Copy(data, 0, packet, 3, length);
+            return packet;
         }
 
-        private int WriteEscapedBytes(byte[] buf, int offset, byte[] data, int length)
+        public static int PreparePacket(byte[] output, byte[] input)
         {
-            int count = 0;
-            for (int i = 0; i < length; i++)
+            output[0] = Sync;
+            int count = 1;
+            for (int i = 0; i < input.Length; i++)
             {
-                if ((data[i] == Sync) || (data[i] == Esc))
+                if ((input[i] == Sync) || (input[i] == Esc))
                 {
-                    buf[offset++] = Esc;
-                    buf[offset++] = (byte)(data[i] ^ 0x20);
+                    output[count++] = Esc;
+                    output[count++] = (byte)(input[i] ^ 0x20);
                     count += 2;
                 }
                 else
                 {
-                    buf[offset++] = data[i];
+                    output[count++] = input[i];
                     count++;
                 }
             }
+            output[count++] = Sync;
             return count;
         }
 
-        private int WriteEscapedBytes(byte[] buf, int offset, byte[] data)
-        {
-            return WriteEscapedBytes(buf, offset, data, data.Length);
-        }
     }
 }

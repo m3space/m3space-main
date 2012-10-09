@@ -18,9 +18,10 @@ namespace BalloonFirmware
     {
         private const int TELEMETRY_TX_INTERVAL = 5;
         private const int IMAGE_TX_INTERVAL = 5;
-        private const int IMAGE_CHUNK_SIZE = 100;
+        private const int IMAGE_CHUNK_SIZE = 60;
 
         private BoundedBuffer txQueue;
+        private byte[] txBuffer;
         private DataProtocol dataProtocol;
 
         private PersistentStorage sdStorage;
@@ -48,6 +49,8 @@ namespace BalloonFirmware
         
         private GpsReader gps;
 
+        private object gpsLock = new object();
+        private object dutyCycleLock = new object();
         private AutoResetEvent waitTimeSync;
 
         /// <summary>
@@ -56,6 +59,7 @@ namespace BalloonFirmware
         public SpaceBalloon()
         {
             txQueue = new BoundedBuffer();
+            txBuffer = new byte[256];
             dataProtocol = new DataProtocol();
             sdStorage = new PersistentStorage("SD");
             tempSensorInt = new AnalogIn((AnalogIn.Pin)FEZ_Pin.AnalogIn.An4);
@@ -143,7 +147,9 @@ namespace BalloonFirmware
         /// <param name="gpsPoint">the GPS data</param>
         private void GpsDataHandler(GpsPoint gpsPoint)
         {
+            Monitor.Enter(gpsLock);
             this.cachedGpsPoint = gpsPoint;
+            Monitor.Exit(gpsLock);
         }
 
         /// <summary>
@@ -175,13 +181,21 @@ namespace BalloonFirmware
             {
                 try
                 {
-                    byte[] txData = (byte[])txQueue.Take();
-                    xBeePort.Write(txData, 0, txData.Length);
-                    xBeePort.Flush();
+                    // get packet from queue
+                    byte[] packet = (byte[])txQueue.Take();
 
                     #if DEBUG
-                    Debug.Print("Sending packet ID " + txData[1]);
+                    Debug.Print("Sending packet ID " + packet[0]);
                     #endif
+
+                    // escape packet
+                    int len = DataProtocol.PreparePacket(txBuffer, packet);
+
+                    // send escaped packet
+                    xBeePort.Write(txBuffer, 0, len);
+                    xBeePort.Flush();
+
+                    Thread.Sleep(100);
 
                     // read dutycycle value every 2 minutes and reset xBee if value >= 40%
                     if ((DateTime.Now - lastXBeeResetCheck).Minutes >= 2)
@@ -212,8 +226,12 @@ namespace BalloonFirmware
                 cachedTelemetry.ExtTemperatureRaw = (ushort)tempSensorExt.Read();
                 cachedTelemetry.PressureRaw = (ushort)pressureSensor.Read();
                 cachedTelemetry.VinRaw = (ushort)vInSensor.Read();
+                Monitor.Enter(gpsLock);
                 cachedTelemetry.GpsData = cachedGpsPoint;
+                Monitor.Exit(gpsLock);
+                Monitor.Enter(dutyCycleLock);
                 cachedTelemetry.DutyCycle = xBeeDutyCycle;
+                Monitor.Exit(dutyCycleLock);
                 StoreTelemetry(cachedTelemetry);
                 count--;
                 if (count == 0)
@@ -330,7 +348,7 @@ namespace BalloonFirmware
             {
                 int count = fileHandle.Read(imgBuf, 0, IMAGE_CHUNK_SIZE);
                 txQueue.Add(dataProtocol.GetImageData(imgBuf, count));
-                Thread.Sleep(200);
+                Thread.Sleep(500);
             }
             fileHandle.Close();
             txQueue.Add(dataProtocol.GetEndImage());
@@ -454,7 +472,9 @@ namespace BalloonFirmware
                         readBytes = new byte[xBeePort.BytesToRead];
                         xBeePort.Read(readBytes, 0, readBytes.Length);
                         readString = new String(System.Text.Encoding.UTF8.GetChars(readBytes)).TrimEnd("\r".ToCharArray());
+                        Monitor.Enter(dutyCycleLock);
                         xBeeDutyCycle = (byte)BitConverter.Hex2Dec(readString);
+                        Monitor.Exit(dutyCycleLock);
 #if DEBUG
                         Debug.Print("DutyCycle   = " + xBeeDutyCycle + "%");
 #endif
