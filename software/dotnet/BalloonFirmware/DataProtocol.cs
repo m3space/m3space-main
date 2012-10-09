@@ -10,7 +10,6 @@ namespace BalloonFirmware
         private const byte TransmitTelemetry = 0x01;
         private const byte BeginImage = 0x02;
         private const byte ImageData = 0x03;
-        private const byte EndImage = 0x04;
 
 
         public byte[] GetTelemetry(TelemetryData data)
@@ -33,29 +32,23 @@ namespace BalloonFirmware
             return packet;
         }
 
-        public byte[] GetBeginImage(DateTime utcTs)
+        public byte[] GetBeginImage(DateTime utcTs, int length)
         {
-            byte[] packet = new byte[11];
+            byte[] packet = new byte[13];
             packet[0] = BeginImage;
-            Array.Copy(BitConverter.GetBytes((ushort)8), 0, packet, 1, 2);
+            Array.Copy(BitConverter.GetBytes((ushort)10), 0, packet, 1, 2);
             Array.Copy(BitConverter.GetBytes(utcTs.Ticks), 0, packet, 3, 8);
+            Array.Copy(BitConverter.GetBytes((ushort)length), 0, packet, 11, 2);
             return packet;
         }
 
-        public byte[] GetEndImage()
+        public byte[] GetImageData(int imgOffset, byte[] data, int dataLength)
         {
-            byte[] packet = new byte[3];
-            packet[0] = EndImage;
-            Array.Copy(BitConverter.GetBytes((ushort)0), 0, packet, 1, 2);
-            return packet;
-        }
-
-        public byte[] GetImageData(byte[] data, int length)
-        {
-            byte[] packet = new byte[length + 3];
+            byte[] packet = new byte[dataLength + 5];
             packet[0] = ImageData;
-            Array.Copy(BitConverter.GetBytes((ushort)length), 0, packet, 1, 2);
-            Array.Copy(data, 0, packet, 3, length);
+            Array.Copy(BitConverter.GetBytes((ushort)dataLength + 2), 0, packet, 1, 2);
+            Array.Copy(BitConverter.GetBytes(imgOffset), 0, packet, 3, 2);
+            Array.Copy(data, 0, packet, 5, dataLength);
             return packet;
         }
 

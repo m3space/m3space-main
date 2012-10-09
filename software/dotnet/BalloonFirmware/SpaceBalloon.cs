@@ -342,16 +342,17 @@ namespace BalloonFirmware
             FileStream fileHandle = new FileStream(currentImageFilename, FileMode.Open);
             lastSentImage = currentImageTimestamp;
 
-            txQueue.Add(dataProtocol.GetBeginImage(lastSentImage));
-            byte[] imgBuf = new byte[IMAGE_CHUNK_SIZE];
+            txQueue.Add(dataProtocol.GetBeginImage(lastSentImage, (int)fileHandle.Length));
+            byte[] chunk = new byte[IMAGE_CHUNK_SIZE];
+            int imgOffset = 0;
             while (fileHandle.Position < fileHandle.Length)
             {
-                int count = fileHandle.Read(imgBuf, 0, IMAGE_CHUNK_SIZE);
-                txQueue.Add(dataProtocol.GetImageData(imgBuf, count));
+                int length = fileHandle.Read(chunk, 0, IMAGE_CHUNK_SIZE);
+                txQueue.Add(dataProtocol.GetImageData(imgOffset, chunk, length));
+                imgOffset += length;
                 Thread.Sleep(500);
             }
             fileHandle.Close();
-            txQueue.Add(dataProtocol.GetEndImage());
         }
 
         /// <summary>

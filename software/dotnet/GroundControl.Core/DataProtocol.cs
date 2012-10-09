@@ -88,12 +88,15 @@ namespace GroundControl.Core
                         // beginning of image
                         case BeginImage:
                             long ticks = BitConverter.ToInt64(payload, 0);
+                            int length = BitConverter.ToUInt16(payload, 8);
                             if (!imageDecoder.IsIdle)
                             {
-                                imageDecoder.EndImage();
                                 OnError("Begin image, but last image was not fully decoded.");
+                                OnImageComplete(imageDecoder.CurrentUtcTimestamp, imageDecoder.ImageData);
+                                imageDecoder.EndImage();
+                                
                             }
-                            if (!imageDecoder.BeginImage(new DateTime(ticks)))
+                            if (!imageDecoder.BeginImage(new DateTime(ticks), length))
                             {
                                 OnError("Cannot begin image, decoder is not idle.");
                             }
@@ -101,25 +104,20 @@ namespace GroundControl.Core
 
                         // image data
                         case ImageData:
-                            if (!imageDecoder.AppendData(payload))
+                            int imgOffset = BitConverter.ToUInt16(payload, 0);
+                            int chunkLength = payload.Length - 2;
+                            if (imageDecoder.InsertChunk(imgOffset, payload, 2, chunkLength))
                             {
-                                OnError("Cannot append image data, begin image first.");
-                            }
-                            break;
-
-                        // end image
-                        case EndImage:
-                            DateTime utcTs = imageDecoder.CurrentUtcTimestamp;
-                            byte[] imgData = imageDecoder.ImageData;
-                            if (imgData != null)
-                            {
-                                OnImageComplete(utcTs, imgData);
+                                if (imageDecoder.IsImageComplete)
+                                {
+                                    OnImageComplete(imageDecoder.CurrentUtcTimestamp, imageDecoder.ImageData);
+                                    imageDecoder.EndImage();
+                                }
                             }
                             else
                             {
-                                OnError("Cannot fetch image data from decoder.");
+                                OnError("Cannot insert image data, begin image first.");
                             }
-                            imageDecoder.EndImage();
                             break;
 
                         // unknown frame
@@ -166,9 +164,16 @@ namespace GroundControl.Core
         /// <param name="data">the image data</param>
         private void OnImageComplete(DateTime utcTimestamp, byte[] data)
         {
-            if (ImageComplete != null)
+            if (data != null)
             {
-                ImageComplete(utcTimestamp, data);
+                if (ImageComplete != null)
+                {
+                    ImageComplete(utcTimestamp, data);
+                }
+            }
+            else
+            {
+                OnError("Cannot fetch image data from decoder.");
             }
         }
     }
