@@ -62,12 +62,10 @@ namespace BalloonFirmware
                 {
                     output[count++] = Esc;
                     output[count++] = (byte)(input[i] ^ 0x20);
-                    count += 2;
                 }
                 else
                 {
                     output[count++] = input[i];
-                    count++;
                 }
             }
             output[count++] = Sync;
