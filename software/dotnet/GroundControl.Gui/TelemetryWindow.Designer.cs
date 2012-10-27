@@ -30,7 +30,7 @@
         {
             this.groupBoxLocation = new System.Windows.Forms.GroupBox();
             this.label10 = new System.Windows.Forms.Label();
-            this.spdLbl = new System.Windows.Forms.Label();
+            this.hspdLbl = new System.Windows.Forms.Label();
             this.headLbl = new System.Windows.Forms.Label();
             this.altLbl = new System.Windows.Forms.Label();
             this.lngLbl = new System.Windows.Forms.Label();
@@ -54,6 +54,8 @@
             this.groupBoxSystem = new System.Windows.Forms.GroupBox();
             this.vinLbl = new System.Windows.Forms.Label();
             this.label11 = new System.Windows.Forms.Label();
+            this.vspdLbl = new System.Windows.Forms.Label();
+            this.label13 = new System.Windows.Forms.Label();
             this.groupBoxLocation.SuspendLayout();
             this.groupBoxTemp.SuspendLayout();
             this.groupBoxPressure.SuspendLayout();
@@ -64,8 +66,10 @@
             // 
             this.groupBoxLocation.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBoxLocation.Controls.Add(this.vspdLbl);
+            this.groupBoxLocation.Controls.Add(this.label13);
             this.groupBoxLocation.Controls.Add(this.label10);
-            this.groupBoxLocation.Controls.Add(this.spdLbl);
+            this.groupBoxLocation.Controls.Add(this.hspdLbl);
             this.groupBoxLocation.Controls.Add(this.headLbl);
             this.groupBoxLocation.Controls.Add(this.altLbl);
             this.groupBoxLocation.Controls.Add(this.lngLbl);
@@ -78,7 +82,7 @@
             this.groupBoxLocation.Controls.Add(this.dateLbl);
             this.groupBoxLocation.Location = new System.Drawing.Point(2, 0);
             this.groupBoxLocation.Name = "groupBoxLocation";
-            this.groupBoxLocation.Size = new System.Drawing.Size(159, 129);
+            this.groupBoxLocation.Size = new System.Drawing.Size(159, 149);
             this.groupBoxLocation.TabIndex = 0;
             this.groupBoxLocation.TabStop = false;
             this.groupBoxLocation.Text = "Location";
@@ -92,14 +96,14 @@
             this.label10.TabIndex = 10;
             this.label10.Text = "Dat.";
             // 
-            // spdLbl
+            // hspdLbl
             // 
-            this.spdLbl.AutoSize = true;
-            this.spdLbl.Location = new System.Drawing.Point(47, 107);
-            this.spdLbl.Name = "spdLbl";
-            this.spdLbl.Size = new System.Drawing.Size(27, 13);
-            this.spdLbl.TabIndex = 9;
-            this.spdLbl.Text = "N/A";
+            this.hspdLbl.AutoSize = true;
+            this.hspdLbl.Location = new System.Drawing.Point(47, 107);
+            this.hspdLbl.Name = "hspdLbl";
+            this.hspdLbl.Size = new System.Drawing.Size(27, 13);
+            this.hspdLbl.TabIndex = 9;
+            this.hspdLbl.Text = "N/A";
             // 
             // headLbl
             // 
@@ -142,9 +146,9 @@
             this.label5.AutoSize = true;
             this.label5.Location = new System.Drawing.Point(6, 107);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(29, 13);
+            this.label5.Size = new System.Drawing.Size(40, 13);
             this.label5.TabIndex = 5;
-            this.label5.Text = "Spd.";
+            this.label5.Text = "H.Spd.";
             // 
             // label4
             // 
@@ -199,7 +203,7 @@
             this.groupBoxTemp.Controls.Add(this.intTempLbl);
             this.groupBoxTemp.Controls.Add(this.label7);
             this.groupBoxTemp.Controls.Add(this.label6);
-            this.groupBoxTemp.Location = new System.Drawing.Point(2, 135);
+            this.groupBoxTemp.Location = new System.Drawing.Point(2, 155);
             this.groupBoxTemp.Name = "groupBoxTemp";
             this.groupBoxTemp.Size = new System.Drawing.Size(159, 54);
             this.groupBoxTemp.TabIndex = 1;
@@ -250,7 +254,7 @@
             this.groupBoxPressure.Controls.Add(this.label8);
             this.groupBoxPressure.Controls.Add(this.pressureLbl);
             this.groupBoxPressure.Controls.Add(this.label9);
-            this.groupBoxPressure.Location = new System.Drawing.Point(2, 195);
+            this.groupBoxPressure.Location = new System.Drawing.Point(2, 215);
             this.groupBoxPressure.Name = "groupBoxPressure";
             this.groupBoxPressure.Size = new System.Drawing.Size(159, 54);
             this.groupBoxPressure.TabIndex = 2;
@@ -299,7 +303,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBoxSystem.Controls.Add(this.vinLbl);
             this.groupBoxSystem.Controls.Add(this.label11);
-            this.groupBoxSystem.Location = new System.Drawing.Point(2, 255);
+            this.groupBoxSystem.Location = new System.Drawing.Point(2, 275);
             this.groupBoxSystem.Name = "groupBoxSystem";
             this.groupBoxSystem.Size = new System.Drawing.Size(159, 37);
             this.groupBoxSystem.TabIndex = 3;
@@ -324,12 +328,30 @@
             this.label11.TabIndex = 15;
             this.label11.Text = "Vin.";
             // 
+            // vspdLbl
+            // 
+            this.vspdLbl.AutoSize = true;
+            this.vspdLbl.Location = new System.Drawing.Point(47, 126);
+            this.vspdLbl.Name = "vspdLbl";
+            this.vspdLbl.Size = new System.Drawing.Size(27, 13);
+            this.vspdLbl.TabIndex = 12;
+            this.vspdLbl.Text = "N/A";
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(6, 126);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(39, 13);
+            this.label13.TabIndex = 11;
+            this.label13.Text = "V.Spd.";
+            // 
             // TelemetryWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
-            this.ClientSize = new System.Drawing.Size(165, 294);
+            this.ClientSize = new System.Drawing.Size(165, 314);
             this.ControlBox = false;
             this.Controls.Add(this.groupBoxSystem);
             this.Controls.Add(this.groupBoxPressure);
@@ -364,7 +386,7 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.Label spdLbl;
+        private System.Windows.Forms.Label hspdLbl;
         private System.Windows.Forms.Label headLbl;
         private System.Windows.Forms.Label altLbl;
         private System.Windows.Forms.Label lngLbl;
@@ -383,6 +405,8 @@
         private System.Windows.Forms.GroupBox groupBoxSystem;
         private System.Windows.Forms.Label vinLbl;
         private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.Label vspdLbl;
+        private System.Windows.Forms.Label label13;
 
     }
 }

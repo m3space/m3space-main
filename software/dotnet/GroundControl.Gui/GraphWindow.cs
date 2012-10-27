@@ -50,7 +50,7 @@ namespace GroundControl.Gui
             m_display.DataSources[3].Samples.Add(new cPoint(m_display.DataSources[3].Samples.Count, telemetry.UtcTimestamp, telemetry.IntTemperature));
             m_display.DataSources[4].Samples.Add(new cPoint(m_display.DataSources[4].Samples.Count, telemetry.UtcTimestamp, telemetry.ExtTemperature));
             m_display.DataSources[5].Samples.Add(new cPoint(m_display.DataSources[5].Samples.Count, telemetry.UtcTimestamp, telemetry.Pressure));
-            m_display.DataSources[6].Samples.Add(new cPoint(m_display.DataSources[6].Samples.Count, telemetry.UtcTimestamp, telemetry.Speed));
+            m_display.DataSources[6].Samples.Add(new cPoint(m_display.DataSources[6].Samples.Count, telemetry.UtcTimestamp, telemetry.HorizontalSpeed));
             m_display.DataSources[7].Samples.Add(new cPoint(m_display.DataSources[7].Samples.Count, telemetry.UtcTimestamp, telemetry.Heading));
             m_display.DataSources[8].Samples.Add(new cPoint(m_display.DataSources[8].Samples.Count, telemetry.UtcTimestamp, telemetry.Satellites));
             m_display.DataSources[9].Samples.Add(new cPoint(m_display.DataSources[9].Samples.Count, telemetry.UtcTimestamp, telemetry.DutyCycle));

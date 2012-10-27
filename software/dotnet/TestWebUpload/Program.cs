@@ -27,7 +27,8 @@ namespace TestWebUpload
             telemetry.GpsAltitude = 300.0f;
             telemetry.PressureAltitude = 280.0f;
             telemetry.Heading = 0.707f;
-            telemetry.Speed = 0.25f;
+            telemetry.HorizontalSpeed = 0.25f;
+            telemetry.VerticalSpeed = 0.0f;
             telemetry.Satellites = 4;
             telemetry.IntTemperature = 23.5f;
             telemetry.ExtTemperature = 16.2f;

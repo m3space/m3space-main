@@ -27,7 +27,8 @@
 		<tr><td>Longitude:</td><td><div id="t_lng"></div></td></tr>
 		<tr><td>Altitude:</td><td><div id="t_galt"></div></td></tr>
 		<tr><td>Heading:</td><td><div id="t_head"></div></td></tr>
-		<tr><td>Speed:</td><td><div id="t_spd"></div></td></tr>
+		<tr><td>HSpeed:</td><td><div id="t_hspd"></div></td></tr>
+		<tr><td>VSpeed:</td><td><div id="t_vspd"></div></td></tr>
 		<tr><td>Sat.:</td><td><div id="t_sat"></div></td></tr>
 		<tr><td>Int. Temp.:</td><td><div id="t_inttmp"></div></td></tr>
 		<tr><td>Ext. Temp.:</td><td><div id="t_exttmp"></div></td></tr>

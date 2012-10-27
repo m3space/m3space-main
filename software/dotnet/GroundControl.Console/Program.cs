@@ -82,7 +82,7 @@ namespace GroundControl.Console
             float lngDecMins = (lngAbs - lngDegs) * 60;
             char lngOri = (telemetry.Latitude >= 0.0f) ? 'E' : 'W';
 
-            System.Console.WriteLine(String.Format("[Telemetry] {0:dd.MM.yyyy HH:mm:ss} Loc:{1}°{2:0.###}'{3} {4}°{5:0.###}'{6} Alt:{7:0.#}m PAlt:{8:0.#}m Head:{9:0.#}° Spd:{10:0.#}m/s Sat:{11} Int:{12:0.#}°C Ext:{13:0.#}°C P:{14:0.####}bar Vin:{15:0.##}V Duty:{16}%",
+            System.Console.WriteLine(String.Format("[Telemetry] {0:dd.MM.yyyy HH:mm:ss} Loc:{1}°{2:0.###}'{3} {4}°{5:0.###}'{6} Alt:{7:0.#}m PAlt:{8:0.#}m Head:{9:0.#}° HSpd:{10:0.#}m/s VSpd:{11:0.#}m/s Sat:{12} Int:{13:0.#}°C Ext:{14:0.#}°C P:{15:0.####}bar Vin:{16:0.##}V Duty:{17}%",
                 telemetry.UtcTimestamp.ToLocalTime(),
                 latDegs,
                 latDecMins,
@@ -93,7 +93,8 @@ namespace GroundControl.Console
                 telemetry.GpsAltitude,
                 telemetry.PressureAltitude,
                 telemetry.Heading * Rad2Deg,
-                telemetry.Speed,
+                telemetry.HorizontalSpeed,
+                telemetry.VerticalSpeed,
                 telemetry.Satellites,
                 telemetry.IntTemperature,
                 telemetry.ExtTemperature,
@@ -120,14 +121,15 @@ namespace GroundControl.Console
         static void SaveTelemetry(TelemetryData telemetry)
         {
             StreamWriter writer = File.AppendText(telemetryFileName);
-            writer.WriteLine(String.Format("{0:dd.MM.yyyy HH:mm:ss};{1:0.####};{2:0.####};{3:0.#};{4:0.#};{5:0.#};{6:0.#};{7};{8:0.#};{9:0.#};{10:0.####};{11:0.##};{12};{13};{14};{15};{16}",
+            writer.WriteLine(String.Format("{0:dd.MM.yyyy HH:mm:ss};{1:0.####};{2:0.####};{3:0.#};{4:0.#};{5:0.#};{6:0.#};{7};{8};{9:0.#};{10:0.#};{11:0.####};{12:0.##};{13};{14};{15};{16}",
                 telemetry.UtcTimestamp,
                 telemetry.Latitude,
                 telemetry.Longitude,
                 telemetry.GpsAltitude,
                 telemetry.PressureAltitude,
                 telemetry.Heading * Rad2Deg,
-                telemetry.Speed,
+                telemetry.HorizontalSpeed,
+                telemetry.VerticalSpeed,
                 telemetry.Satellites,
                 telemetry.IntTemperature,
                 telemetry.ExtTemperature,
@@ -135,7 +137,6 @@ namespace GroundControl.Console
                 telemetry.Vin,
                 telemetry.IntTemperatureRaw,
                 telemetry.ExtTemperatureRaw,
-                telemetry.PressureRaw,
                 telemetry.VinRaw,
                 telemetry.DutyCycle));
             writer.Close();

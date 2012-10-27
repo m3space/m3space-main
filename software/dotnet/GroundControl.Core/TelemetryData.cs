@@ -35,7 +35,12 @@ namespace GroundControl.Core
         /// <summary>
         /// The speed over ground in m/s.
         /// </summary>
-        public float Speed { get; set; }
+        public float HorizontalSpeed { get; set; }
+
+        /// <summary>
+        /// The estimated vertical speed in m/s.
+        /// </summary>
+        public float VerticalSpeed { get; set; }
 
         /// <summary>
         /// The number of visible satellites.
@@ -76,11 +81,6 @@ namespace GroundControl.Core
         /// Raw external temperature (10-bit ADC)
         /// </summary>
         public ushort ExtTemperatureRaw { get; set; }
-
-        /// <summary>
-        /// Raw pressure (10-bit ADC)
-        /// </summary>
-        public ushort PressureRaw { get; set; }
 
         /// <summary>
         /// Raw battery voltage (10-bit ADC)

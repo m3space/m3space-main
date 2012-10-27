@@ -14,14 +14,15 @@
 	
 	try {
 		$dbh = new PDO("mysql:host=$dbhost;dbname=$dbname", $dbuser, $dbpass);
-		$stmt = $dbh->prepare('INSERT INTO live_telemetry (utctimestamp, latitude, longitude, galtitude, paltitude, heading, speed, satellites, inttemperature, exttemperature, pressure, vin) value (:utctimestamp, :latitude, :longitude, :galtitude, :paltitude, :heading, :speed, :satellites, :inttemperature, :exttemperature, :pressure, :vin)');
+		$stmt = $dbh->prepare('INSERT INTO live_telemetry (utctimestamp, latitude, longitude, galtitude, paltitude, heading, hspeed, vspeed, satellites, inttemperature, exttemperature, pressure, vin) value (:utctimestamp, :latitude, :longitude, :galtitude, :paltitude, :heading, :speed, :satellites, :inttemperature, :exttemperature, :pressure, :vin)');
 		$stmt->bindParam(':utctimestamp', $_POST['utctimestamp']);
 		$stmt->bindParam(':latitude', $_POST['latitude']);
 		$stmt->bindParam(':longitude', $_POST['longitude']);
 		$stmt->bindParam(':galtitude', $_POST['galtitude']);
 		$stmt->bindParam(':paltitude', $_POST['paltitude']);
 		$stmt->bindParam(':heading', $_POST['heading']);
-		$stmt->bindParam(':speed', $_POST['speed']);
+		$stmt->bindParam(':hspeed', $_POST['hspeed']);
+		$stmt->bindParam(':vspeed', $_POST['vspeed']);
 		$stmt->bindParam(':satellites', $_POST['satellites']);
 		$stmt->bindParam(':inttemperature', $_POST['inttemperature']);
 		$stmt->bindParam(':exttemperature', $_POST['exttemperature']);

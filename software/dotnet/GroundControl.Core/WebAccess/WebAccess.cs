@@ -55,7 +55,8 @@ namespace GroundControl.Core.WebAccess
                 postParameters.Add("galtitude", telemetry.GpsAltitude);
                 postParameters.Add("paltitude", telemetry.PressureAltitude);
                 postParameters.Add("heading", telemetry.Heading);
-                postParameters.Add("speed", telemetry.Speed);
+                postParameters.Add("hspeed", telemetry.HorizontalSpeed);
+                postParameters.Add("vspeed", telemetry.VerticalSpeed);
                 postParameters.Add("satellites", telemetry.Satellites);
                 postParameters.Add("inttemperature", telemetry.IntTemperature);
                 postParameters.Add("exttemperature", telemetry.ExtTemperature);

@@ -8,7 +8,8 @@ namespace BalloonFirmware
         public GpsPoint GpsData;
         public ushort IntTemperatureRaw;
         public ushort ExtTemperatureRaw;
-        public ushort PressureRaw;
+        public ushort Pressure;
+        public ushort PressureAltitude;
         public ushort VinRaw;
         public byte DutyCycle;
     }

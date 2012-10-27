@@ -130,7 +130,7 @@ namespace GroundControl.Gui
             float lngDecMins = (lngAbs - lngDegs) * 60;
             char lngOri = (data.Latitude >= 0.0f) ? 'E' : 'W';
 
-            string str = String.Format("[Telemetry] {0:yyyy/MM/dd HH:mm:ss} Loc:{1}°{2:0.###}'{3} {4}°{5:0.###}'{6} Alt:{7:0.#}m PAlt:{8:0.#}m Head:{9:0.#}° Spd:{10:0.#}m/s Sat:{11} Int:{12:0.#}°C Ext:{13:0.#}°C P:{14:0.####}bar Vin:{15:0.##}V Duty:{16}%",
+            string str = String.Format("[Telemetry] {0:dd.MM.yyyy HH:mm:ss} Loc:{1}°{2:0.###}'{3} {4}°{5:0.###}'{6} Alt:{7:0.#}m PAlt:{8:0.#}m Head:{9:0.#}° HSpd:{10:0.#}m/s VSpd:{11:0.#}m/s Sat:{12} Int:{13:0.#}°C Ext:{14:0.#}°C P:{15:0.####}bar Vin:{16:0.##}V Duty:{17}%",
                 data.UtcTimestamp.ToLocalTime(),
                 latDegs,
                 latDecMins,
@@ -141,7 +141,8 @@ namespace GroundControl.Gui
                 data.GpsAltitude,
                 data.PressureAltitude,
                 data.Heading * Rad2Deg,
-                data.Speed,
+                data.HorizontalSpeed,
+                data.VerticalSpeed,
                 data.Satellites,
                 data.IntTemperature,
                 data.ExtTemperature,

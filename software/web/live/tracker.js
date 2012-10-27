@@ -56,7 +56,8 @@ function refresh() {
 				$('#t_lng').html(last.longitude + '&deg;');
 				$('#t_galt').html(last.galtitude + ' m');
 				$('#t_head').html(last.heading);
-				$('#t_spd').html(last.speed + ' m/s');
+				$('#t_hspd').html(last.hspeed + ' m/s');
+				$('#t_vspd').html(last.vspeed + ' m/s');
 				$('#t_sat').html(last.satellites);
 				$('#t_inttmp').html(last.inttemperature + '&deg;C');
 				$('#t_exttmp').html(last.exttemperature + '&deg;C');

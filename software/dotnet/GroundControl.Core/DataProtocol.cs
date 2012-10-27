@@ -81,7 +81,7 @@ namespace GroundControl.Core
                             }
                             else
                             {
-                                OnError(String.Format("Unable to decode telemetry. Data size is {0}, expected 34.", payloadSize));
+                                OnError(String.Format("Unable to decode telemetry. Data size is {0}, expected 39.", payloadSize));
                             }
                             break;
 

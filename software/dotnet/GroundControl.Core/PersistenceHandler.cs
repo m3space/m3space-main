@@ -92,7 +92,7 @@ namespace GroundControl.Core
             if (!File.Exists(filename))
             {
                 StreamWriter writer = File.CreateText(filename);
-                writer.WriteLine("UtcDate;Lat;Long;GpsAlt;PressureAlt;Heading;Speed;Sat;IntTemp;ExtTemp;Press;Vin;IntTempRaw;ExtTempRaw;PressRaw;VinRaw;DutyCycle");
+                writer.WriteLine("UtcDate;Lat;Long;GpsAlt;PressureAlt;Heading;HSpeed;VSpeed;Sat;IntTemp;ExtTemp;Press;Vin;IntTempRaw;ExtTempRaw;VinRaw;DutyCycle");
                 writer.Close();
             }
             telemetryFileName = filename;
@@ -108,14 +108,15 @@ namespace GroundControl.Core
             if (telemetryFileName != null)
             {
                 StreamWriter writer = File.AppendText(telemetryFileName);
-                writer.WriteLine(String.Format("{0:dd.MM.yyyy HH:mm:ss};{1:0.####};{2:0.####};{3:0.#};{4:0.#};{5:0.#};{6:0.#};{7};{8:0.#};{9:0.#};{10:0.####};{11:0.##};{12};{13};{14};{15};{16}",
+                writer.WriteLine(String.Format("{0:dd.MM.yyyy HH:mm:ss};{1:0.####};{2:0.####};{3:0.#};{4:0.#};{5:0.#};{6:0.#};{7:0.#};{8};{9:0.#};{10:0.#};{11:0.####};{12:0.##};{13};{14};{15};{16}",
                     telemetry.UtcTimestamp,
                     telemetry.Latitude,
                     telemetry.Longitude,
                     telemetry.GpsAltitude,
                     telemetry.PressureAltitude,
                     telemetry.Heading * Rad2Deg,
-                    telemetry.Speed,
+                    telemetry.HorizontalSpeed,
+                    telemetry.VerticalSpeed,
                     telemetry.Satellites,
                     telemetry.IntTemperature,
                     telemetry.ExtTemperature,
@@ -123,7 +124,6 @@ namespace GroundControl.Core
                     telemetry.Vin,
                     telemetry.IntTemperatureRaw,
                     telemetry.ExtTemperatureRaw,
-                    telemetry.PressureRaw,
                     telemetry.VinRaw,
                     telemetry.DutyCycle));
                 writer.Close();

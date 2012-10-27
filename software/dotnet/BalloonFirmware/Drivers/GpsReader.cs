@@ -139,7 +139,7 @@ namespace BalloonFirmware.Drivers
                         m_gpsPoint.Longitude = longitude;
                     }
 
-                    m_gpsPoint.Speed = (float)Double.Parse(parts[7]) * 0.51444f; // knots to m/s
+                    m_gpsPoint.HorizontalSpeed = (float)Double.Parse(parts[7]) * 0.51444f; // knots to m/s
                     m_gpsPoint.Heading = (ushort)double.Parse(parts[8]);
                 }
                 catch (Exception)

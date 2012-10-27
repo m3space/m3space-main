@@ -29,7 +29,6 @@ namespace BalloonFirmware
 
         private AnalogIn tempSensorInt;
         private AnalogIn tempSensorExt;
-        private AnalogIn pressureSensor;
         private AnalogIn vInSensor;
 
         private TelemetryData cachedTelemetry;
@@ -64,7 +63,6 @@ namespace BalloonFirmware
             sdStorage = new PersistentStorage("SD");
             tempSensorInt = new AnalogIn((AnalogIn.Pin)FEZ_Pin.AnalogIn.An4);
             tempSensorExt = new AnalogIn((AnalogIn.Pin)FEZ_Pin.AnalogIn.An5);
-            pressureSensor = new AnalogIn((AnalogIn.Pin)FEZ_Pin.AnalogIn.An3);
             vInSensor = new AnalogIn((AnalogIn.Pin)FEZ_Pin.AnalogIn.An2);
 
             gpsPort = new SerialPort("COM3", 38400, Parity.None, 8, StopBits.One);
@@ -148,6 +146,8 @@ namespace BalloonFirmware
         private void GpsDataHandler(GpsPoint gpsPoint)
         {
             Monitor.Enter(gpsLock);
+            // compute vertical speed
+            gpsPoint.VerticalSpeed = (gpsPoint.Altitude - cachedGpsPoint.Altitude) / ((gpsPoint.UtcTimestamp.Ticks - cachedGpsPoint.UtcTimestamp.Ticks) * 1e-7f);             
             this.cachedGpsPoint = gpsPoint;
             Monitor.Exit(gpsLock);
         }
@@ -224,7 +224,10 @@ namespace BalloonFirmware
                 // read sensor values
                 cachedTelemetry.IntTemperatureRaw = (ushort)tempSensorInt.Read();
                 cachedTelemetry.ExtTemperatureRaw = (ushort)tempSensorExt.Read();
-                cachedTelemetry.PressureRaw = (ushort)pressureSensor.Read();
+
+                cachedTelemetry.Pressure = 0;           // TODO read pressure
+                cachedTelemetry.PressureAltitude = 0;   // TODO read altitude
+
                 cachedTelemetry.VinRaw = (ushort)vInSensor.Read();
                 Monitor.Enter(gpsLock);
                 cachedTelemetry.GpsData = cachedGpsPoint;
@@ -257,12 +260,14 @@ namespace BalloonFirmware
                 data.GpsData.Latitude.ToString("F5") + ';' +
                 data.GpsData.Longitude.ToString("F5") + ';' +
                 data.GpsData.Altitude.ToString() + ';' +
-                data.GpsData.Speed.ToString("F2") + ';' +
+                data.GpsData.HorizontalSpeed.ToString("F2") + ';' +
+                data.GpsData.VerticalSpeed.ToString("F2") + ';' +
                 data.GpsData.Heading.ToString() + ';' +
                 data.GpsData.Satellites.ToString() + ';' +
                 data.IntTemperatureRaw.ToString() + ';' +
                 data.ExtTemperatureRaw.ToString() + ';' +
-                data.PressureRaw.ToString() + ';' +
+                data.Pressure.ToString() + ';' +
+                data.PressureAltitude.ToString() + ';' +
                 data.VinRaw.ToString() + ';' +
                 data.DutyCycle.ToString() +
                 "\r\n";
