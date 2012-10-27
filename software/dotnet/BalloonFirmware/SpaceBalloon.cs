@@ -3,13 +3,13 @@ using System.IO;
 using System.IO.Ports;
 using System.Text;
 using System.Threading;
-using CameraController;
 using GHIElectronics.NETMF.FEZ;
 using GHIElectronics.NETMF.Hardware;
 using GHIElectronics.NETMF.IO;
 using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;
 using Microsoft.SPOT.IO;
+using BalloonFirmware.Drivers;
 
 
 namespace BalloonFirmware

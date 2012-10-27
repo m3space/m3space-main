@@ -35,9 +35,10 @@
     <Compile Include="BitConverter.cs" />
     <Compile Include="BoundedBuffer.cs" />
     <Compile Include="DataProtocol.cs" />
+    <Compile Include="Drivers\Barometer.cs" />
     <Compile Include="GpsPoint.cs" />
-    <Compile Include="LinkspriteCamera.cs" />
-    <Compile Include="GpsReader.cs" />
+    <Compile Include="Drivers\LinkspriteCamera.cs" />
+    <Compile Include="Drivers\GpsReader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Resources.Designer.cs">

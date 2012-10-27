@@ -1,6 +1,6 @@
 using System;
 
-namespace BalloonFirmware
+namespace BalloonFirmware.Drivers
 {
     public class GpsReader
     {

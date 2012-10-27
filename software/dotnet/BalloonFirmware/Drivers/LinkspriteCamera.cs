@@ -3,7 +3,7 @@ using System.IO.Ports;
 using System.Threading;
 using Microsoft.SPOT;
 
-namespace CameraController
+namespace BalloonFirmware.Drivers
 {
     public class LinkspriteCamera : IDisposable
     {
