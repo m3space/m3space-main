@@ -38,6 +38,7 @@
             this.loadDataMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.loadPredictedMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.clearDataMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.connectGPSToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.captureMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.startCaptureMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -110,6 +111,7 @@
             this.loadDataMenuItem,
             this.loadPredictedMenuItem,
             this.clearDataMenuItem,
+            this.connectGPSToolStripMenuItem,
             this.exitMenuItem});
             this.fileMenuItem.Name = "fileMenuItem";
             this.fileMenuItem.Size = new System.Drawing.Size(37, 20);
@@ -135,6 +137,13 @@
             this.clearDataMenuItem.Size = new System.Drawing.Size(191, 22);
             this.clearDataMenuItem.Text = "&Clear data";
             this.clearDataMenuItem.Click += new System.EventHandler(this.clearDataMenuItem_Click);
+            // 
+            // connectGPSToolStripMenuItem
+            // 
+            this.connectGPSToolStripMenuItem.Name = "connectGPSToolStripMenuItem";
+            this.connectGPSToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
+            this.connectGPSToolStripMenuItem.Text = "Connect GPS";
+            this.connectGPSToolStripMenuItem.Click += new System.EventHandler(this.connectGPSToolStripMenuItem_Click);
             // 
             // exitMenuItem
             // 
@@ -184,7 +193,7 @@
             this.eventLogMenuItem.Checked = true;
             this.eventLogMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.eventLogMenuItem.Name = "eventLogMenuItem";
-            this.eventLogMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.eventLogMenuItem.Size = new System.Drawing.Size(131, 22);
             this.eventLogMenuItem.Text = "Event &Log";
             this.eventLogMenuItem.Click += new System.EventHandler(this.eventLogMenuItem_Click);
             // 
@@ -193,7 +202,7 @@
             this.liveImageMenuItem.Checked = true;
             this.liveImageMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.liveImageMenuItem.Name = "liveImageMenuItem";
-            this.liveImageMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.liveImageMenuItem.Size = new System.Drawing.Size(131, 22);
             this.liveImageMenuItem.Text = "Live &Image";
             this.liveImageMenuItem.Click += new System.EventHandler(this.liveImageMenuItem_Click);
             // 
@@ -202,7 +211,7 @@
             this.mapMenuItem.Checked = true;
             this.mapMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.mapMenuItem.Name = "mapMenuItem";
-            this.mapMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.mapMenuItem.Size = new System.Drawing.Size(131, 22);
             this.mapMenuItem.Text = "&Map";
             this.mapMenuItem.Click += new System.EventHandler(this.mapMenuItem_Click);
             // 
@@ -211,7 +220,7 @@
             this.telemetryMenuItem.Checked = true;
             this.telemetryMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.telemetryMenuItem.Name = "telemetryMenuItem";
-            this.telemetryMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.telemetryMenuItem.Size = new System.Drawing.Size(131, 22);
             this.telemetryMenuItem.Text = "&Telemetry";
             this.telemetryMenuItem.Click += new System.EventHandler(this.telemetryMenuItem_Click);
             // 
@@ -220,7 +229,7 @@
             this.graphMenuItem.Checked = true;
             this.graphMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.graphMenuItem.Name = "graphMenuItem";
-            this.graphMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.graphMenuItem.Size = new System.Drawing.Size(131, 22);
             this.graphMenuItem.Text = "Graph";
             this.graphMenuItem.Click += new System.EventHandler(this.graphMenuItem_Click);
             // 
@@ -284,6 +293,7 @@
         private System.Windows.Forms.ToolStripMenuItem preferencesMenuItem;
         private System.Windows.Forms.ToolStripStatusLabel filenameLbl;
         private System.Windows.Forms.ToolStripMenuItem graphMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem connectGPSToolStripMenuItem;
     }
 }
 

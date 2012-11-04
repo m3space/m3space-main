@@ -15,6 +15,7 @@ using GMap.NET;
 using GMap.NET.WindowsForms;
 using GMap.NET.WindowsForms.Markers;
 using GroundControl.Core.WebAccess;
+using NMEA;
 
 namespace GroundControl.Gui
 {
@@ -37,14 +38,18 @@ namespace GroundControl.Gui
         private DataCache dataCache;
         private WebAccess webAccess;
 
+        private NMEA.GPSReceiverWrapper gpsReceiver;
+
         private DateTime startTime;
         private Timer elapsedTimer;
 
-        private string comPort;
+        private string comPortRadio;
+        private string comPortGPS;
         private string dataDirectory;
 
         private delegate void WriteString(string str);
         private delegate void VoidDelegate();
+        private delegate void PositionDelegate(double latitude, double longitude);
 
         /// <summary>
         /// Cosntructor.
@@ -68,14 +73,16 @@ namespace GroundControl.Gui
             telemetryWindow.MdiParent = this;            
 
             mapWindow = new MapWindow();
-            mapWindow.MdiParent = this;            
+            mapWindow.MdiParent = this;
 
-            comPort = Settings.Default.ComPort;
             if (Settings.Default.DataDirectory.Equals(""))
             {
                 Settings.Default.DataDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + Path.DirectorySeparatorChar + "m3space";
             }
             dataDirectory = Settings.Default.DataDirectory;
+
+            comPortGPS = Settings.Default.ComPortGPS;
+            comPortRadio = Settings.Default.ComPortRadio;
 
             graphWindow.Show();
             logWindow.Show();
@@ -86,7 +93,7 @@ namespace GroundControl.Gui
             webAccess = new WebAccess();
             persistHandler = new PersistenceHandler();
             persistHandler.DataDirectory = dataDirectory;
-            transceiver = new DataTransceiver(comPort);
+            transceiver = new DataTransceiver(comPortRadio);
             protocol = new DataProtocol();
             protocol.Error += HandleError;
             protocol.TelemetryReceived += HandleTelemetry;
@@ -96,6 +103,10 @@ namespace GroundControl.Gui
             transceiver.FrameReceived += protocol.DecodeFrame;
             transceiver.Error += HandleError;
             webAccess.Error += HandleError;
+
+            gpsReceiver = new GPSReceiverWrapper();
+            gpsReceiver.PortSettings = new SerialPortSettings(comPortGPS, BaudRate.baudRate57600, System.IO.Ports.Parity.None, DataBits.dataBits8, System.IO.Ports.StopBits.One, System.IO.Ports.Handshake.None);
+            gpsReceiver.NewFix += new GPSReceiverWrapper.NewFixHandler(gpsReceiver_NewFix);
 
             webAccess.Url = Settings.Default.WebAccessUrl;
             if (Settings.Default.WebAccessEnabled)
@@ -109,6 +120,11 @@ namespace GroundControl.Gui
             elapsedTimer.Tick += ElapsedTick;
 
             RestoreSettings();
+        }
+
+        private void gpsReceiver_NewFix(DateTime fixTime, GeographicDimension latitude, GeographicDimension longitude)
+        {
+            mapWindow.Invoke(new PositionDelegate(mapWindow.UpdateGroundPosition), new object[] { latitude.Angle, longitude.Angle });
         }
 
         /// <summary>
@@ -327,7 +343,7 @@ namespace GroundControl.Gui
                 preferencesMenuItem.Enabled = false;
                 transceiverStateLbl.Text = "Started";
                 elapsedTimer.Start();
-                logWindow.WriteLine("Transceiver started on " + comPort + ".");
+                logWindow.WriteLine("Transceiver started on " + comPortRadio + ".");
             }
             catch (Exception ex)
             {
@@ -384,9 +400,9 @@ namespace GroundControl.Gui
                 persistHandler.DataDirectory = dataDirectory;
                 Settings.Default.DataDirectory = dataDirectory;
                 
-                comPort = dialog.ComPort;
-                transceiver.SetPort(comPort);
-                Settings.Default.ComPort = comPort;
+                comPortRadio = dialog.ComPortRadio;
+                transceiver.SetPort(comPortRadio);
+                Settings.Default.ComPortRadio = comPortRadio;
 
                 Settings.Default.WebAccessUrl = dialog.WebAccessUrl;
                 webAccess.Url = dialog.WebAccessUrl;
@@ -401,6 +417,10 @@ namespace GroundControl.Gui
                     protocol.ImageComplete -= webAccess.UploadLiveImage;
                 }
                 Settings.Default.WebAccessEnabled = dialog.WebAccessEnabled;
+
+                comPortGPS = dialog.ComPortGPS;
+                gpsReceiver.PortSettings.PortName = comPortGPS;
+                Settings.Default.ComPortGPS = comPortGPS;
 
                 Settings.Default.Save();
             }
@@ -470,18 +490,25 @@ namespace GroundControl.Gui
                             }
                         }
                     }
+                    else if (placemark.Name.Equals("Balloon Launch"))
+                    {
+                        foreach (var point in placemark.Flatten().OfType<SharpKml.Dom.Point>())
+                        {
+                            markers.Add(new GMapMarkerImage(new PointLatLng(point.Coordinate.Latitude, point.Coordinate.Longitude), Properties.Resources.Ascending));
+                        }
+                    }
                     else if (placemark.Name.Equals("Balloon Burst"))
                     {
                         foreach (var point in placemark.Flatten().OfType<SharpKml.Dom.Point>())
                         {
-                            markers.Add(new GMapMarkerGoogleGreen(new PointLatLng(point.Coordinate.Latitude, point.Coordinate.Longitude)));
+                            markers.Add(new GMapMarkerImage(new PointLatLng(point.Coordinate.Latitude, point.Coordinate.Longitude), Properties.Resources.Descending));
                         }                        
                     }
                     else if (placemark.Name.Equals("Predicted Balloon Landing"))
                     {
                         foreach (var point in placemark.Flatten().OfType<SharpKml.Dom.Point>())
                         {
-                            markers.Add(new GMapMarkerGoogleRed(new PointLatLng(point.Coordinate.Latitude, point.Coordinate.Longitude)));
+                            markers.Add(new GMapMarkerImage(new PointLatLng(point.Coordinate.Latitude, point.Coordinate.Longitude), Properties.Resources.Descending));
                         }
                     }
                 }
@@ -493,10 +520,13 @@ namespace GroundControl.Gui
             }
         }
 
-
-
-
-
-        
+        private void connectGPSToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (gpsReceiver.IsOpen)
+            {
+                gpsReceiver.Close();
+            }
+            gpsReceiver.Open();
+        }
     }
 }

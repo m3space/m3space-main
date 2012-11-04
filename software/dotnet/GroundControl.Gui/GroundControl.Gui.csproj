@@ -71,6 +71,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GMapMarkerImage.cs" />
     <Compile Include="GraphWindow.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -144,6 +145,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="app.config" />
     <None Include="Properties\Settings.settings">
@@ -164,6 +166,10 @@
     <ProjectReference Include="..\GroundControl.Core\GroundControl.Core.csproj">
       <Project>{D977449E-2501-4EB9-95CA-11FB1D025CCC}</Project>
       <Name>GroundControl.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NmeaParser\NmeaParser.csproj">
+      <Project>{1B36FAA2-6648-42FF-AD91-116E7E730793}</Project>
+      <Name>NmeaParser</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -187,6 +193,15 @@
       <ProductName>Windows Installer 3.1</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\Receiver.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\Ascending.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\Descending.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -65,9 +65,9 @@ namespace BalloonFirmware
             tempSensorExt = new AnalogIn((AnalogIn.Pin)FEZ_Pin.AnalogIn.An5);
             vInSensor = new AnalogIn((AnalogIn.Pin)FEZ_Pin.AnalogIn.An2);
 
-            gpsPort = new SerialPort("COM3", 38400, Parity.None, 8, StopBits.One);
+            gpsPort = new SerialPort("COM4", 38400, Parity.None, 8, StopBits.One);
             xBeePort = new SerialPort("COM1", 38400, Parity.None, 8, StopBits.One);
-            cameraPort = new SerialPort("COM4", 38400, Parity.None, 8, StopBits.One);
+            cameraPort = new SerialPort("COM3", 38400, Parity.None, 8, StopBits.One);
 
             currentImageTimestamp = DateTime.Now;
             lastSentImage = DateTime.Now;
@@ -147,7 +147,11 @@ namespace BalloonFirmware
         {
             Monitor.Enter(gpsLock);
             // compute vertical speed
-            gpsPoint.VerticalSpeed = (gpsPoint.Altitude - cachedGpsPoint.Altitude) / ((gpsPoint.UtcTimestamp.Ticks - cachedGpsPoint.UtcTimestamp.Ticks) * 1e-7f);             
+            float timediff = (gpsPoint.UtcTimestamp.Ticks - cachedGpsPoint.UtcTimestamp.Ticks) * 1e-7f;
+            if (timediff != 0)
+                gpsPoint.VerticalSpeed = (gpsPoint.Altitude - cachedGpsPoint.Altitude) / timediff;
+            else
+                gpsPoint.VerticalSpeed = 0;
             this.cachedGpsPoint = gpsPoint;
             Monitor.Exit(gpsLock);
         }

@@ -19,6 +19,7 @@ namespace GroundControl.Gui
         private GMapControl map;
         private GMapOverlay balloonOverlay;
         private GMapOverlay predictionOverlay;
+        private GMapOverlay groundControlOverlay;
 
         private GMapMarker balloonMarker;
         private GMapRoute balloonCourse;
@@ -45,9 +46,13 @@ namespace GroundControl.Gui
 
             balloonOverlay = new GMapOverlay(map, "Balloon");
             predictionOverlay = new GMapOverlay(map, "Prediction");
+            groundControlOverlay = new GMapOverlay(map, "GroundControl");
+            
 
             map.Overlays.Add(balloonOverlay);
             map.Overlays.Add(predictionOverlay);
+            map.Overlays.Add(groundControlOverlay);
+            
 
             balloonCourse = new GMapRoute(new List<PointLatLng>(), "BalloonCourse");
             balloonCourse.Stroke = new Pen(Color.DarkBlue, 2.0f);
@@ -55,6 +60,8 @@ namespace GroundControl.Gui
             balloonMarker = new GMapMarkerGoogleRed(map.Position);
             balloonOverlay.Markers.Add(balloonMarker);
             balloonOverlay.Routes.Add(balloonCourse);
+
+            groundControlOverlay.Markers.Add(new GMapMarkerImage(map.Position, Properties.Resources.Receiver));
 
             mapTypeDropDown.SelectedIndex = 0;
 
@@ -67,6 +74,11 @@ namespace GroundControl.Gui
             balloonCourse.Points.Add(mapPoint);
             balloonMarker.Position = mapPoint;
             map.Position = mapPoint;
+        }
+
+        public void UpdateGroundPosition(double latitude, double longitude)
+        {
+            groundControlOverlay.Markers.First().Position = new PointLatLng(latitude, longitude);
         }
 
         public void Clear()
@@ -123,6 +135,25 @@ namespace GroundControl.Gui
                     map.MapProvider = GMapProviders.GoogleMap;
                     break;
             }
+        }
+
+        private void layerToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
+        {
+            ToolStripMenuItem layer = (System.Windows.Forms.ToolStripMenuItem)sender;
+
+            switch (layer.Text)
+            {
+                case "Prediction":
+                    predictionOverlay.IsVisibile = layer.Checked;
+                    break;
+                case "Balloon":
+                    balloonOverlay.IsVisibile = layer.Checked;
+                    break;
+                case "GroundControl":
+                    groundControlOverlay.IsVisibile = layer.Checked;
+                    break;
+            }
+            map.Refresh();
         }
     }
 }

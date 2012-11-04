@@ -19,7 +19,9 @@ namespace GroundControl.Gui
 
         public string DataDirectory { get { return dataDirBox.Text; } }
 
-        public string ComPort { get { return comPortBox.Text; } }
+        public string ComPortRadio { get { return comPortRadioBox.Text; } }
+
+        public string ComPortGPS { get { return comPortGPSBox.Text; } }
 
         public string WebAccessUrl { get { return webAccessBox.Text; } }
 
@@ -28,7 +30,8 @@ namespace GroundControl.Gui
         private void PreferencesDialog_Load(object sender, EventArgs e)
         {
             dataDirBox.Text = Settings.Default.DataDirectory;
-            comPortBox.Text = Settings.Default.ComPort;
+            comPortRadioBox.Text = Settings.Default.ComPortRadio;
+            comPortGPSBox.Text = Settings.Default.ComPortGPS;
             webAccessBox.Text = Settings.Default.WebAccessUrl;
             webAccessCheck.Checked = Settings.Default.WebAccessEnabled;
         }

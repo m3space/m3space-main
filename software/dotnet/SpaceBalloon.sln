@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestWebUpload", "TestWebUpl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphLib", "GraphLib\GraphLib.csproj", "{0C0A1F4D-1363-4544-A7C5-196C76D26CCA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NmeaParser", "NmeaParser\NmeaParser.csproj", "{1B36FAA2-6648-42FF-AD91-116E7E730793}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -85,6 +87,16 @@ Global
 		{0C0A1F4D-1363-4544-A7C5-196C76D26CCA}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{0C0A1F4D-1363-4544-A7C5-196C76D26CCA}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{0C0A1F4D-1363-4544-A7C5-196C76D26CCA}.Release|x86.ActiveCfg = Release|Any CPU
+		{1B36FAA2-6648-42FF-AD91-116E7E730793}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1B36FAA2-6648-42FF-AD91-116E7E730793}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1B36FAA2-6648-42FF-AD91-116E7E730793}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{1B36FAA2-6648-42FF-AD91-116E7E730793}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{1B36FAA2-6648-42FF-AD91-116E7E730793}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{1B36FAA2-6648-42FF-AD91-116E7E730793}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1B36FAA2-6648-42FF-AD91-116E7E730793}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1B36FAA2-6648-42FF-AD91-116E7E730793}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{1B36FAA2-6648-42FF-AD91-116E7E730793}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{1B36FAA2-6648-42FF-AD91-116E7E730793}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -30,12 +30,12 @@ namespace GroundControl.Gui.Properties {
         [global::System.Configuration.SettingsDescriptionAttribute("COM port name")]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("COM1")]
-        public string ComPort {
+        public string ComPortRadio {
             get {
-                return ((string)(this["ComPort"]));
+                return ((string)(this["ComPortRadio"]));
             }
             set {
-                this["ComPort"] = value;
+                this["ComPortRadio"] = value;
             }
         }
         
@@ -220,6 +220,18 @@ namespace GroundControl.Gui.Properties {
             }
             set {
                 this["GraphWindowSize"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("COM2")]
+        public string ComPortGPS {
+            get {
+                return ((string)(this["ComPortGPS"]));
+            }
+            set {
+                this["ComPortGPS"] = value;
             }
         }
     }
