@@ -8,6 +8,7 @@ Prop4=31,i2cdevlib/Arduino/MPU6050 at master +ALc- jrowberg/i2cdevlib +ALc- GitH
 [{A7AF692E-098D-4C08-A225-D433CA835ED0}]
 Prop5=3,0
 Prop9=19,0
+Prop2=65,2C0000000000000001000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF86010000110000006A070000320400005C
 [InternetShortcut]
 URL=https://github.com/jrowberg/i2cdevlib/tree/master/Arduino/MPU6050
 IDList=
