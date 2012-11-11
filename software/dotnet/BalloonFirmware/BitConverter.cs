@@ -52,6 +52,13 @@ namespace BalloonFirmware
                 value[index + 1] << 8);
         }
 
+        public static short ToInt16BigEndian(byte[] value, int index)
+        {
+            return (short)(
+                value[index + 1] |
+                value[index] << 8);
+        }
+
         public static uint ToUInt32(byte[] value, int index)
         {
             return (uint)(
