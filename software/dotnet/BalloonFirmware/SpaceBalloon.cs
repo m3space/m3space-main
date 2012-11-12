@@ -19,6 +19,7 @@ namespace BalloonFirmware
         private const int TELEMETRY_TX_INTERVAL = 5;
         private const int IMAGE_TX_INTERVAL = 5;
         private const int IMAGE_CHUNK_SIZE = 60;
+        private const int MOTION_BUFFER_SIZE = 10;
 
         private BoundedBuffer txQueue;
         private byte[] txBuffer;
@@ -26,6 +27,7 @@ namespace BalloonFirmware
 
         private PersistentStorage sdStorage;
         private string telemetryFileName;
+        private string motionFileName;
 
         private AnalogIn tempSensorInt;
         private AnalogIn tempSensorExt;
@@ -37,6 +39,7 @@ namespace BalloonFirmware
         private SerialPort gpsPort;
         private SerialPort xBeePort;
         private SerialPort cameraPort;
+        private SerialPort barometerPort;
 
         private byte xBeeDutyCycle;
         private DateTime lastXBeeResetCheck;
@@ -48,8 +51,17 @@ namespace BalloonFirmware
         
         private GpsReader gps;
 
+        private Mpu6050 mpu6050;
+        private MotionData[] motionBuffer;
+        private int motionBufferIndex;
+
+        private Barometer barometer;
+        int cachedPressureAltitude;
+        int cachedPressure;
+
         private object gpsLock = new object();
         private object dutyCycleLock = new object();
+        private object barometerLock = new object();
         private AutoResetEvent waitTimeSync;
 
         /// <summary>
@@ -68,6 +80,7 @@ namespace BalloonFirmware
             gpsPort = new SerialPort("COM4", 38400, Parity.None, 8, StopBits.One);
             xBeePort = new SerialPort("COM1", 38400, Parity.None, 8, StopBits.One);
             cameraPort = new SerialPort("COM3", 38400, Parity.None, 8, StopBits.One);
+            barometerPort = new SerialPort("COM2", 9600, Parity.None, 8, StopBits.One);
 
             currentImageTimestamp = DateTime.Now;
             lastSentImage = DateTime.Now;
@@ -78,6 +91,14 @@ namespace BalloonFirmware
             gps = new GpsReader();
             gps.GpsDataReceived += SetTimeFromGps;
 
+            mpu6050 = new Mpu6050();
+            motionBuffer = new MotionData[MOTION_BUFFER_SIZE];
+            motionBufferIndex = 0;
+
+            barometer = new Barometer(barometerPort);
+            cachedPressureAltitude = 0;
+            cachedPressure = 0;
+
             waitTimeSync = new AutoResetEvent(false);
         }
 
@@ -86,24 +107,48 @@ namespace BalloonFirmware
         /// Initializes the balloon software.
         /// </summary>
         public void Initialize()
-        {
-            sdStorage.MountFileSystem();
-            sdRootDirectory = VolumeInfo.GetVolumes()[0].RootDirectory;
-            telemetryFileName = sdRootDirectory + @"\telemetry.csv";
-            
+        { 
+            // create threads
             Thread gpsThread = new Thread(new ThreadStart(StartGpsThread));
             Thread transmitThread = new Thread(new ThreadStart(StartTransmitThread));
             Thread telemetryThread = new Thread(new ThreadStart(StartTelemetryThread));
             Thread cameraThread = new Thread(new ThreadStart(StartCameraThread));
+            Thread motionThread = new Thread(new ThreadStart(StartMotionThread));
+            Thread barometerThread = new Thread(new ThreadStart(StartBarometerThread));
 
+            // start GPS thread to get time.
             gpsThread.Start();
 
             // wait until system time is synchronized.
             waitTimeSync.WaitOne();
 
+            // initialize SD card files
+            string now = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+            sdStorage.MountFileSystem();            
+            sdRootDirectory = VolumeInfo.GetVolumes()[0].RootDirectory;
+            telemetryFileName = sdRootDirectory + @"\telemetry_" + now + ".csv";
+            motionFileName = sdRootDirectory + @"\motiondata_" + now + ".csv";
+
+            string text = "Utc;Lat;Lng;Alt;HSpd;VSpd;Head;Sat;IntTemp;ExtTemp;Pressure;PAlt;Vin;Duty\r\n";
+            FileStream fileHandle = new FileStream(telemetryFileName, FileMode.OpenOrCreate);
+            byte[] writeData = Encoding.UTF8.GetBytes(text);
+            fileHandle.Position = fileHandle.Length;
+            fileHandle.Write(writeData, 0, writeData.Length);
+            fileHandle.Close();
+
+            text = "Utc;Ax;Ay;Az;Gx;Gy;Gz\r\n";
+            fileHandle = new FileStream(motionFileName, FileMode.OpenOrCreate);
+            writeData = Encoding.UTF8.GetBytes(text);
+            fileHandle.Position = fileHandle.Length;
+            fileHandle.Write(writeData, 0, writeData.Length);
+            fileHandle.Close();
+
+            // start all threads
             transmitThread.Start();
             telemetryThread.Start();
-            cameraThread.Start();            
+            cameraThread.Start();
+            motionThread.Start();
+            barometerThread.Start();
         }
 
 
@@ -239,6 +284,10 @@ namespace BalloonFirmware
                 Monitor.Enter(dutyCycleLock);
                 cachedTelemetry.DutyCycle = xBeeDutyCycle;
                 Monitor.Exit(dutyCycleLock);
+                Monitor.Enter(barometerLock);
+                cachedTelemetry.PressureAltitude = (ushort)cachedPressureAltitude;
+                cachedTelemetry.Pressure = (ushort)cachedPressure;
+                Monitor.Exit(barometerLock);
                 StoreTelemetry(cachedTelemetry);
                 count--;
                 if (count == 0)
@@ -250,6 +299,74 @@ namespace BalloonFirmware
 
                 Thread.Sleep(1000);
             }
+        }
+
+        /// <summary>
+        /// Starts the gyro/accelerometer thread.
+        /// </summary>
+        private void StartMotionThread()
+        {
+            mpu6050.Initialize();
+            while (true)
+            {
+                if (mpu6050.GetMotionData(motionBuffer[motionBufferIndex++]))
+                {
+                    if (motionBufferIndex == MOTION_BUFFER_SIZE)
+                    {
+                        StoreMotionBuffer();
+                        motionBufferIndex = 0;
+                    }
+                }
+                Thread.Sleep(100);
+            }
+        }
+
+        /// <summary>
+        /// Starts the barometer thread.
+        /// </summary>
+        private void StartBarometerThread()
+        {
+            barometer.Initialize();
+            int alt;
+            int p;
+            while (true)
+            {
+                alt = barometer.GetAltitude();
+                p = barometer.GetPressure();
+                Monitor.Enter(barometerLock);
+                cachedPressureAltitude = alt;
+                cachedPressure = p;
+                Monitor.Exit(barometerLock);
+
+                Thread.Sleep(1000);
+            }
+        }
+
+        /// <summary>
+        /// Stores the buffered gyro/accelerometer data.
+        /// </summary>
+        private void StoreMotionBuffer()
+        {
+            FileStream fileHandle = new FileStream(telemetryFileName, FileMode.OpenOrCreate);
+
+            for (int i = 0; i < MOTION_BUFFER_SIZE; i++)
+            {
+                string text = motionBuffer[i].UtcTimestamp.ToString("dd.MM.yyyy HH:mm:ss") + ';' +
+                    motionBuffer[i].Ax.ToString() + ';' +
+                    motionBuffer[i].Ay.ToString() + ';' +
+                    motionBuffer[i].Az.ToString() + ';' +
+                    motionBuffer[i].Gx.ToString() + ';' +
+                    motionBuffer[i].Gy.ToString() + ';' +
+                    motionBuffer[i].Gz.ToString() +
+                    "\r\n";
+
+                byte[] writeData = Encoding.UTF8.GetBytes(text);
+
+                fileHandle.Position = fileHandle.Length;
+                fileHandle.Write(writeData, 0, writeData.Length);
+            }
+
+            fileHandle.Close();
         }
 
         /// <summary>

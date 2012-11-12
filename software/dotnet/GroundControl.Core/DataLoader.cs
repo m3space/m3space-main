@@ -11,6 +11,8 @@ namespace GroundControl.Core
     /// </summary>
     public class DataLoader
     {
+        delegate void TelemetryParseDelegate(DataCache dataCache, string[] parts);
+
         /// <summary>
         /// Loads telemetry data from a Ground Control CSV file.
         /// </summary>
@@ -19,40 +21,42 @@ namespace GroundControl.Core
         /// <returns>true if loaded, false if an error occurs</returns>
         public static bool LoadTelemetryData(string filename, DataCache dataCache)
         {
+            TelemetryParseDelegate parseTelemetry = null;
+
+            bool wasLocked = dataCache.Locked;
+
             try
             {
                 dataCache.Clear();
                 StreamReader reader = new StreamReader(filename);
-                // ignore first line
+
                 if (!reader.EndOfStream)
-                    reader.ReadLine();
+                {
+                    string firstLine = reader.ReadLine();
+
+                    if (firstLine.Equals("UtcDate;Lat;Long;GpsAlt;PressureAlt;Heading;HSpeed;VSpeed;Sat;IntTemp;ExtTemp;Press;Vin;IntTempRaw;ExtTempRaw;VinRaw;DutyCycle"))
+                    {
+                        parseTelemetry = ParseLiveTelemetryV3;
+                        dataCache.Locked = false;
+                    }
+                    else if (firstLine.Equals("UtcDate;Lat;Long;GpsAlt;PressureAlt;Heading;Speed;Sat;IntTemp;ExtTemp;Press;Vin;IntTempRaw;ExtTempRaw;PressRaw;VinRaw;DutyCycle"))
+                    {
+                        parseTelemetry = ParseLiveTelemetryV2;
+                        dataCache.Locked = true;
+                    }
+                    else
+                    {
+                        dataCache.Locked = wasLocked;
+                        return false;
+                    }
+                }
+
                 while (!reader.EndOfStream)
                 {
                     string line = reader.ReadLine();
                     string[] parts = line.Split(';');
-                    if ((parts != null) && (parts.Length >= 17))
-                    {
-                        TelemetryData data = new TelemetryData();
-                        data.UtcTimestamp = DateTime.ParseExact(parts[0], "dd.MM.yyyy HH:mm:ss", null);
-                        data.Latitude = Single.Parse(parts[1]);
-                        data.Longitude = Single.Parse(parts[2]);
-                        data.GpsAltitude = Single.Parse(parts[3]);
-                        data.PressureAltitude = Single.Parse(parts[4]);
-                        data.Heading = Single.Parse(parts[5]);
-                        data.HorizontalSpeed = Single.Parse(parts[6]);
-                        data.VerticalSpeed = Single.Parse(parts[7]);
-                        data.Satellites = Byte.Parse(parts[8]);
-                        data.IntTemperature = Single.Parse(parts[9]);
-                        data.ExtTemperature = Single.Parse(parts[10]);
-                        data.Pressure = Single.Parse(parts[11]);
-                        data.Vin = Single.Parse(parts[12]);
-                        data.IntTemperatureRaw = UInt16.Parse(parts[13]);
-                        data.ExtTemperatureRaw = UInt16.Parse(parts[14]);
-                        data.VinRaw = UInt16.Parse(parts[15]);
-                        data.DutyCycle = Byte.Parse(parts[16]);
 
-                        dataCache.AddTelemetry(data);
-                    }
+                    parseTelemetry(dataCache, parts);
                 }
 
                 reader.Close();
@@ -61,7 +65,73 @@ namespace GroundControl.Core
             catch (Exception)
             {
                 dataCache.Clear();
+                dataCache.Locked = wasLocked;
                 return false;
+            }
+        }
+
+        /// <summary>
+        /// Parses V3 live telemetry.
+        /// </summary>
+        /// <param name="dataCache">the data cache</param>
+        /// <param name="parts">the CSV fields</param>
+        private static void ParseLiveTelemetryV3(DataCache dataCache, string[] parts)
+        {
+            if ((parts != null) && (parts.Length >= 17))
+            {
+                TelemetryData data = new TelemetryData();
+                data.UtcTimestamp = DateTime.ParseExact(parts[0], "dd.MM.yyyy HH:mm:ss", null);
+                data.Latitude = Single.Parse(parts[1]);
+                data.Longitude = Single.Parse(parts[2]);
+                data.GpsAltitude = Single.Parse(parts[3]);
+                data.PressureAltitude = Single.Parse(parts[4]);
+                data.Heading = Single.Parse(parts[5]);
+                data.HorizontalSpeed = Single.Parse(parts[6]);
+                data.VerticalSpeed = Single.Parse(parts[7]);
+                data.Satellites = Byte.Parse(parts[8]);
+                data.IntTemperature = Single.Parse(parts[9]);
+                data.ExtTemperature = Single.Parse(parts[10]);
+                data.Pressure = Single.Parse(parts[11]);
+                data.Vin = Single.Parse(parts[12]);
+                data.IntTemperatureRaw = UInt16.Parse(parts[13]);
+                data.ExtTemperatureRaw = UInt16.Parse(parts[14]);
+                data.VinRaw = UInt16.Parse(parts[15]);
+                data.DutyCycle = Byte.Parse(parts[16]);
+
+                dataCache.AddTelemetry(data);
+            }
+        }
+
+        /// <summary>
+        /// Parses V2 live telemetry.
+        /// </summary>
+        /// <param name="dataCache">the data cache</param>
+        /// <param name="parts">the CSV fields</param>
+        private static void ParseLiveTelemetryV2(DataCache dataCache, string[] parts)
+        {
+            if ((parts != null) && (parts.Length >= 17))
+            {
+                TelemetryData data = new TelemetryData();
+                data.UtcTimestamp = DateTime.ParseExact(parts[0], "dd.MM.yyyy HH:mm:ss", null);
+                data.Latitude = Single.Parse(parts[1]);
+                data.Longitude = Single.Parse(parts[2]);
+                data.GpsAltitude = Single.Parse(parts[3]);
+                data.PressureAltitude = Single.Parse(parts[4]);
+                data.Heading = Single.Parse(parts[5]);
+                data.HorizontalSpeed = Single.Parse(parts[6]);
+                data.VerticalSpeed = 0.0f;
+                data.Satellites = Byte.Parse(parts[7]);
+                data.IntTemperature = Single.Parse(parts[8]);
+                data.ExtTemperature = Single.Parse(parts[9]);
+                data.Pressure = Single.Parse(parts[10]);
+                data.Vin = Single.Parse(parts[11]);
+                data.IntTemperatureRaw = UInt16.Parse(parts[12]);
+                data.ExtTemperatureRaw = UInt16.Parse(parts[13]);
+                // PressureRaw no longer supported
+                data.VinRaw = UInt16.Parse(parts[15]);
+                data.DutyCycle = Byte.Parse(parts[16]);
+
+                dataCache.AddTelemetry(data);
             }
         }
     }

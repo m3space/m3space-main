@@ -39,6 +39,11 @@ namespace GroundControl.Core
         public int Size { get { return telemetry.Count; } }
 
         /// <summary>
+        /// Sets the data cache read-only or not.
+        /// </summary>
+        public bool Locked { get; set; }
+
+        /// <summary>
         /// Gets the telemetry data.
         /// </summary>
         public List<TelemetryData> Telemetry { get { return telemetry; } }
@@ -49,6 +54,7 @@ namespace GroundControl.Core
         public DataCache()
         {
             telemetry = new List<TelemetryData>();
+            Locked = false;
         }
 
         /// <summary>
@@ -57,6 +63,7 @@ namespace GroundControl.Core
         public void Clear()
         {
             telemetry.Clear();
+            Locked = false;
 
             if (Cleared != null)
                 Cleared();

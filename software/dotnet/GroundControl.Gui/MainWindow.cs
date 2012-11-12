@@ -325,6 +325,12 @@ namespace GroundControl.Gui
 
         private void startCaptureMenuItem_Click(object sender, EventArgs e)
         {
+            if (dataCache.Locked)
+            {
+                MessageBox.Show("Data cache is locked because old data was loaded. Clear data first.", "Data cache locked", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+
             try
             {
                 // if data exists, continue capture in same file.
@@ -526,7 +532,14 @@ namespace GroundControl.Gui
             {
                 gpsReceiver.Close();
             }
-            gpsReceiver.Open();
+            try
+            {
+                gpsReceiver.Open();
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Failed to open GPS serial port.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }
