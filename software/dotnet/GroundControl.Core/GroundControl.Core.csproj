@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataCache.cs" />
+    <Compile Include="DataFormat.cs" />
     <Compile Include="DataLoader.cs" />
     <Compile Include="DataProtocol.cs" />
     <Compile Include="DataTransceiver.cs" />

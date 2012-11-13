@@ -92,7 +92,7 @@ namespace GroundControl.Core
             if (!File.Exists(filename))
             {
                 StreamWriter writer = File.CreateText(filename);
-                writer.WriteLine("UtcDate;Lat;Long;GpsAlt;PressureAlt;Heading;HSpeed;VSpeed;Sat;IntTemp;Temp1;Temp2;Press;Vin;Temp1Raw;Temp2Raw;VinRaw;DutyCycle");
+                writer.WriteLine(DataFormat.TelemetryFormatCurrent);
                 writer.Close();
             }
             telemetryFileName = filename;

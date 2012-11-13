@@ -34,12 +34,12 @@ namespace GroundControl.Core
                 {
                     string firstLine = reader.ReadLine();
 
-                    if (firstLine.Equals("UtcDate;Lat;Long;GpsAlt;PressureAlt;Heading;HSpeed;VSpeed;Sat;IntTemp;Temp1;Temp2;Press;Vin;Temp1Raw;Temp2Raw;VinRaw;DutyCycle"))
+                    if (firstLine.Equals(DataFormat.TelemetryFormatCurrent))
                     {
                         parseTelemetry = ParseLineCurrent;
                         dataCache.Locked = false;
                     }
-                    else if (firstLine.Equals("UtcDate;Lat;Long;GpsAlt;PressureAlt;Heading;Speed;Sat;IntTemp;ExtTemp;Press;Vin;IntTempRaw;ExtTempRaw;PressRaw;VinRaw;DutyCycle"))
+                    else if (firstLine.Equals(DataFormat.TelemetryFormatV2))
                     {
                         parseTelemetry = ParseLineV2;
                         dataCache.Locked = true;

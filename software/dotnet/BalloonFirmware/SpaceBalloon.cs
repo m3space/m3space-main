@@ -21,6 +21,9 @@ namespace BalloonFirmware
         private const int IMAGE_CHUNK_SIZE = 60;
         private const int MOTION_BUFFER_SIZE = 10;
 
+        const string TelemetryFormat = "Utc;Lat;Lng;Alt;HSpd;VSpd;Head;Sat;IntTemp;Temp1;Temp2;Pressure;PAlt;Vin;Duty\r\n";
+        const string MotionFormat = "Utc;Ax;Ay;Az;Gx;Gy;Gz\r\n";
+
         private BoundedBuffer txQueue;
         private byte[] txBuffer;
         private DataProtocol dataProtocol;
@@ -144,16 +147,14 @@ namespace BalloonFirmware
             telemetryFileName = sdRootDirectory + @"\telemetry_" + now + ".csv";
             motionFileName = sdRootDirectory + @"\motiondata_" + now + ".csv";
 
-            string text = "Utc;Lat;Lng;Alt;HSpd;VSpd;Head;Sat;IntTemp;Temp1;Temp2;Pressure;PAlt;Vin;Duty\r\n";
             FileStream fileHandle = new FileStream(telemetryFileName, FileMode.OpenOrCreate);
-            byte[] writeData = Encoding.UTF8.GetBytes(text);
+            byte[] writeData = Encoding.UTF8.GetBytes(TelemetryFormat);
             fileHandle.Position = fileHandle.Length;
             fileHandle.Write(writeData, 0, writeData.Length);
             fileHandle.Close();
 
-            text = "Utc;Ax;Ay;Az;Gx;Gy;Gz\r\n";
             fileHandle = new FileStream(motionFileName, FileMode.OpenOrCreate);
-            writeData = Encoding.UTF8.GetBytes(text);
+            writeData = Encoding.UTF8.GetBytes(MotionFormat);
             fileHandle.Position = fileHandle.Length;
             fileHandle.Write(writeData, 0, writeData.Length);
             fileHandle.Close();

@@ -135,37 +135,8 @@ namespace GroundControl.Gui
         {
             dataCache.AddTelemetry(data);
 
-            // convert GPS position to decimal minutes
-            float latAbs = Math.Abs(data.Latitude);
-            int latDegs = (int)latAbs;
-            float latDecMins = (latAbs - latDegs) * 60;
-            char latOri = (data.Latitude >= 0.0f) ? 'N' : 'S';
-
-            float lngAbs = Math.Abs(data.Longitude);
-            int lngDegs = (int)lngAbs;
-            float lngDecMins = (lngAbs - lngDegs) * 60;
-            char lngOri = (data.Latitude >= 0.0f) ? 'E' : 'W';
-
-            string str = String.Format("[Telemetry] {0:dd.MM.yyyy HH:mm:ss} Loc:{1}°{2:0.###}'{3} {4}°{5:0.###}'{6} Alt:{7:0.#}m PAlt:{8:0.#}m Head:{9:0.#}° HSpd:{10:0.#}m/s VSpd:{11:0.#}m/s Sat:{12} TInt:{13}°C T1:{14:0.#}°C T2:{15:0.#}°C P:{16:0.####}bar Vin:{17:0.##}V Duty:{18}%",
-                data.UtcTimestamp.ToLocalTime(),
-                latDegs,
-                latDecMins,
-                latOri,
-                lngDegs,
-                lngDecMins,
-                lngOri,
-                data.GpsAltitude,
-                data.PressureAltitude,
-                data.Heading * Rad2Deg,
-                data.HorizontalSpeed,
-                data.VerticalSpeed,
-                data.Satellites,
-                data.IntTemperature,
-                data.Temperature1,
-                data.Temperature2,
-                data.Pressure,
-                data.Vin,
-                data.DutyCycle);
+            string str = DataFormat.TelemetryDisplayString(data);
+            
             logWindow.Invoke(new WriteString(logWindow.WriteLine), new object[] { str });
             telemetryWindow.Invoke(new TelemetryHandler(telemetryWindow.DisplayTelemetry), new object[] { data });
             mapWindow.Invoke(new TelemetryHandler(mapWindow.AddTelemetryPoint), new object[] { data });
