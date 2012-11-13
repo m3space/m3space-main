@@ -39,6 +39,15 @@ namespace BalloonFirmware
             };
         }
 
+        public static byte[] GetBytes(short value)
+        {
+            return new byte[2] 
+            {  
+                (byte)(value & 0xFF),  
+                (byte)((value >> 8) & 0xFF) 
+            };
+        }
+
         public static unsafe byte[] GetBytes(float value)
         {
             uint val = *((uint*)&value);

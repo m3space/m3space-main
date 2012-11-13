@@ -14,9 +14,9 @@ namespace BalloonFirmware
 
         public byte[] GetTelemetry(TelemetryData data)
         {
-            byte[] packet = new byte[43];
+            byte[] packet = new byte[45];
             packet[0] = TransmitTelemetry;
-            Array.Copy(BitConverter.GetBytes((ushort)40), 0, packet, 1, 2);
+            Array.Copy(BitConverter.GetBytes((ushort)42), 0, packet, 1, 2);
             Array.Copy(BitConverter.GetBytes(data.UtcTimestamp.Ticks), 0, packet, 3, 8);
             Array.Copy(BitConverter.GetBytes(data.GpsData.Latitude), 0, packet, 11, 4);
             Array.Copy(BitConverter.GetBytes(data.GpsData.Longitude), 0, packet, 15, 4);
@@ -25,12 +25,13 @@ namespace BalloonFirmware
             Array.Copy(BitConverter.GetBytes(data.GpsData.HorizontalSpeed), 0, packet, 23, 4);
             Array.Copy(BitConverter.GetBytes(data.GpsData.VerticalSpeed), 0, packet, 27, 4);
             packet[31] = data.GpsData.Satellites;
-            Array.Copy(BitConverter.GetBytes(data.IntTemperatureRaw), 0, packet, 32, 2);
-            Array.Copy(BitConverter.GetBytes(data.ExtTemperatureRaw), 0, packet, 34, 2);
-            Array.Copy(BitConverter.GetBytes(data.Pressure), 0, packet, 36, 2);
-            Array.Copy(BitConverter.GetBytes(data.PressureAltitude), 0, packet, 38, 2);
-            Array.Copy(BitConverter.GetBytes(data.VinRaw), 0, packet, 40, 2);
-            packet[42] = data.DutyCycle;
+            Array.Copy(BitConverter.GetBytes(data.IntTemperature), 0, packet, 32, 2);
+            Array.Copy(BitConverter.GetBytes(data.Temperature1Raw), 0, packet, 34, 2);
+            Array.Copy(BitConverter.GetBytes(data.Temperature2Raw), 0, packet, 36, 2);
+            Array.Copy(BitConverter.GetBytes(data.Pressure), 0, packet, 38, 2);
+            Array.Copy(BitConverter.GetBytes(data.PressureAltitude), 0, packet, 40, 2);
+            Array.Copy(BitConverter.GetBytes(data.VinRaw), 0, packet, 42, 2);
+            packet[43] = data.DutyCycle;
             return packet;
         }
 

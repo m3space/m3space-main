@@ -47,8 +47,8 @@ namespace GroundControl.Gui
             m_display.DataSources[0].Samples.Add(new cPoint(m_display.DataSources[0].Samples.Count, telemetry.UtcTimestamp, telemetry.GpsAltitude));
             m_display.DataSources[1].Samples.Add(new cPoint(m_display.DataSources[1].Samples.Count, telemetry.UtcTimestamp, telemetry.PressureAltitude));
             m_display.DataSources[2].Samples.Add(new cPoint(m_display.DataSources[2].Samples.Count, telemetry.UtcTimestamp, telemetry.Vin));
-            m_display.DataSources[3].Samples.Add(new cPoint(m_display.DataSources[3].Samples.Count, telemetry.UtcTimestamp, telemetry.IntTemperature));
-            m_display.DataSources[4].Samples.Add(new cPoint(m_display.DataSources[4].Samples.Count, telemetry.UtcTimestamp, telemetry.ExtTemperature));
+            m_display.DataSources[3].Samples.Add(new cPoint(m_display.DataSources[3].Samples.Count, telemetry.UtcTimestamp, telemetry.Temperature1));
+            m_display.DataSources[4].Samples.Add(new cPoint(m_display.DataSources[4].Samples.Count, telemetry.UtcTimestamp, telemetry.Temperature2));
             m_display.DataSources[5].Samples.Add(new cPoint(m_display.DataSources[5].Samples.Count, telemetry.UtcTimestamp, telemetry.Pressure));
             m_display.DataSources[6].Samples.Add(new cPoint(m_display.DataSources[6].Samples.Count, telemetry.UtcTimestamp, telemetry.HorizontalSpeed));
             m_display.DataSources[7].Samples.Add(new cPoint(m_display.DataSources[7].Samples.Count, telemetry.UtcTimestamp, telemetry.Heading));

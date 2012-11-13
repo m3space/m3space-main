@@ -34,14 +34,14 @@ namespace GroundControl.Core
                 {
                     string firstLine = reader.ReadLine();
 
-                    if (firstLine.Equals("UtcDate;Lat;Long;GpsAlt;PressureAlt;Heading;HSpeed;VSpeed;Sat;IntTemp;ExtTemp;Press;Vin;IntTempRaw;ExtTempRaw;VinRaw;DutyCycle"))
+                    if (firstLine.Equals("UtcDate;Lat;Long;GpsAlt;PressureAlt;Heading;HSpeed;VSpeed;Sat;IntTemp;Temp1;Temp2;Press;Vin;Temp1Raw;Temp2Raw;VinRaw;DutyCycle"))
                     {
-                        parseTelemetry = ParseLiveTelemetryV3;
+                        parseTelemetry = ParseLineCurrent;
                         dataCache.Locked = false;
                     }
                     else if (firstLine.Equals("UtcDate;Lat;Long;GpsAlt;PressureAlt;Heading;Speed;Sat;IntTemp;ExtTemp;Press;Vin;IntTempRaw;ExtTempRaw;PressRaw;VinRaw;DutyCycle"))
                     {
-                        parseTelemetry = ParseLiveTelemetryV2;
+                        parseTelemetry = ParseLineV2;
                         dataCache.Locked = true;
                     }
                     else
@@ -75,9 +75,9 @@ namespace GroundControl.Core
         /// </summary>
         /// <param name="dataCache">the data cache</param>
         /// <param name="parts">the CSV fields</param>
-        private static void ParseLiveTelemetryV3(DataCache dataCache, string[] parts)
+        private static void ParseLineCurrent(DataCache dataCache, string[] parts)
         {
-            if ((parts != null) && (parts.Length >= 17))
+            if ((parts != null) && (parts.Length >= 18))
             {
                 TelemetryData data = new TelemetryData();
                 data.UtcTimestamp = DateTime.ParseExact(parts[0], "dd.MM.yyyy HH:mm:ss", null);
@@ -89,14 +89,15 @@ namespace GroundControl.Core
                 data.HorizontalSpeed = Single.Parse(parts[6]);
                 data.VerticalSpeed = Single.Parse(parts[7]);
                 data.Satellites = Byte.Parse(parts[8]);
-                data.IntTemperature = Single.Parse(parts[9]);
-                data.ExtTemperature = Single.Parse(parts[10]);
-                data.Pressure = Single.Parse(parts[11]);
-                data.Vin = Single.Parse(parts[12]);
-                data.IntTemperatureRaw = UInt16.Parse(parts[13]);
-                data.ExtTemperatureRaw = UInt16.Parse(parts[14]);
-                data.VinRaw = UInt16.Parse(parts[15]);
-                data.DutyCycle = Byte.Parse(parts[16]);
+                data.IntTemperature = Int16.Parse(parts[9]);
+                data.Temperature1 = Single.Parse(parts[10]);
+                data.Temperature2 = Single.Parse(parts[11]);
+                data.Pressure = Single.Parse(parts[12]);
+                data.Vin = Single.Parse(parts[13]);
+                data.Temperature1Raw = UInt16.Parse(parts[14]);
+                data.Temperature2Raw = UInt16.Parse(parts[15]);
+                data.VinRaw = UInt16.Parse(parts[16]);
+                data.DutyCycle = Byte.Parse(parts[17]);
 
                 dataCache.AddTelemetry(data);
             }
@@ -107,7 +108,7 @@ namespace GroundControl.Core
         /// </summary>
         /// <param name="dataCache">the data cache</param>
         /// <param name="parts">the CSV fields</param>
-        private static void ParseLiveTelemetryV2(DataCache dataCache, string[] parts)
+        private static void ParseLineV2(DataCache dataCache, string[] parts)
         {
             if ((parts != null) && (parts.Length >= 17))
             {
@@ -121,12 +122,13 @@ namespace GroundControl.Core
                 data.HorizontalSpeed = Single.Parse(parts[6]);
                 data.VerticalSpeed = 0.0f;
                 data.Satellites = Byte.Parse(parts[7]);
-                data.IntTemperature = Single.Parse(parts[8]);
-                data.ExtTemperature = Single.Parse(parts[9]);
+                data.IntTemperature = 0;
+                data.Temperature1 = Single.Parse(parts[8]);
+                data.Temperature2 = Single.Parse(parts[9]);
                 data.Pressure = Single.Parse(parts[10]);
                 data.Vin = Single.Parse(parts[11]);
-                data.IntTemperatureRaw = UInt16.Parse(parts[12]);
-                data.ExtTemperatureRaw = UInt16.Parse(parts[13]);
+                data.Temperature1Raw = UInt16.Parse(parts[12]);
+                data.Temperature2Raw = UInt16.Parse(parts[13]);
                 // PressureRaw no longer supported
                 data.VinRaw = UInt16.Parse(parts[15]);
                 data.DutyCycle = Byte.Parse(parts[16]);

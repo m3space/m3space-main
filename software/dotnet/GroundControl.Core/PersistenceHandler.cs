@@ -92,7 +92,7 @@ namespace GroundControl.Core
             if (!File.Exists(filename))
             {
                 StreamWriter writer = File.CreateText(filename);
-                writer.WriteLine("UtcDate;Lat;Long;GpsAlt;PressureAlt;Heading;HSpeed;VSpeed;Sat;IntTemp;ExtTemp;Press;Vin;IntTempRaw;ExtTempRaw;VinRaw;DutyCycle");
+                writer.WriteLine("UtcDate;Lat;Long;GpsAlt;PressureAlt;Heading;HSpeed;VSpeed;Sat;IntTemp;Temp1;Temp2;Press;Vin;Temp1Raw;Temp2Raw;VinRaw;DutyCycle");
                 writer.Close();
             }
             telemetryFileName = filename;
@@ -108,7 +108,7 @@ namespace GroundControl.Core
             if (telemetryFileName != null)
             {
                 StreamWriter writer = File.AppendText(telemetryFileName);
-                writer.WriteLine(String.Format("{0:dd.MM.yyyy HH:mm:ss};{1:0.####};{2:0.####};{3:0.#};{4:0.#};{5:0.#};{6:0.#};{7:0.#};{8};{9:0.#};{10:0.#};{11:0.####};{12:0.##};{13};{14};{15};{16}",
+                writer.WriteLine(String.Format("{0:dd.MM.yyyy HH:mm:ss};{1:0.####};{2:0.####};{3:0.#};{4:0.#};{5:0.#};{6:0.#};{7:0.#};{8};{9};{10:0.#};{11:0.#};{12:0.####};{13:0.##};{14};{15};{16};{17}",
                     telemetry.UtcTimestamp,
                     telemetry.Latitude,
                     telemetry.Longitude,
@@ -119,11 +119,12 @@ namespace GroundControl.Core
                     telemetry.VerticalSpeed,
                     telemetry.Satellites,
                     telemetry.IntTemperature,
-                    telemetry.ExtTemperature,
+                    telemetry.Temperature1,
+                    telemetry.Temperature2,
                     telemetry.Pressure,
                     telemetry.Vin,
-                    telemetry.IntTemperatureRaw,
-                    telemetry.ExtTemperatureRaw,
+                    telemetry.Temperature1Raw,
+                    telemetry.Temperature2Raw,
                     telemetry.VinRaw,
                     telemetry.DutyCycle));
                 writer.Close();

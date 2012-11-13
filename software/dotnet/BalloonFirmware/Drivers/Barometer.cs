@@ -53,77 +53,92 @@ namespace BalloonFirmware.Drivers
         /// Gets the air pressure in bar.
         /// </summary>
         /// <returns>the air pressure</returns>
-        public int GetPressure()
+        public ushort GetPressure()
         {
             FlushInput();
             port.Write(COMMAND_START, 0, 6);
             port.Write(GETPRESSURE, 0, 1);
             port.Write(COMMAND_END, 0, 2);
             port.Flush();
-            while (port.BytesToRead < 24)
+            byte i = 0;
+            do
             {
-                Thread.Sleep(100);
+                if (i == 5)
+                    return ushort.MaxValue;
+                Thread.Sleep(50);
+                i++;
             }
+            while (port.BytesToRead < 24);
             int n = port.Read(readBuffer, 0, 24);
             if (n >= 24)
             {
                 // returns integer part only. float parsing not available.
                 string str = new String(System.Text.Encoding.UTF8.GetChars(readBuffer)).Substring(13, 4);
-                return int.Parse(str);
+                return ushort.Parse(str);
             }
 
-            return int.MinValue;
+            return ushort.MaxValue;
         }
 
         /// <summary>
         /// Gets the temperature in celsius.
         /// </summary>
         /// <returns>the temperature</returns>
-        public int GetTemperature()
+        public short GetTemperature()
         {
             FlushInput();
             port.Write(COMMAND_START, 0, 6);
             port.Write(GETTEMPERATURE, 0, 3);
             port.Write(COMMAND_END, 0, 2);
             port.Flush();
-            while (port.BytesToRead < 29)
+            byte i = 0;
+            do
             {
-                Thread.Sleep(100);
+                if (i == 5)
+                    return short.MinValue;
+                Thread.Sleep(50);
+                i++;
             }
+            while (port.BytesToRead < 29);
             int n = port.Read(readBuffer, 0, 29);
             if (n >= 29)
             {
                 // returns integer part only. float parsing not available.
                 string str = new String(System.Text.Encoding.UTF8.GetChars(readBuffer)).Substring(15, 4);
-                return int.Parse(str);
+                return short.Parse(str);
             }
 
-            return int.MinValue;
+            return short.MinValue;
         }
 
         /// <summary>
         /// Gets the current altitude in meters above sea level.
         /// </summary>
         /// <returns>the altitude</returns>
-        public int GetAltitude()
+        public ushort GetAltitude()
         {
             FlushInput();
             port.Write(COMMAND_START, 0, 6);
             port.Write(GETALTITUDE, 0, 1);
             port.Write(COMMAND_END, 0, 2);
             port.Flush();
-            while (port.BytesToRead < 19)
+            byte i = 0;
+            do
             {
-                Thread.Sleep(100);
+                if (i == 5)
+                    return ushort.MaxValue;
+                Thread.Sleep(50);
+                i++;
             }
+            while (port.BytesToRead < 19);
             int n = port.Read(readBuffer, 0, 19);
             if (n >= 19)
             {
                 string str = new String(System.Text.Encoding.UTF8.GetChars(readBuffer)).Substring(7, 5);
-                return int.Parse(str);
-             }
+                return ushort.Parse(str);
+            }
 
-            return int.MinValue;
+            return ushort.MaxValue;
         }
 
         /// <summary>
@@ -131,12 +146,10 @@ namespace BalloonFirmware.Drivers
         /// </summary>
         private void FlushInput()
         {
-            int n;
-            do
+            while (port.BytesToRead > 0)
             {
-                n = port.Read(readBuffer, 0, readBufferSize);
+                port.Read(readBuffer, 0, readBufferSize);
             }
-            while (n != 0);
         }
     }
 }

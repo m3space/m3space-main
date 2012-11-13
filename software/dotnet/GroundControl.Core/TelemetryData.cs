@@ -50,12 +50,17 @@ namespace GroundControl.Core
         /// <summary>
         /// The internal temperature in celsius.
         /// </summary>
-        public float IntTemperature { get; set; }
+        public int IntTemperature { get; set; }
 
         /// <summary>
-        /// The external temperature in celsius.
+        /// The 1st temperature in celsius.
         /// </summary>
-        public float ExtTemperature { get; set; }
+        public float Temperature1 { get; set; }
+
+        /// <summary>
+        /// The 2nd temperature in celsius.
+        /// </summary>
+        public float Temperature2 { get; set; }
 
         /// <summary>
         /// The absolute pressure in bar.
@@ -73,14 +78,14 @@ namespace GroundControl.Core
         public float Vin { get; set; }
 
         /// <summary>
-        /// Raw internal temperature (10-bit ADC)
+        /// Raw 1st temperature (10-bit ADC)
         /// </summary>
-        public ushort IntTemperatureRaw { get; set; }
+        public ushort Temperature1Raw { get; set; }
 
         /// <summary>
-        /// Raw external temperature (10-bit ADC)
+        /// Raw 2nd temperature (10-bit ADC)
         /// </summary>
-        public ushort ExtTemperatureRaw { get; set; }
+        public ushort Temperature2Raw { get; set; }
 
         /// <summary>
         /// Raw battery voltage (10-bit ADC)

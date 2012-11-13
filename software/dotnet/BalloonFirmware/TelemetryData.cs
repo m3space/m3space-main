@@ -6,8 +6,9 @@ namespace BalloonFirmware
     {
         public DateTime UtcTimestamp;
         public GpsPoint GpsData;
-        public ushort IntTemperatureRaw;
-        public ushort ExtTemperatureRaw;
+        public short IntTemperature;
+        public ushort Temperature1Raw;
+        public ushort Temperature2Raw;
         public ushort Pressure;
         public ushort PressureAltitude;
         public ushort VinRaw;

@@ -30,8 +30,8 @@ namespace TestWebUpload
             telemetry.HorizontalSpeed = 0.25f;
             telemetry.VerticalSpeed = 0.0f;
             telemetry.Satellites = 4;
-            telemetry.IntTemperature = 23.5f;
-            telemetry.ExtTemperature = 16.2f;
+            telemetry.Temperature1 = 23.5f;
+            telemetry.Temperature2 = 16.2f;
             telemetry.Pressure = 1.001f;
             telemetry.Vin = 8.25f;
 

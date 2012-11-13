@@ -29,6 +29,8 @@
         private void InitializeComponent()
         {
             this.groupBoxLocation = new System.Windows.Forms.GroupBox();
+            this.vspdLbl = new System.Windows.Forms.Label();
+            this.label13 = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
             this.hspdLbl = new System.Windows.Forms.Label();
             this.headLbl = new System.Windows.Forms.Label();
@@ -42,8 +44,8 @@
             this.label1 = new System.Windows.Forms.Label();
             this.dateLbl = new System.Windows.Forms.Label();
             this.groupBoxTemp = new System.Windows.Forms.GroupBox();
-            this.extTempLbl = new System.Windows.Forms.Label();
-            this.intTempLbl = new System.Windows.Forms.Label();
+            this.temp2Lbl = new System.Windows.Forms.Label();
+            this.temp1Lbl = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.groupBoxPressure = new System.Windows.Forms.GroupBox();
@@ -54,8 +56,8 @@
             this.groupBoxSystem = new System.Windows.Forms.GroupBox();
             this.vinLbl = new System.Windows.Forms.Label();
             this.label11 = new System.Windows.Forms.Label();
-            this.vspdLbl = new System.Windows.Forms.Label();
-            this.label13 = new System.Windows.Forms.Label();
+            this.intTempLbl = new System.Windows.Forms.Label();
+            this.label14 = new System.Windows.Forms.Label();
             this.groupBoxLocation.SuspendLayout();
             this.groupBoxTemp.SuspendLayout();
             this.groupBoxPressure.SuspendLayout();
@@ -86,6 +88,24 @@
             this.groupBoxLocation.TabIndex = 0;
             this.groupBoxLocation.TabStop = false;
             this.groupBoxLocation.Text = "Location";
+            // 
+            // vspdLbl
+            // 
+            this.vspdLbl.AutoSize = true;
+            this.vspdLbl.Location = new System.Drawing.Point(47, 126);
+            this.vspdLbl.Name = "vspdLbl";
+            this.vspdLbl.Size = new System.Drawing.Size(27, 13);
+            this.vspdLbl.TabIndex = 12;
+            this.vspdLbl.Text = "N/A";
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(6, 126);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(39, 13);
+            this.label13.TabIndex = 11;
+            this.label13.Text = "V.Spd.";
             // 
             // label10
             // 
@@ -199,52 +219,54 @@
             // 
             this.groupBoxTemp.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBoxTemp.Controls.Add(this.extTempLbl);
             this.groupBoxTemp.Controls.Add(this.intTempLbl);
+            this.groupBoxTemp.Controls.Add(this.label14);
+            this.groupBoxTemp.Controls.Add(this.temp2Lbl);
+            this.groupBoxTemp.Controls.Add(this.temp1Lbl);
             this.groupBoxTemp.Controls.Add(this.label7);
             this.groupBoxTemp.Controls.Add(this.label6);
             this.groupBoxTemp.Location = new System.Drawing.Point(2, 155);
             this.groupBoxTemp.Name = "groupBoxTemp";
-            this.groupBoxTemp.Size = new System.Drawing.Size(159, 54);
+            this.groupBoxTemp.Size = new System.Drawing.Size(159, 70);
             this.groupBoxTemp.TabIndex = 1;
             this.groupBoxTemp.TabStop = false;
             this.groupBoxTemp.Text = "Temperature";
             // 
-            // extTempLbl
+            // temp2Lbl
             // 
-            this.extTempLbl.AutoSize = true;
-            this.extTempLbl.Location = new System.Drawing.Point(47, 34);
-            this.extTempLbl.Name = "extTempLbl";
-            this.extTempLbl.Size = new System.Drawing.Size(27, 13);
-            this.extTempLbl.TabIndex = 12;
-            this.extTempLbl.Text = "N/A";
+            this.temp2Lbl.AutoSize = true;
+            this.temp2Lbl.Location = new System.Drawing.Point(47, 34);
+            this.temp2Lbl.Name = "temp2Lbl";
+            this.temp2Lbl.Size = new System.Drawing.Size(27, 13);
+            this.temp2Lbl.TabIndex = 12;
+            this.temp2Lbl.Text = "N/A";
             // 
-            // intTempLbl
+            // temp1Lbl
             // 
-            this.intTempLbl.AutoSize = true;
-            this.intTempLbl.Location = new System.Drawing.Point(47, 16);
-            this.intTempLbl.Name = "intTempLbl";
-            this.intTempLbl.Size = new System.Drawing.Size(27, 13);
-            this.intTempLbl.TabIndex = 10;
-            this.intTempLbl.Text = "N/A";
+            this.temp1Lbl.AutoSize = true;
+            this.temp1Lbl.Location = new System.Drawing.Point(47, 16);
+            this.temp1Lbl.Name = "temp1Lbl";
+            this.temp1Lbl.Size = new System.Drawing.Size(27, 13);
+            this.temp1Lbl.TabIndex = 10;
+            this.temp1Lbl.Text = "N/A";
             // 
             // label7
             // 
             this.label7.AutoSize = true;
             this.label7.Location = new System.Drawing.Point(6, 34);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(25, 13);
+            this.label7.Size = new System.Drawing.Size(20, 13);
             this.label7.TabIndex = 11;
-            this.label7.Text = "Ext.";
+            this.label7.Text = "T2";
             // 
             // label6
             // 
             this.label6.AutoSize = true;
             this.label6.Location = new System.Drawing.Point(6, 16);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(22, 13);
+            this.label6.Size = new System.Drawing.Size(20, 13);
             this.label6.TabIndex = 10;
-            this.label6.Text = "Int.";
+            this.label6.Text = "T1";
             // 
             // groupBoxPressure
             // 
@@ -254,7 +276,7 @@
             this.groupBoxPressure.Controls.Add(this.label8);
             this.groupBoxPressure.Controls.Add(this.pressureLbl);
             this.groupBoxPressure.Controls.Add(this.label9);
-            this.groupBoxPressure.Location = new System.Drawing.Point(2, 215);
+            this.groupBoxPressure.Location = new System.Drawing.Point(2, 231);
             this.groupBoxPressure.Name = "groupBoxPressure";
             this.groupBoxPressure.Size = new System.Drawing.Size(159, 54);
             this.groupBoxPressure.TabIndex = 2;
@@ -303,7 +325,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBoxSystem.Controls.Add(this.vinLbl);
             this.groupBoxSystem.Controls.Add(this.label11);
-            this.groupBoxSystem.Location = new System.Drawing.Point(2, 275);
+            this.groupBoxSystem.Location = new System.Drawing.Point(2, 291);
             this.groupBoxSystem.Name = "groupBoxSystem";
             this.groupBoxSystem.Size = new System.Drawing.Size(159, 37);
             this.groupBoxSystem.TabIndex = 3;
@@ -328,30 +350,30 @@
             this.label11.TabIndex = 15;
             this.label11.Text = "Vin.";
             // 
-            // vspdLbl
+            // intTempLbl
             // 
-            this.vspdLbl.AutoSize = true;
-            this.vspdLbl.Location = new System.Drawing.Point(47, 126);
-            this.vspdLbl.Name = "vspdLbl";
-            this.vspdLbl.Size = new System.Drawing.Size(27, 13);
-            this.vspdLbl.TabIndex = 12;
-            this.vspdLbl.Text = "N/A";
+            this.intTempLbl.AutoSize = true;
+            this.intTempLbl.Location = new System.Drawing.Point(47, 51);
+            this.intTempLbl.Name = "intTempLbl";
+            this.intTempLbl.Size = new System.Drawing.Size(27, 13);
+            this.intTempLbl.TabIndex = 14;
+            this.intTempLbl.Text = "N/A";
             // 
-            // label13
+            // label14
             // 
-            this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(6, 126);
-            this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(39, 13);
-            this.label13.TabIndex = 11;
-            this.label13.Text = "V.Spd.";
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(6, 51);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(22, 13);
+            this.label14.TabIndex = 13;
+            this.label14.Text = "Int.";
             // 
             // TelemetryWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
-            this.ClientSize = new System.Drawing.Size(165, 314);
+            this.ClientSize = new System.Drawing.Size(165, 333);
             this.ControlBox = false;
             this.Controls.Add(this.groupBoxSystem);
             this.Controls.Add(this.groupBoxPressure);
@@ -392,8 +414,8 @@
         private System.Windows.Forms.Label lngLbl;
         private System.Windows.Forms.Label latLbl;
         private System.Windows.Forms.GroupBox groupBoxTemp;
-        private System.Windows.Forms.Label extTempLbl;
-        private System.Windows.Forms.Label intTempLbl;
+        private System.Windows.Forms.Label temp2Lbl;
+        private System.Windows.Forms.Label temp1Lbl;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.GroupBox groupBoxPressure;
@@ -407,6 +429,8 @@
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.Label vspdLbl;
         private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.Label intTempLbl;
+        private System.Windows.Forms.Label label14;
 
     }
 }

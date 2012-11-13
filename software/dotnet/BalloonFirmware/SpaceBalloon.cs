@@ -29,8 +29,8 @@ namespace BalloonFirmware
         private string telemetryFileName;
         private string motionFileName;
 
-        private AnalogIn tempSensorInt;
-        private AnalogIn tempSensorExt;
+        private AnalogIn tempSensor1;
+        private AnalogIn tempSensor2;
         private AnalogIn vInSensor;
 
         private TelemetryData cachedTelemetry;
@@ -56,8 +56,9 @@ namespace BalloonFirmware
         private int motionBufferIndex;
 
         private Barometer barometer;
-        int cachedPressureAltitude;
-        int cachedPressure;
+        ushort cachedPressureAltitude;
+        ushort cachedPressure;
+        short cachedTemperature;
 
         private object gpsLock = new object();
         private object dutyCycleLock = new object();
@@ -73,8 +74,8 @@ namespace BalloonFirmware
             txBuffer = new byte[256];
             dataProtocol = new DataProtocol();
             sdStorage = new PersistentStorage("SD");
-            tempSensorInt = new AnalogIn((AnalogIn.Pin)FEZ_Pin.AnalogIn.An4);
-            tempSensorExt = new AnalogIn((AnalogIn.Pin)FEZ_Pin.AnalogIn.An5);
+            tempSensor1 = new AnalogIn((AnalogIn.Pin)FEZ_Pin.AnalogIn.An4);
+            tempSensor2 = new AnalogIn((AnalogIn.Pin)FEZ_Pin.AnalogIn.An5);
             vInSensor = new AnalogIn((AnalogIn.Pin)FEZ_Pin.AnalogIn.An2);
 
             gpsPort = new SerialPort("COM4", 38400, Parity.None, 8, StopBits.One);
@@ -98,6 +99,7 @@ namespace BalloonFirmware
             barometer = new Barometer(barometerPort);
             cachedPressureAltitude = 0;
             cachedPressure = 0;
+            cachedTemperature = 0;
 
             waitTimeSync = new AutoResetEvent(false);
         }
@@ -107,7 +109,22 @@ namespace BalloonFirmware
         /// Initializes the balloon software.
         /// </summary>
         public void Initialize()
-        { 
+        {
+            // initialize SD card
+            try
+            {
+                sdStorage.MountFileSystem();
+                sdRootDirectory = VolumeInfo.GetVolumes()[0].RootDirectory;
+            }
+            catch (Exception e)
+            {
+#if DEBUG
+                Debug.Print("SD card initialization failed.");
+#endif
+                // TODO enable LED
+                return;
+            }
+
             // create threads
             Thread gpsThread = new Thread(new ThreadStart(StartGpsThread));
             Thread transmitThread = new Thread(new ThreadStart(StartTransmitThread));
@@ -124,12 +141,10 @@ namespace BalloonFirmware
 
             // initialize SD card files
             string now = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-            sdStorage.MountFileSystem();            
-            sdRootDirectory = VolumeInfo.GetVolumes()[0].RootDirectory;
             telemetryFileName = sdRootDirectory + @"\telemetry_" + now + ".csv";
             motionFileName = sdRootDirectory + @"\motiondata_" + now + ".csv";
 
-            string text = "Utc;Lat;Lng;Alt;HSpd;VSpd;Head;Sat;IntTemp;ExtTemp;Pressure;PAlt;Vin;Duty\r\n";
+            string text = "Utc;Lat;Lng;Alt;HSpd;VSpd;Head;Sat;IntTemp;Temp1;Temp2;Pressure;PAlt;Vin;Duty\r\n";
             FileStream fileHandle = new FileStream(telemetryFileName, FileMode.OpenOrCreate);
             byte[] writeData = Encoding.UTF8.GetBytes(text);
             fileHandle.Position = fileHandle.Length;
@@ -271,12 +286,8 @@ namespace BalloonFirmware
                 // use system time, not time of last GPS position
                 cachedTelemetry.UtcTimestamp = DateTime.Now;
                 // read sensor values
-                cachedTelemetry.IntTemperatureRaw = (ushort)tempSensorInt.Read();
-                cachedTelemetry.ExtTemperatureRaw = (ushort)tempSensorExt.Read();
-
-                cachedTelemetry.Pressure = 0;           // TODO read pressure
-                cachedTelemetry.PressureAltitude = 0;   // TODO read altitude
-
+                cachedTelemetry.Temperature1Raw = (ushort)tempSensor1.Read();
+                cachedTelemetry.Temperature2Raw = (ushort)tempSensor2.Read();
                 cachedTelemetry.VinRaw = (ushort)vInSensor.Read();
                 Monitor.Enter(gpsLock);
                 cachedTelemetry.GpsData = cachedGpsPoint;
@@ -285,8 +296,9 @@ namespace BalloonFirmware
                 cachedTelemetry.DutyCycle = xBeeDutyCycle;
                 Monitor.Exit(dutyCycleLock);
                 Monitor.Enter(barometerLock);
-                cachedTelemetry.PressureAltitude = (ushort)cachedPressureAltitude;
-                cachedTelemetry.Pressure = (ushort)cachedPressure;
+                cachedTelemetry.PressureAltitude = cachedPressureAltitude;
+                cachedTelemetry.Pressure = cachedPressure;
+                cachedTelemetry.IntTemperature = cachedTemperature;
                 Monitor.Exit(barometerLock);
                 StoreTelemetry(cachedTelemetry);
                 count--;
@@ -327,18 +339,21 @@ namespace BalloonFirmware
         private void StartBarometerThread()
         {
             barometer.Initialize();
-            int alt;
-            int p;
+            ushort alt;
+            ushort p;
+            short t;
             while (true)
             {
                 alt = barometer.GetAltitude();
                 p = barometer.GetPressure();
+                t = barometer.GetTemperature();
                 Monitor.Enter(barometerLock);
                 cachedPressureAltitude = alt;
                 cachedPressure = p;
+                cachedTemperature = t;
                 Monitor.Exit(barometerLock);
 
-                Thread.Sleep(1000);
+                Thread.Sleep(5000);
             }
         }
 
@@ -385,8 +400,9 @@ namespace BalloonFirmware
                 data.GpsData.VerticalSpeed.ToString("F2") + ';' +
                 data.GpsData.Heading.ToString() + ';' +
                 data.GpsData.Satellites.ToString() + ';' +
-                data.IntTemperatureRaw.ToString() + ';' +
-                data.ExtTemperatureRaw.ToString() + ';' +
+                data.IntTemperature.ToString() + ';' +
+                data.Temperature1Raw.ToString() + ';' +
+                data.Temperature2Raw.ToString() + ';' +
                 data.Pressure.ToString() + ';' +
                 data.PressureAltitude.ToString() + ';' +
                 data.VinRaw.ToString() + ';' +
