@@ -71,7 +71,7 @@ namespace BalloonFirmware.Drivers
         /// </summary>
         /// <param name="data">the motion data to write to</param>
         /// <returns>true if successful, false if failed</returns>
-        public bool GetMotionData(MotionData data)
+        public bool GetMotionData(ref MotionData data)
         {
             if (ReadFromRegister(MPU6050_RA_ACCEL_XOUT_H, motionBuffer))
             {

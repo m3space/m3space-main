@@ -322,7 +322,7 @@ namespace BalloonFirmware
             mpu6050.Initialize();
             while (true)
             {
-                if (mpu6050.GetMotionData(motionBuffer[motionBufferIndex++]))
+                if (mpu6050.GetMotionData(ref motionBuffer[motionBufferIndex++]))
                 {
                     if (motionBufferIndex == MOTION_BUFFER_SIZE)
                     {

@@ -74,7 +74,17 @@ namespace BalloonFirmware.Drivers
             {
                 // returns integer part only. float parsing not available.
                 string str = new String(System.Text.Encoding.UTF8.GetChars(readBuffer)).Substring(13, 4);
-                return ushort.Parse(str);
+                try
+                {
+                    return ushort.Parse(str);
+                }
+                catch (Exception)
+                {
+#if DEBUG
+                    Debug.Print("Parse Pressure value failed.");
+#endif
+                    return ushort.MaxValue;
+                }
             }
 
             return ushort.MaxValue;
@@ -105,7 +115,17 @@ namespace BalloonFirmware.Drivers
             {
                 // returns integer part only. float parsing not available.
                 string str = new String(System.Text.Encoding.UTF8.GetChars(readBuffer)).Substring(15, 4);
-                return short.Parse(str);
+                try
+                {
+                    return short.Parse(str);
+                }
+                catch (Exception)
+                {
+#if DEBUG
+                    Debug.Print("Parse Temperature value failed.");
+#endif
+                    return short.MinValue;
+                } 
             }
 
             return short.MinValue;
@@ -135,7 +155,17 @@ namespace BalloonFirmware.Drivers
             if (n >= 19)
             {
                 string str = new String(System.Text.Encoding.UTF8.GetChars(readBuffer)).Substring(7, 5);
-                return ushort.Parse(str);
+                try
+                {
+                    return ushort.Parse(str);
+                }
+                catch (Exception)
+                {
+#if DEBUG
+                    Debug.Print("Parse Altitude value failed.");
+#endif
+                    return ushort.MaxValue;
+                }
             }
 
             return ushort.MaxValue;
