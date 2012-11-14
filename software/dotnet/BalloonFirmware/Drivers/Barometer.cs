@@ -65,7 +65,7 @@ namespace BalloonFirmware.Drivers
             {
                 if (i == 5)
                     return ushort.MaxValue;
-                Thread.Sleep(50);
+                Thread.Sleep(100);
                 i++;
             }
             while (port.BytesToRead < 24);
@@ -96,7 +96,7 @@ namespace BalloonFirmware.Drivers
             {
                 if (i == 5)
                     return short.MinValue;
-                Thread.Sleep(50);
+                Thread.Sleep(100);
                 i++;
             }
             while (port.BytesToRead < 29);
@@ -127,7 +127,7 @@ namespace BalloonFirmware.Drivers
             {
                 if (i == 5)
                     return ushort.MaxValue;
-                Thread.Sleep(50);
+                Thread.Sleep(100);
                 i++;
             }
             while (port.BytesToRead < 19);

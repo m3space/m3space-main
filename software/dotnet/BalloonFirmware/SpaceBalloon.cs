@@ -363,7 +363,7 @@ namespace BalloonFirmware
         /// </summary>
         private void StoreMotionBuffer()
         {
-            FileStream fileHandle = new FileStream(telemetryFileName, FileMode.OpenOrCreate);
+            FileStream fileHandle = new FileStream(motionFileName, FileMode.OpenOrCreate);
 
             for (int i = 0; i < MOTION_BUFFER_SIZE; i++)
             {
