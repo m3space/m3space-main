@@ -28,7 +28,7 @@ namespace GroundControl.Core
         public float GpsAltitude { get; set; }
 
         /// <summary>
-        /// The heading in radians.
+        /// The heading in degrees.
         /// </summary>
         public short Heading { get; set; }
 

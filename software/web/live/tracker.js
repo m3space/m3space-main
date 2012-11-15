@@ -12,7 +12,7 @@ function initializeMap() {
 	gmap = new google.maps.Map(document.getElementById('mapcanvas'), mapOptions);
 	
 	var balloon = new google.maps.MarkerImage('balloon.png',
-		new google.maps.Size(37, 32),
+		new google.maps.Size(28, 42),
 		new google.maps.Point(0,0),
 		new google.maps.Point(14, 37));
 	

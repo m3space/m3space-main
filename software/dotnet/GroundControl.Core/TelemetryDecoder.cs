@@ -44,7 +44,7 @@ namespace GroundControl.Core
             data.Temperature1Raw = BitConverter.ToUInt16(rawData, 31);
             data.Temperature2Raw = BitConverter.ToUInt16(rawData, 33);
 
-            data.Pressure = BitConverter.ToUInt16(rawData, 35);
+            data.Pressure = BitConverter.ToUInt16(rawData, 35) * 0.001f;
             data.PressureAltitude = BitConverter.ToUInt16(rawData, 37);
 
             data.VinRaw = BitConverter.ToUInt16(rawData, 39);
