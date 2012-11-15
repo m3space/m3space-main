@@ -85,7 +85,7 @@ namespace GroundControl.Core
                 data.Longitude = Single.Parse(parts[2]);
                 data.GpsAltitude = Single.Parse(parts[3]);
                 data.PressureAltitude = Single.Parse(parts[4]);
-                data.Heading = Single.Parse(parts[5]);
+                data.Heading = Int16.Parse(parts[5]);
                 data.HorizontalSpeed = Single.Parse(parts[6]);
                 data.VerticalSpeed = Single.Parse(parts[7]);
                 data.Satellites = Byte.Parse(parts[8]);
@@ -118,7 +118,7 @@ namespace GroundControl.Core
                 data.Longitude = Single.Parse(parts[2]);
                 data.GpsAltitude = Single.Parse(parts[3]);
                 data.PressureAltitude = Single.Parse(parts[4]);
-                data.Heading = Single.Parse(parts[5]);
+                data.Heading = (short)(DataFormat.Rad2Deg * Single.Parse(parts[5]));
                 data.HorizontalSpeed = Single.Parse(parts[6]);
                 data.VerticalSpeed = 0.0f;
                 data.Satellites = Byte.Parse(parts[7]);

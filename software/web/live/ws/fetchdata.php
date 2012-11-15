@@ -15,7 +15,7 @@
 		$telemetry = array();
 		$lastimage = null;
 		
-		$stmt = $dbh->prepare('SELECT utctimestamp, latitude, longitude, galtitude, paltitude, heading, hspeed, vspeed, satellites, inttemperature, exttemperature, pressure, vin FROM live_telemetry WHERE utctimestamp>:since ORDER BY utctimestamp');
+		$stmt = $dbh->prepare('SELECT utctimestamp, latitude, longitude, galtitude, paltitude, heading, hspeed, vspeed, satellites, inttemperature, temperature1, temperature2, pressure, vin FROM live_telemetry WHERE utctimestamp>:since ORDER BY utctimestamp');
 		$stmt->bindParam(':since', $since);
 		$stmt->execute();
 		while ($row = $stmt->fetch()) {
@@ -29,7 +29,8 @@
 									'vspeed' => $row['vspeed'],
 									'satellites' => $row['satellites'],
 									'inttemperature' => $row['inttemperature'],
-									'exttemperature' => $row['exttemperature'],
+									'temperature1' => $row['temperature1'],
+									'temperature2' => $row['temperature2'],
 									'pressure' => $row['pressure'],
 									'vin' => $row['vin']);
 		}

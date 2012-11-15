@@ -35,7 +35,7 @@ namespace GroundControl.Core
             data.Latitude = BitConverter.ToSingle(rawData, 8);
             data.Longitude = BitConverter.ToSingle(rawData, 12);
             data.GpsAltitude = BitConverter.ToUInt16(rawData, 16);
-            data.Heading = Deg2Rad * BitConverter.ToUInt16(rawData, 18);
+            data.Heading = BitConverter.ToInt16(rawData, 18);
             data.HorizontalSpeed = BitConverter.ToSingle(rawData, 20);
             data.VerticalSpeed = BitConverter.ToSingle(rawData, 24);
             data.Satellites = rawData[28];

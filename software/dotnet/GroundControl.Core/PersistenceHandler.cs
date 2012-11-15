@@ -16,8 +16,6 @@ namespace GroundControl.Core
         private static string telemetryDirName = "telemetry";
         private static string telemetryPrefix = "telemetry_";
 
-        const float Rad2Deg = 180.0f / (float)Math.PI;
-
         private string dataDirectory;
         private string telemetryFileName;
         
@@ -114,7 +112,7 @@ namespace GroundControl.Core
                     telemetry.Longitude,
                     telemetry.GpsAltitude,
                     telemetry.PressureAltitude,
-                    telemetry.Heading * Rad2Deg,
+                    telemetry.Heading,
                     telemetry.HorizontalSpeed,
                     telemetry.VerticalSpeed,
                     telemetry.Satellites,

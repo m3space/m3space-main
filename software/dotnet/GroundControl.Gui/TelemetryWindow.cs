@@ -45,7 +45,7 @@ namespace GroundControl.Gui
             latLbl.Text = String.Format("{0}° {1:0.###}' {2}", latDegs, latDecMins, latOri);
             lngLbl.Text = String.Format("{0}° {1:0.###}' {2}", lngDegs, lngDecMins, lngOri);
             altLbl.Text = String.Format("{0:0.#} m", data.GpsAltitude);
-            headLbl.Text = String.Format("{0:0.#}°", data.Heading);
+            headLbl.Text = String.Format("{0}°", data.Heading);
             hspdLbl.Text = String.Format("{0:0.#} m/s", data.HorizontalSpeed);
             vspdLbl.Text = String.Format("{0:0.#} m/s", data.VerticalSpeed);
             temp1Lbl.Text = String.Format("{0:0.#}°C", data.Temperature1);

@@ -6,14 +6,20 @@ var polyline;
 function initializeMap() {
 	var mapOptions = {
 		zoom: 12,
-        center: new google.maps.LatLng(47.5, 7.8),
-        mapTypeId: google.maps.MapTypeId.ROADMAP
+		center: new google.maps.LatLng(47.5, 7.8),
+		mapTypeId: google.maps.MapTypeId.ROADMAP
 	};
 	gmap = new google.maps.Map(document.getElementById('mapcanvas'), mapOptions);
 	
+	var balloon = new google.maps.MarkerImage('balloon.png',
+		new google.maps.Size(37, 32),
+		new google.maps.Point(0,0),
+		new google.maps.Point(14, 37));
+	
 	var markerOptions = {
 		visible: false,
-		map: gmap		
+		map: gmap,
+		icon: balloon
 	}
 	endmarker = new google.maps.Marker(markerOptions);
 	
@@ -40,9 +46,9 @@ function refresh() {
 		if (data.telemetry != null) {
 			var last = null;
 			$.each(data.telemetry, function() {
-				last = this;				
+				last = this;
 				var pos = new google.maps.LatLng(this.latitude, this.longitude);
-				polyline.getPath().push(pos);				
+				polyline.getPath().push(pos);
 			});
 			if (last != null) {
 				lastdata = last.utctimestamp;
@@ -55,12 +61,13 @@ function refresh() {
 				$('#t_lat').html(last.latitude + '&deg;');
 				$('#t_lng').html(last.longitude + '&deg;');
 				$('#t_galt').html(last.galtitude + ' m');
-				$('#t_head').html(last.heading);
+				$('#t_head').html(last.heading + '&deg;');
 				$('#t_hspd').html(last.hspeed + ' m/s');
 				$('#t_vspd').html(last.vspeed + ' m/s');
 				$('#t_sat').html(last.satellites);
 				$('#t_inttmp').html(last.inttemperature + '&deg;C');
-				$('#t_exttmp').html(last.exttemperature + '&deg;C');
+				$('#t_t1').html(last.temperature1 + '&deg;C');
+				$('#t_t2').html(last.temperature2 + '&deg;C');
 				$('#t_press').html(last.pressure + ' bar');
 				$('#t_palt').html(last.paltitude + ' m');
 				$('#t_vin').html(last.vin + ' V');

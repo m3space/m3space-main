@@ -27,11 +27,12 @@
 		<tr><td>Longitude:</td><td><div id="t_lng"></div></td></tr>
 		<tr><td>Altitude:</td><td><div id="t_galt"></div></td></tr>
 		<tr><td>Heading:</td><td><div id="t_head"></div></td></tr>
-		<tr><td>HSpeed:</td><td><div id="t_hspd"></div></td></tr>
-		<tr><td>VSpeed:</td><td><div id="t_vspd"></div></td></tr>
+		<tr><td>H. Speed:</td><td><div id="t_hspd"></div></td></tr>
+		<tr><td>V. Speed:</td><td><div id="t_vspd"></div></td></tr>
 		<tr><td>Sat.:</td><td><div id="t_sat"></div></td></tr>
 		<tr><td>Int. Temp.:</td><td><div id="t_inttmp"></div></td></tr>
-		<tr><td>Ext. Temp.:</td><td><div id="t_exttmp"></div></td></tr>
+		<tr><td>Temp. 1:</td><td><div id="t_t1"></div></td></tr>
+		<tr><td>Temp. 2:</td><td><div id="t_t2"></div></td></tr>
 		<tr><td>Pressure:</td><td><div id="t_press"></div></td></tr>
 		<tr><td>P. Altitude:</td><td><div id="t_palt"></div></td></tr>
 		<tr><td>Vin:</td><td><div id="t_vin"></div></td></tr>

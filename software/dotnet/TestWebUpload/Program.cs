@@ -26,10 +26,11 @@ namespace TestWebUpload
             telemetry.Longitude = 7.50000f + ((float)rnd.NextDouble() - 0.5f) * maxstep;
             telemetry.GpsAltitude = 300.0f;
             telemetry.PressureAltitude = 280.0f;
-            telemetry.Heading = 0.707f;
+            telemetry.Heading = 360;
             telemetry.HorizontalSpeed = 0.25f;
             telemetry.VerticalSpeed = 0.0f;
             telemetry.Satellites = 4;
+            telemetry.IntTemperature = 18;
             telemetry.Temperature1 = 23.5f;
             telemetry.Temperature2 = 16.2f;
             telemetry.Pressure = 1.001f;

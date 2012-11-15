@@ -30,7 +30,7 @@ namespace GroundControl.Core
         /// <summary>
         /// The heading in radians.
         /// </summary>
-        public float Heading { get; set; }
+        public short Heading { get; set; }
 
         /// <summary>
         /// The speed over ground in m/s.
