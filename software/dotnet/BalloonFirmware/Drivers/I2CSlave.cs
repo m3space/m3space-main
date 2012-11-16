@@ -108,8 +108,8 @@ namespace BalloonFirmware.Drivers
             byte[] bValue = new byte[1];
             if (ReadFromRegister(register, bValue))
             {
-                bValue[0] &= (byte)~(mask);
-                bValue[0] |= bits & mask;
+                bValue[0] &= (byte)(~mask);
+                bValue[0] |= (byte)(bits & mask);
                 return WriteToRegister(register, bValue[0]);
             }
             return false;
