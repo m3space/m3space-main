@@ -100,20 +100,16 @@ namespace BalloonFirmware.Drivers
         /// Overwrites some bits inside a register.
         /// </summary>
         /// <param name="register">the register address</param>
-        /// <param name="startPos">the start bit position (7=MSB, 0=LSB)</param>
-        /// <param name="length">the number of bits to write</param>
-        /// <param name="rValue">the right-aligned value to write</param>
+        /// <param name="bits">the bits to write</param>
+        /// <param name="mask">a bit mask where only the bits that should be written are 1</param>
         /// <returns>true if successful, false if failed</returns>
-        protected bool WriteBitsToRegister(byte register, byte startPos, byte length, byte rValue)
+        protected bool WriteBitsToRegister(byte register, byte bits, byte mask)
         {
             byte[] bValue = new byte[1];
             if (ReadFromRegister(register, bValue))
             {
-                byte mask = (byte)(((1 << length) - 1) << (startPos - length + 1));
-                rValue <<= (startPos - length + 1);
-                rValue &= mask;
                 bValue[0] &= (byte)~(mask);
-                bValue[0] |= rValue;
+                bValue[0] |= bits & mask;
                 return WriteToRegister(register, bValue[0]);
             }
             return false;

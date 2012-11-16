@@ -17,31 +17,27 @@ namespace BalloonFirmware.Drivers
         const byte MPU6050_RA_ACCEL_XOUT_H = 0x3B;      // first register of motion data
         const byte MPU6050_RA_PWR_MGMT_1 = 0x6B;
 
-        const byte MPU6050_PWR1_CLKSEL_BIT = 2;
-        const byte MPU6050_PWR1_CLKSEL_LENGTH = 3;
+        const byte MPU6050_PWR1_CLKSEL_MASK = 0x07;
         const byte MPU6050_CLOCK_PLL_XGYRO = 0x01;
 
-        const byte MPU6050_GCONFIG_FS_SEL_BIT = 4;
-        const byte MPU6050_GCONFIG_FS_SEL_LENGTH = 2;
+        const byte MPU6050_PWR1_SLEEP_MASK = 0x40;
+        const byte MPU6050_SLEEP_DISABLE = 0x00;
+        const byte MPU6050_SLEEP_ENABLE = 0x40;
 
-        const byte MPU6050_ACONFIG_AFS_SEL_BIT = 4;
-        const byte MPU6050_ACONFIG_AFS_SEL_LENGTH = 2;
-
-        const byte MPU6050_PWR1_SLEEP_BIT = 6;
-        const byte MPU6050_PWR1_SLEEP_LENGTH = 1;
-
+        const byte MPU6050_GCONFIG_FS_SEL_MASK = 0x18;
         const byte MPU6050_GYRO_FS_250 = 0x00;
-        const byte MPU6050_GYRO_FS_500 = 0x01;
-        const byte MPU6050_GYRO_FS_1000 = 0x02;
-        const byte MPU6050_GYRO_FS_2000 = 0x03;
+        const byte MPU6050_GYRO_FS_500 = 0x08;
+        const byte MPU6050_GYRO_FS_1000 = 0x10;
+        const byte MPU6050_GYRO_FS_2000 = 0x18;
 
+        const byte MPU6050_ACONFIG_AFS_SEL_MASK = 0x18;
         const byte MPU6050_ACCEL_FS_2 = 0x00;
-        const byte MPU6050_ACCEL_FS_4 = 0x01;
-        const byte MPU6050_ACCEL_FS_8 = 0x02;
-        const byte MPU6050_ACCEL_FS_16 = 0x03;
+        const byte MPU6050_ACCEL_FS_4 = 0x08;
+        const byte MPU6050_ACCEL_FS_8 = 0x10;
+        const byte MPU6050_ACCEL_FS_16 = 0x18;
 
 
-        private byte[] motionBuffer;        
+        private byte[] motionBuffer;
 
         /// <summary>
         /// Constructor.
@@ -57,13 +53,13 @@ namespace BalloonFirmware.Drivers
         public void Initialize()
         {
             // set clock source to X-gyro reference
-            WriteBitsToRegister(MPU6050_RA_PWR_MGMT_1, MPU6050_PWR1_CLKSEL_BIT, MPU6050_PWR1_CLKSEL_LENGTH, MPU6050_CLOCK_PLL_XGYRO);
+            WriteBitsToRegister(MPU6050_RA_PWR_MGMT_1, MPU6050_CLOCK_PLL_XGYRO, MPU6050_PWR1_CLKSEL_MASK);
             // set full-scale gyro range
-            WriteBitsToRegister(MPU6050_RA_GYRO_CONFIG, MPU6050_GCONFIG_FS_SEL_BIT, MPU6050_GCONFIG_FS_SEL_LENGTH, MPU6050_GYRO_FS_2000);
+            WriteBitsToRegister(MPU6050_RA_GYRO_CONFIG, MPU6050_GYRO_FS_2000, MPU6050_GCONFIG_FS_SEL_MASK);
             // set full-scale accelerometer range
-            WriteBitsToRegister(MPU6050_RA_ACCEL_CONFIG, MPU6050_ACONFIG_AFS_SEL_BIT, MPU6050_ACONFIG_AFS_SEL_LENGTH, MPU6050_ACCEL_FS_16);
+            WriteBitsToRegister(MPU6050_RA_ACCEL_CONFIG, MPU6050_ACCEL_FS_16, MPU6050_ACONFIG_AFS_SEL_MASK);
             // disable sleep
-            WriteBitsToRegister(MPU6050_RA_PWR_MGMT_1, MPU6050_PWR1_SLEEP_BIT, MPU6050_PWR1_SLEEP_LENGTH, 0);
+            WriteBitsToRegister(MPU6050_RA_PWR_MGMT_1, MPU6050_SLEEP_DISABLE, MPU6050_PWR1_SLEEP_MASK);
         }
 
         /// <summary>
