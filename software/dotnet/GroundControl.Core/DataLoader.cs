@@ -120,9 +120,21 @@ namespace GroundControl.Core
                 data.PressureAltitude = Single.Parse(parts[4]);
                 data.Heading = (short)(DataFormat.Rad2Deg * Single.Parse(parts[5]));
                 data.HorizontalSpeed = Single.Parse(parts[6]);
+
+                // compute vertical speed from altitude data
                 data.VerticalSpeed = 0.0f;
+                if (dataCache.Telemetry.Count > 0)
+                {
+                    TelemetryData last = dataCache.Telemetry.Last();
+                    TimeSpan td = new TimeSpan(data.UtcTimestamp.Ticks - last.UtcTimestamp.Ticks);
+                    if (td.TotalSeconds > 0.0)
+                    {
+                        data.VerticalSpeed = (data.GpsAltitude - last.GpsAltitude) / (float)td.TotalSeconds;
+                    }
+                }
+                
                 data.Satellites = Byte.Parse(parts[7]);
-                data.IntTemperature = 0;
+                data.IntTemperature = 0;    // not yet included
                 data.Temperature1 = Single.Parse(parts[8]);
                 data.Temperature2 = Single.Parse(parts[9]);
                 data.Pressure = Single.Parse(parts[10]);

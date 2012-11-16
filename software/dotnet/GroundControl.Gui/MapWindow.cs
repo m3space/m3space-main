@@ -16,13 +16,21 @@ namespace GroundControl.Gui
 {
     public partial class MapWindow : Form
     {
+        /// <summary>
+        /// Minimal descending speed to detect burst (m/s).
+        /// </summary>
+        const float BurstSpeed = -15.0f;
+
         private GMapControl map;
         private GMapOverlay balloonOverlay;
         private GMapOverlay predictionOverlay;
         private GMapOverlay groundControlOverlay;
 
-        private GMapMarker balloonMarker;
+        private GMapMarkerImage balloonMarker;
         private GMapRoute balloonCourse;
+
+        private GMapMarkerImage groundControlMarker;
+        private GMapMarkerImage burstMarker;
 
         public MapWindow()
         {
@@ -55,13 +63,16 @@ namespace GroundControl.Gui
             
 
             balloonCourse = new GMapRoute(new List<PointLatLng>(), "BalloonCourse");
-            balloonCourse.Stroke = new Pen(Color.DarkBlue, 2.0f);
+            balloonCourse.Stroke = new Pen(Color.Blue, 2.0f);
 
-            balloonMarker = new GMapMarkerGoogleRed(map.Position);
+            balloonMarker = new GMapMarkerImage(map.Position, Properties.Resources.Ascending, new Point(-17, -43));
             balloonOverlay.Markers.Add(balloonMarker);
             balloonOverlay.Routes.Add(balloonCourse);
 
-            groundControlOverlay.Markers.Add(new GMapMarkerImage(map.Position, Properties.Resources.Receiver));
+            groundControlMarker = new GMapMarkerImage(map.Position, Properties.Resources.Receiver, new Point(-10, -27));
+            groundControlOverlay.Markers.Add(groundControlMarker);
+
+            burstMarker = null;
 
             mapTypeDropDown.SelectedIndex = 0;
 
@@ -74,11 +85,20 @@ namespace GroundControl.Gui
             balloonCourse.Points.Add(mapPoint);
             balloonMarker.Position = mapPoint;
             map.Position = mapPoint;
+
+            // detect burst
+            if ((burstMarker == null) && (data.VerticalSpeed < BurstSpeed))
+            {
+                burstMarker = new GMapMarkerImage(mapPoint, Properties.Resources.Burst);
+                balloonOverlay.Markers.Add(burstMarker);
+                balloonMarker.MarkerImage = Properties.Resources.Descending;
+                balloonMarker.Offset = new Point(-10, -25);
+            }
         }
 
         public void UpdateGroundPosition(double latitude, double longitude)
         {
-            groundControlOverlay.Markers.First().Position = new PointLatLng(latitude, longitude);
+            groundControlMarker.Position = new PointLatLng(latitude, longitude);
         }
 
         public void Clear()
@@ -109,7 +129,7 @@ namespace GroundControl.Gui
             predictionOverlay.Routes.Clear();
             predictionOverlay.Markers.Clear();
             GMapRoute route = new GMapRoute(points, "PredictedCourse");
-            route.Stroke = new Pen(Color.Black, 2.0f);
+            route.Stroke = new Pen(Color.Fuchsia, 2.0f);
             predictionOverlay.Routes.Add(route);
             foreach (GMapMarker marker in markers)
                 predictionOverlay.Markers.Add(marker);

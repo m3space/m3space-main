@@ -21,8 +21,8 @@ namespace BalloonFirmware
         private const int IMAGE_CHUNK_SIZE = 60;
         private const int MOTION_BUFFER_SIZE = 10;
 
-        const string TelemetryFormat = "Utc;Lat;Lng;Alt;HSpd;VSpd;Head;Sat;IntTemp;Temp1;Temp2;Pressure;PAlt;Vin;Duty\r\n";
-        const string MotionFormat = "Utc;Ax;Ay;Az;Gx;Gy;Gz\r\n";
+        private const string TelemetryFormat = "Utc;Lat;Lng;Alt;HSpd;VSpd;Head;Sat;IntTemp;Temp1;Temp2;Pressure;PAlt;Vin;Duty\r\n";
+        private const string MotionFormat = "Utc;Ax;Ay;Az;Gx;Gy;Gz\r\n";
 
         private BoundedBuffer txQueue;
         private byte[] txBuffer;
@@ -59,9 +59,10 @@ namespace BalloonFirmware
         private int motionBufferIndex;
 
         private Barometer barometer;
-        ushort cachedPressureAltitude;
-        ushort cachedPressure;
-        short cachedTemperature;
+        private ushort cachedPressureAltitude;
+        private ushort cachedPressure;
+        private short cachedTemperature;
+        private short altitudeOffset;
 
         private object gpsLock = new object();
         private object dutyCycleLock = new object();
@@ -88,6 +89,7 @@ namespace BalloonFirmware
 
             currentImageTimestamp = DateTime.Now;
             lastSentImage = DateTime.Now;
+            cachedGpsPoint.UtcTimestamp = DateTime.Now;
 
             lastXBeeResetCheck = DateTime.Now;
             xBeeDutyCycle = 0;
@@ -158,6 +160,16 @@ namespace BalloonFirmware
             fileHandle.Position = fileHandle.Length;
             fileHandle.Write(writeData, 0, writeData.Length);
             fileHandle.Close();
+
+            // calibrate barometer altitude with GPS
+            barometer.Initialize();
+            ushort alt = barometer.GetAltitude();
+            if (alt < ushort.MaxValue)
+            {
+                Monitor.Enter(gpsLock);
+                altitudeOffset = (short)(cachedGpsPoint.Altitude - alt);
+                Monitor.Exit(gpsLock);
+            }
 
             // start all threads
             transmitThread.Start();
@@ -339,7 +351,6 @@ namespace BalloonFirmware
         /// </summary>
         private void StartBarometerThread()
         {
-            barometer.Initialize();
             ushort alt;
             ushort p;
             short t;
@@ -349,7 +360,7 @@ namespace BalloonFirmware
                 p = barometer.GetPressure();
                 t = barometer.GetTemperature();
                 Monitor.Enter(barometerLock);
-                cachedPressureAltitude = alt;
+                cachedPressureAltitude = (ushort)(alt + altitudeOffset);
                 cachedPressure = p;
                 cachedTemperature = t;
                 Monitor.Exit(barometerLock);

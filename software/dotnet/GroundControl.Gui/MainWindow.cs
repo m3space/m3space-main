@@ -472,21 +472,21 @@ namespace GroundControl.Gui
                     {
                         foreach (var point in placemark.Flatten().OfType<SharpKml.Dom.Point>())
                         {
-                            markers.Add(new GMapMarkerImage(new PointLatLng(point.Coordinate.Latitude, point.Coordinate.Longitude), Properties.Resources.Ascending));
+                            markers.Add(new GMapMarkerImage(new PointLatLng(point.Coordinate.Latitude, point.Coordinate.Longitude), Properties.Resources.Ascending, new System.Drawing.Point(-17, -43)));
                         }
                     }
                     else if (placemark.Name.Equals("Balloon Burst"))
                     {
                         foreach (var point in placemark.Flatten().OfType<SharpKml.Dom.Point>())
                         {
-                            markers.Add(new GMapMarkerImage(new PointLatLng(point.Coordinate.Latitude, point.Coordinate.Longitude), Properties.Resources.Descending));
+                            markers.Add(new GMapMarkerImage(new PointLatLng(point.Coordinate.Latitude, point.Coordinate.Longitude), Properties.Resources.Burst));
                         }                        
                     }
                     else if (placemark.Name.Equals("Predicted Balloon Landing"))
                     {
                         foreach (var point in placemark.Flatten().OfType<SharpKml.Dom.Point>())
                         {
-                            markers.Add(new GMapMarkerImage(new PointLatLng(point.Coordinate.Latitude, point.Coordinate.Longitude), Properties.Resources.Descending));
+                            markers.Add(new GMapMarkerImage(new PointLatLng(point.Coordinate.Latitude, point.Coordinate.Longitude), Properties.Resources.Descending, new System.Drawing.Point(-10, -27)));
                         }
                     }
                 }
