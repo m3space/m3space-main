@@ -28,12 +28,17 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MapWindow));
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.mapTypeDropDown = new System.Windows.Forms.ToolStripComboBox();
             this.layerSplitButton = new System.Windows.Forms.ToolStripSplitButton();
-            this.layer1ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.layer2ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.layer3ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.layerPredictionMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.layerBalloonMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.layerGroundControlMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.layerRouteMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripDropDownButton1 = new System.Windows.Forms.ToolStripDropDownButton();
+            this.alongPredictionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toBalloonToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -41,10 +46,11 @@
             // 
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.mapTypeDropDown,
-            this.layerSplitButton});
+            this.layerSplitButton,
+            this.toolStripDropDownButton1});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(357, 25);
+            this.toolStrip1.Size = new System.Drawing.Size(482, 25);
             this.toolStrip1.TabIndex = 0;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -62,49 +68,85 @@
             // layerSplitButton
             // 
             this.layerSplitButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.layer1ToolStripMenuItem,
-            this.layer2ToolStripMenuItem,
-            this.layer3ToolStripMenuItem});
+            this.layerPredictionMenuItem,
+            this.layerBalloonMenuItem,
+            this.layerGroundControlMenuItem,
+            this.layerRouteMenuItem});
             this.layerSplitButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.layerSplitButton.Name = "layerSplitButton";
             this.layerSplitButton.Size = new System.Drawing.Size(51, 22);
             this.layerSplitButton.Text = "Layer";
             // 
-            // layer1ToolStripMenuItem
+            // layerPredictionMenuItem
             // 
-            this.layer1ToolStripMenuItem.Checked = true;
-            this.layer1ToolStripMenuItem.CheckOnClick = true;
-            this.layer1ToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.layer1ToolStripMenuItem.Name = "layer1ToolStripMenuItem";
-            this.layer1ToolStripMenuItem.Size = new System.Drawing.Size(154, 22);
-            this.layer1ToolStripMenuItem.Text = "Prediction";
-            this.layer1ToolStripMenuItem.CheckedChanged += new System.EventHandler(this.layerToolStripMenuItem_CheckedChanged);
+            this.layerPredictionMenuItem.Checked = true;
+            this.layerPredictionMenuItem.CheckOnClick = true;
+            this.layerPredictionMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.layerPredictionMenuItem.Name = "layerPredictionMenuItem";
+            this.layerPredictionMenuItem.Size = new System.Drawing.Size(154, 22);
+            this.layerPredictionMenuItem.Text = "Prediction";
+            this.layerPredictionMenuItem.CheckedChanged += new System.EventHandler(this.layerToolStripMenuItem_CheckedChanged);
             // 
-            // layer2ToolStripMenuItem
+            // layerBalloonMenuItem
             // 
-            this.layer2ToolStripMenuItem.Checked = true;
-            this.layer2ToolStripMenuItem.CheckOnClick = true;
-            this.layer2ToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.layer2ToolStripMenuItem.Name = "layer2ToolStripMenuItem";
-            this.layer2ToolStripMenuItem.Size = new System.Drawing.Size(154, 22);
-            this.layer2ToolStripMenuItem.Text = "Balloon";
-            this.layer2ToolStripMenuItem.CheckedChanged += new System.EventHandler(this.layerToolStripMenuItem_CheckedChanged);
+            this.layerBalloonMenuItem.Checked = true;
+            this.layerBalloonMenuItem.CheckOnClick = true;
+            this.layerBalloonMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.layerBalloonMenuItem.Name = "layerBalloonMenuItem";
+            this.layerBalloonMenuItem.Size = new System.Drawing.Size(154, 22);
+            this.layerBalloonMenuItem.Text = "Balloon";
+            this.layerBalloonMenuItem.CheckedChanged += new System.EventHandler(this.layerToolStripMenuItem_CheckedChanged);
             // 
-            // layer3ToolStripMenuItem
+            // layerGroundControlMenuItem
             // 
-            this.layer3ToolStripMenuItem.Checked = true;
-            this.layer3ToolStripMenuItem.CheckOnClick = true;
-            this.layer3ToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.layer3ToolStripMenuItem.Name = "layer3ToolStripMenuItem";
-            this.layer3ToolStripMenuItem.Size = new System.Drawing.Size(154, 22);
-            this.layer3ToolStripMenuItem.Text = "GroundControl";
-            this.layer3ToolStripMenuItem.CheckedChanged += new System.EventHandler(this.layerToolStripMenuItem_CheckedChanged);
+            this.layerGroundControlMenuItem.Checked = true;
+            this.layerGroundControlMenuItem.CheckOnClick = true;
+            this.layerGroundControlMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.layerGroundControlMenuItem.Name = "layerGroundControlMenuItem";
+            this.layerGroundControlMenuItem.Size = new System.Drawing.Size(154, 22);
+            this.layerGroundControlMenuItem.Text = "GroundControl";
+            this.layerGroundControlMenuItem.CheckedChanged += new System.EventHandler(this.layerToolStripMenuItem_CheckedChanged);
+            // 
+            // layerRouteMenuItem
+            // 
+            this.layerRouteMenuItem.Checked = true;
+            this.layerRouteMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.layerRouteMenuItem.Name = "layerRouteMenuItem";
+            this.layerRouteMenuItem.Size = new System.Drawing.Size(154, 22);
+            this.layerRouteMenuItem.Text = "Route";
+            this.layerRouteMenuItem.Click += new System.EventHandler(this.layerToolStripMenuItem_CheckedChanged);
+            // 
+            // toolStripDropDownButton1
+            // 
+            this.toolStripDropDownButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.toolStripDropDownButton1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.alongPredictionToolStripMenuItem,
+            this.toBalloonToolStripMenuItem});
+            this.toolStripDropDownButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripDropDownButton1.Image")));
+            this.toolStripDropDownButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripDropDownButton1.Name = "toolStripDropDownButton1";
+            this.toolStripDropDownButton1.Size = new System.Drawing.Size(51, 22);
+            this.toolStripDropDownButton1.Text = "Route";
+            // 
+            // alongPredictionToolStripMenuItem
+            // 
+            this.alongPredictionToolStripMenuItem.Name = "alongPredictionToolStripMenuItem";
+            this.alongPredictionToolStripMenuItem.Size = new System.Drawing.Size(163, 22);
+            this.alongPredictionToolStripMenuItem.Text = "Along prediction";
+            this.alongPredictionToolStripMenuItem.Click += new System.EventHandler(this.alongPredictionToolStripMenuItem_Click);
+            // 
+            // toBalloonToolStripMenuItem
+            // 
+            this.toBalloonToolStripMenuItem.Name = "toBalloonToolStripMenuItem";
+            this.toBalloonToolStripMenuItem.Size = new System.Drawing.Size(163, 22);
+            this.toBalloonToolStripMenuItem.Text = "To balloon";
+            this.toBalloonToolStripMenuItem.Click += new System.EventHandler(this.toBalloonToolStripMenuItem_Click);
             // 
             // MapWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(357, 241);
+            this.ClientSize = new System.Drawing.Size(482, 241);
             this.ControlBox = false;
             this.Controls.Add(this.toolStrip1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
@@ -128,8 +170,12 @@
         private System.Windows.Forms.ToolStrip toolStrip1;
         private System.Windows.Forms.ToolStripComboBox mapTypeDropDown;
         private System.Windows.Forms.ToolStripSplitButton layerSplitButton;
-        private System.Windows.Forms.ToolStripMenuItem layer2ToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem layer3ToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem layer1ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem layerBalloonMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem layerGroundControlMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem layerPredictionMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem layerRouteMenuItem;
+        private System.Windows.Forms.ToolStripDropDownButton toolStripDropDownButton1;
+        private System.Windows.Forms.ToolStripMenuItem alongPredictionToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem toBalloonToolStripMenuItem;
     }
 }

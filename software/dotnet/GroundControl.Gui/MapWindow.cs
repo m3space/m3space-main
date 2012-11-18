@@ -25,6 +25,7 @@ namespace GroundControl.Gui
         private GMapOverlay balloonOverlay;
         private GMapOverlay predictionOverlay;
         private GMapOverlay groundControlOverlay;
+        private GMapOverlay routeOverlay;
 
         private GMapMarkerImage balloonMarker;
         private GMapRoute balloonCourse;
@@ -42,7 +43,6 @@ namespace GroundControl.Gui
             map.CanDragMap = true;
             map.DragButton = MouseButtons.Right;
             map.Manager.Mode = AccessMode.ServerAndCache;
-            map.CanDragMap = true;
             map.MarkersEnabled = true;
             map.PolygonsEnabled = true;
             map.MinZoom = 0;
@@ -55,16 +55,15 @@ namespace GroundControl.Gui
             balloonOverlay = new GMapOverlay(map, "Balloon");
             predictionOverlay = new GMapOverlay(map, "Prediction");
             groundControlOverlay = new GMapOverlay(map, "GroundControl");
-            
+            routeOverlay = new GMapOverlay(map, "Route");
 
             map.Overlays.Add(balloonOverlay);
             map.Overlays.Add(predictionOverlay);
             map.Overlays.Add(groundControlOverlay);
-            
+            map.Overlays.Add(routeOverlay);
 
             balloonCourse = new GMapRoute(new List<PointLatLng>(), "BalloonCourse");
             balloonCourse.Stroke = new Pen(Color.Blue, 2.0f);
-
             balloonMarker = new GMapMarkerImage(map.Position, Properties.Resources.Ascending, new Point(-17, -43));
             balloonOverlay.Markers.Add(balloonMarker);
             balloonOverlay.Routes.Add(balloonCourse);
@@ -172,8 +171,49 @@ namespace GroundControl.Gui
                 case "GroundControl":
                     groundControlOverlay.IsVisibile = layer.Checked;
                     break;
+                case "Route":
+                    routeOverlay.IsVisibile = layer.Checked;
+                    break;
             }
             map.Refresh();
+        }
+
+        private void alongPredictionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (predictionOverlay.Routes.Count == 0)
+            {
+                MessageBox.Show("Load prediction file before calculating route!", "No prediction file", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+            PointLatLng start = predictionOverlay.Markers.First().Position;
+            PointLatLng end = predictionOverlay.Markers.Last().Position;
+            MapRoute route = GMapProviders.GoogleMap.GetRouteBetweenPoints(start, end, false, false, 10);
+            routeOverlay.Routes.Clear();
+            routeOverlay.Routes.Add(new GMapRoute(route.Points, "Route"));
+        }
+
+        private void toBalloonToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            PointLatLng start = groundControlMarker.Position;
+            PointLatLng end = balloonMarker.Position;
+            MapRoute route = GMapProviders.GoogleMap.GetRouteBetweenPoints(start, end, false, false, 10);
+            routeOverlay.Routes.Clear();
+            routeOverlay.Routes.Add(new GMapRoute(route.Points, "Route"));
+
+            //GDirections s;
+            //var result = GMapProviders.GoogleMap.GetDirections(out s, start, end, false, false, false, false, true);
+            //if (result == DirectionsStatusCode.OK)
+            //{
+            //    Console.WriteLine(s.Summary + ", " + s.Copyrights);
+            //    Console.WriteLine(s.StartAddress + " -> " + s.EndAddress);
+            //    Console.WriteLine(s.Distance);
+            //    Console.WriteLine(s.Duration);
+
+            //    foreach (var step in s.Steps)
+            //    {
+            //        Console.WriteLine(step);
+            //    }
+            //}
         }
     }
 }
