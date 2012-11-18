@@ -31,7 +31,7 @@ namespace BalloonFirmware
             Array.Copy(BitConverter.GetBytes(data.Pressure), 0, packet, 38, 2);
             Array.Copy(BitConverter.GetBytes(data.PressureAltitude), 0, packet, 40, 2);
             Array.Copy(BitConverter.GetBytes(data.VinRaw), 0, packet, 42, 2);
-            packet[43] = data.DutyCycle;
+            packet[44] = data.DutyCycle;
             return packet;
         }
 
