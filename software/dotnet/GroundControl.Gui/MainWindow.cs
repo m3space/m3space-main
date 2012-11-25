@@ -451,7 +451,6 @@ namespace GroundControl.Gui
             DialogResult result = dialog.ShowDialog();
             if (result == DialogResult.OK)
             {
-                // TODO find a way to load CUSF landing predictor files
                 KmlFile kml = KmlFile.Load(dialog.FileName);
 
                 List<PointLatLng> coords = new List<PointLatLng>();

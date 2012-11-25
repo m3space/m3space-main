@@ -16,14 +16,19 @@ namespace BalloonFirmware
 #endif
             SpaceBalloon balloon = new SpaceBalloon();
 
-            balloon.Initialize();
-
-            while (true)
+            if (balloon.Initialize())
             {
-                // check threads and ports periodically
-                Thread.Sleep(10000);
+                Drivers.OnboardLed.Off();
+                while (true)
+                {
+                    Thread.Sleep(10000);
+                    balloon.CheckThreads();
+                }
+            }
+            else
+            {
+                Drivers.OnboardLed.Blink(100);
             }
         }
-
     }
 }

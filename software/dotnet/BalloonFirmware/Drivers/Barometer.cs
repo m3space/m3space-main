@@ -17,6 +17,11 @@ namespace BalloonFirmware.Drivers
         private static readonly byte[] GETPRESSURE = new byte[] { 0x70 };                                   // p
         private static readonly byte[] GETTEMPERATURE = new byte[] { 0x74, 0x2D, 0x63 };                    // t-c
         private static readonly byte[] GETALTITUDE = new byte[] { 0x68 };                                   // h
+        private static readonly byte PRESSURE_SIZE = 26;    // number of bytes of the pressure packet (including \r\n)
+        private static readonly byte TEMPERATURE_SIZE = 31; // number of bytes of the temperature packet (including \r\n)
+        private static readonly byte ALTITUDE_SIZE = 21;    // number of bytes of the altitude packet (including \r\n)
+        private static readonly byte READ_WAIT_TIME = 50;  // time in ms to wait between checking port for incoming data
+        private static readonly byte READ_WAIT_CYCLE = 10;   // max cycles waiting for incoming data
 
         private byte[] readBuffer;
         private const int readBufferSize = 32;
@@ -63,14 +68,15 @@ namespace BalloonFirmware.Drivers
             byte i = 0;
             do
             {
-                if (i == 5)
+                if (i == READ_WAIT_CYCLE)
                     return ushort.MaxValue;
-                Thread.Sleep(100);
+                Thread.Sleep(READ_WAIT_TIME);
                 i++;
             }
-            while (port.BytesToRead < 24);
-            int n = port.Read(readBuffer, 0, 24);
-            if (n >= 24)
+            while (port.BytesToRead < PRESSURE_SIZE);
+            //Debug.Print("Pres: " + i);
+            int n = port.Read(readBuffer, 0, PRESSURE_SIZE);
+            if (n >= PRESSURE_SIZE)
             {
                 // returns integer part only. float parsing not available.
                 string str = new String(System.Text.Encoding.UTF8.GetChars(readBuffer)).Substring(13, 4);
@@ -104,14 +110,15 @@ namespace BalloonFirmware.Drivers
             byte i = 0;
             do
             {
-                if (i == 5)
+                if (i == READ_WAIT_CYCLE)
                     return short.MinValue;
-                Thread.Sleep(100);
+                Thread.Sleep(READ_WAIT_TIME);
                 i++;
             }
-            while (port.BytesToRead < 29);
-            int n = port.Read(readBuffer, 0, 29);
-            if (n >= 29)
+            while (port.BytesToRead < TEMPERATURE_SIZE);
+            //Debug.Print("Temp: " + i);
+            int n = port.Read(readBuffer, 0, TEMPERATURE_SIZE);
+            if (n >= TEMPERATURE_SIZE)
             {
                 // returns integer part only. float parsing not available.
                 string str = new String(System.Text.Encoding.UTF8.GetChars(readBuffer)).Substring(15, 4);
@@ -145,14 +152,15 @@ namespace BalloonFirmware.Drivers
             byte i = 0;
             do
             {
-                if (i == 5)
+                if (i == READ_WAIT_CYCLE)
                     return ushort.MaxValue;
-                Thread.Sleep(100);
+                Thread.Sleep(READ_WAIT_TIME);
                 i++;
             }
-            while (port.BytesToRead < 19);
-            int n = port.Read(readBuffer, 0, 19);
-            if (n >= 19)
+            while (port.BytesToRead < ALTITUDE_SIZE);
+            //Debug.Print("Alti: " + i);
+            int n = port.Read(readBuffer, 0, ALTITUDE_SIZE);
+            if (n >= ALTITUDE_SIZE)
             {
                 string str = new String(System.Text.Encoding.UTF8.GetChars(readBuffer)).Substring(7, 5);
                 try

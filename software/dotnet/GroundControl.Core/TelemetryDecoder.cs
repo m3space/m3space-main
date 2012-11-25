@@ -15,9 +15,14 @@ namespace GroundControl.Core
         public const int TelemetryPayloadSize = 42;
 
         private float Deg2Rad = (float)Math.PI / 180.0f;
-        private float TempOffset     = 24.0f;  // Werte empirisch ermittelt. Verglichen mit
-        private float TempGain       = 0.102f; // Thermometer bei -30°C und +20°C (Temp[°C] = Offset - Raw * Gain)
+        //private float TempOffset     = 24.0f;  // Werte empirisch ermittelt. Verglichen mit
+        //private float TempGain       = 0.102f; // Thermometer bei -30°C und +20°C (Temp[°C] = Offset - Raw * Gain)
+        private float Temp1Gain      = 0.0986f;
+        private float Temp1Offset    = 27.714f;
+        private float Temp2Gain      = 0.1014f;
+        private float Temp2Offset    = 24.539f;
         private float BatteryGain    = 1/120f; // Battery[V] = Raw * Gain
+
 
         /// <summary>
         /// Calculates real telemetry data from binary telemetry packet.
@@ -52,8 +57,8 @@ namespace GroundControl.Core
 
             data.Vin = data.VinRaw * BatteryGain;
 
-            data.Temperature1 = TempOffset - data.Temperature1Raw * TempGain;
-            data.Temperature2 = TempOffset - data.Temperature2Raw * TempGain;
+            data.Temperature1 = Temp1Offset - data.Temperature1Raw * Temp1Gain;
+            data.Temperature2 = Temp2Offset - data.Temperature2Raw * Temp2Gain;
 
             return data;
         }

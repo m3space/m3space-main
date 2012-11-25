@@ -31,6 +31,7 @@ namespace BalloonFirmware
         private PersistentStorage sdStorage;
         private string telemetryFileName;
         private string motionFileName;
+        private string errorLogFilename;
 
         private AnalogIn tempSensor1;
         private AnalogIn tempSensor2;
@@ -62,22 +63,36 @@ namespace BalloonFirmware
         private ushort cachedPressureAltitude;
         private ushort cachedPressure;
         private short cachedTemperature;
-        private short altitudeOffset;
 
         private object gpsLock = new object();
         private object dutyCycleLock = new object();
         private object barometerLock = new object();
         private AutoResetEvent waitTimeSync;
 
+        private FileStream motionFileHandle = null;
+        private FileStream telemetryFileHandle = null;
+        private FileStream imageFileHandle = null;
+
+        private Thread gpsThread;
+        private Thread transmitThread;
+        private Thread telemetryThread;
+        private Thread cameraThread;
+        private Thread motionThread;
+        private Thread barometerThread;
+
         /// <summary>
         /// Constructor.
         /// </summary>
         public SpaceBalloon()
         {
+            CheckSDcard();
+
             txQueue = new BoundedBuffer();
             txBuffer = new byte[256];
             dataProtocol = new DataProtocol();
+            
             sdStorage = new PersistentStorage("SD");
+
             tempSensor1 = new AnalogIn((AnalogIn.Pin)FEZ_Pin.AnalogIn.An4);
             tempSensor2 = new AnalogIn((AnalogIn.Pin)FEZ_Pin.AnalogIn.An5);
             vInSensor = new AnalogIn((AnalogIn.Pin)FEZ_Pin.AnalogIn.An2);
@@ -109,74 +124,79 @@ namespace BalloonFirmware
             waitTimeSync = new AutoResetEvent(false);
         }
 
+        private void CheckSDcard()
+        {
+            // wait for SD-card
+            OnboardLed.Blink(100);
+            while (!PersistentStorage.DetectSDCard())
+            {
+                Thread.Sleep(1000);
+            }
+            OnboardLed.Off();
+        }
+
 
         /// <summary>
         /// Initializes the balloon software.
         /// </summary>
-        public void Initialize()
+        public bool Initialize()
         {
-            // initialize SD card
             try
             {
                 sdStorage.MountFileSystem();
                 sdRootDirectory = VolumeInfo.GetVolumes()[0].RootDirectory;
+
+                // create threads
+                gpsThread = new Thread(new ThreadStart(StartGpsThread));
+                transmitThread = new Thread(new ThreadStart(StartTransmitThread));
+                telemetryThread = new Thread(new ThreadStart(StartTelemetryThread));
+                cameraThread = new Thread(new ThreadStart(StartCameraThread));
+                motionThread = new Thread(new ThreadStart(StartMotionThread));
+                barometerThread = new Thread(new ThreadStart(StartBarometerThread));
+
+                // start GPS thread to get time.
+                gpsThread.Start();
+
+                // wait until system time is synchronized.
+                waitTimeSync.WaitOne();
+
+                // initialize SD card files
+                string now = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+                telemetryFileName = sdRootDirectory + @"\telemetry_" + now + ".csv";
+                motionFileName = sdRootDirectory + @"\motiondata_" + now + ".csv";
+                errorLogFilename = sdRootDirectory + @"\errorLog_" + now + ".csv";
+                currentImageFilename = sdRootDirectory + @"\" + now + ".jpg";
+
+                telemetryFileHandle = new FileStream(telemetryFileName, FileMode.OpenOrCreate);
+                byte[] writeData = Encoding.UTF8.GetBytes(TelemetryFormat);
+                telemetryFileHandle.Position = telemetryFileHandle.Length;
+                telemetryFileHandle.Write(writeData, 0, writeData.Length);
+                telemetryFileHandle.Flush();
+
+                motionFileHandle = new FileStream(motionFileName, FileMode.OpenOrCreate);
+                writeData = Encoding.UTF8.GetBytes(MotionFormat);
+                motionFileHandle.Position = motionFileHandle.Length;
+                motionFileHandle.Write(writeData, 0, writeData.Length);
+                motionFileHandle.Flush();
+
+                barometer.Initialize();
+
+                // start all threads
+                transmitThread.Start();
+                telemetryThread.Start();
+                cameraThread.Start();
+                motionThread.Start();
+                barometerThread.Start();
+
+                return true;
             }
             catch (Exception e)
             {
 #if DEBUG
-                Debug.Print("SD card initialization failed.");
+                Debug.Print("Initialization failed: " + e.Message);
 #endif
-                // TODO enable LED
-                return;
+                return false;
             }
-
-            // create threads
-            Thread gpsThread = new Thread(new ThreadStart(StartGpsThread));
-            Thread transmitThread = new Thread(new ThreadStart(StartTransmitThread));
-            Thread telemetryThread = new Thread(new ThreadStart(StartTelemetryThread));
-            Thread cameraThread = new Thread(new ThreadStart(StartCameraThread));
-            Thread motionThread = new Thread(new ThreadStart(StartMotionThread));
-            Thread barometerThread = new Thread(new ThreadStart(StartBarometerThread));
-
-            // start GPS thread to get time.
-            gpsThread.Start();
-
-            // wait until system time is synchronized.
-            waitTimeSync.WaitOne();
-
-            // initialize SD card files
-            string now = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-            telemetryFileName = sdRootDirectory + @"\telemetry_" + now + ".csv";
-            motionFileName = sdRootDirectory + @"\motiondata_" + now + ".csv";
-
-            FileStream fileHandle = new FileStream(telemetryFileName, FileMode.OpenOrCreate);
-            byte[] writeData = Encoding.UTF8.GetBytes(TelemetryFormat);
-            fileHandle.Position = fileHandle.Length;
-            fileHandle.Write(writeData, 0, writeData.Length);
-            fileHandle.Close();
-
-            fileHandle = new FileStream(motionFileName, FileMode.OpenOrCreate);
-            writeData = Encoding.UTF8.GetBytes(MotionFormat);
-            fileHandle.Position = fileHandle.Length;
-            fileHandle.Write(writeData, 0, writeData.Length);
-            fileHandle.Close();
-
-            // calibrate barometer altitude with GPS
-            barometer.Initialize();
-            ushort alt = barometer.GetAltitude();
-            if (alt < ushort.MaxValue)
-            {
-                Monitor.Enter(gpsLock);
-                altitudeOffset = (short)(cachedGpsPoint.Altitude - alt);
-                Monitor.Exit(gpsLock);
-            }
-
-            // start all threads
-            transmitThread.Start();
-            telemetryThread.Start();
-            cameraThread.Start();
-            motionThread.Start();
-            barometerThread.Start();
         }
 
 
@@ -357,10 +377,12 @@ namespace BalloonFirmware
             while (true)
             {
                 alt = barometer.GetAltitude();
+                Thread.Sleep(300);
                 p = barometer.GetPressure();
+                Thread.Sleep(300);
                 t = barometer.GetTemperature();
                 Monitor.Enter(barometerLock);
-                cachedPressureAltitude = (ushort)(alt + altitudeOffset);
+                cachedPressureAltitude = alt;
                 cachedPressure = p;
                 cachedTemperature = t;
                 Monitor.Exit(barometerLock);
@@ -374,8 +396,6 @@ namespace BalloonFirmware
         /// </summary>
         private void StoreMotionBuffer()
         {
-            FileStream fileHandle = new FileStream(motionFileName, FileMode.OpenOrCreate);
-
             for (int i = 0; i < MOTION_BUFFER_SIZE; i++)
             {
                 string text = motionBuffer[i].UtcTimestamp.ToString("dd.MM.yyyy HH:mm:ss") + ';' +
@@ -389,11 +409,10 @@ namespace BalloonFirmware
 
                 byte[] writeData = Encoding.UTF8.GetBytes(text);
 
-                fileHandle.Position = fileHandle.Length;
-                fileHandle.Write(writeData, 0, writeData.Length);
+                motionFileHandle.Position = motionFileHandle.Length;
+                motionFileHandle.Write(writeData, 0, writeData.Length);
             }
-
-            fileHandle.Close();
+            motionFileHandle.Flush();
         }
 
         /// <summary>
@@ -402,8 +421,6 @@ namespace BalloonFirmware
         /// <param name="data">the telemetry data to save</param>
         private void StoreTelemetry(TelemetryData data)
         {
-            FileStream fileHandle = new FileStream(telemetryFileName, FileMode.OpenOrCreate);
-
             string text = data.UtcTimestamp.ToString("dd.MM.yyyy HH:mm:ss") + ';' +
                 data.GpsData.Latitude.ToString("F5") + ';' +
                 data.GpsData.Longitude.ToString("F5") + ';' +
@@ -423,9 +440,9 @@ namespace BalloonFirmware
 
             byte[] writeData = Encoding.UTF8.GetBytes(text);
 
-            fileHandle.Position = fileHandle.Length;
-            fileHandle.Write(writeData, 0, writeData.Length);
-            fileHandle.Close();
+            telemetryFileHandle.Position = telemetryFileHandle.Length;
+            telemetryFileHandle.Write(writeData, 0, writeData.Length);
+            telemetryFileHandle.Flush();
         }
 
         /// <summary>
@@ -437,7 +454,6 @@ namespace BalloonFirmware
 
             //camera.SetBaudRate(LinkspriteCamera.Baudrate.Baud_115200);
             //camera.SetPictureSize(LinkspriteCamera.SET_SIZE_640x480);
-
             while (true)
             {
                 camera.Reset();
@@ -463,8 +479,13 @@ namespace BalloonFirmware
 #if DEBUG
                     Debug.Print("Begin of JPG");
 #endif
+                    if (imageFileHandle != null && imageFileHandle.CanWrite)
+                    {
+                        imageFileHandle.Close();
+                    }
                     currentImageTimestamp = DateTime.Now;
                     currentImageFilename = sdRootDirectory + @"\" + currentImageTimestamp.ToString("yyyyMMdd_HHmmss") + ".jpg";
+                    imageFileHandle = new FileStream(currentImageFilename, FileMode.OpenOrCreate);
                 }
 
                 StoreImageChunk(data);
@@ -475,12 +496,12 @@ namespace BalloonFirmware
 #if DEBUG
                     Debug.Print("End of JPG");
 #endif
+                    imageFileHandle.Close();
                     if ((currentImageTimestamp - lastSentImage).Minutes >= IMAGE_TX_INTERVAL)
                     {
                         new Thread(new ThreadStart(StartTransmitImageThread)).Start();
                     }
                 }
-
             }
             catch (Exception e)
             {
@@ -515,12 +536,23 @@ namespace BalloonFirmware
         /// <param name="data">the data to save</param>
         private void StoreImageChunk(byte[] data)
         {
-            // save the jpg image part on SD card
-            FileStream fileHandle = new FileStream(currentImageFilename, FileMode.OpenOrCreate);
-            //Debug.Print("Image chunksize = " + data.Length + " Bytes");
-            fileHandle.Position = fileHandle.Length;
-            fileHandle.Write(data, 0, data.Length);
-            fileHandle.Close();
+            //// save the jpg image part on SD card
+            //FileStream fileHandle = new FileStream(currentImageFilename, FileMode.OpenOrCreate);
+            ////Debug.Print("Image chunksize = " + data.Length + " Bytes");
+            //fileHandle.Position = fileHandle.Length;
+            //fileHandle.Write(data, 0, data.Length);
+            //fileHandle.Close();
+
+            if (imageFileHandle == null)
+                imageFileHandle = new FileStream(currentImageFilename, FileMode.OpenOrCreate);
+            if (!imageFileHandle.Name.Equals(currentImageFilename))
+            {
+                imageFileHandle.Close();
+                imageFileHandle = new FileStream(currentImageFilename, FileMode.OpenOrCreate);
+            }
+            imageFileHandle.Position = imageFileHandle.Length;
+            imageFileHandle.Write(data, 0, data.Length);
+            imageFileHandle.Flush();
         }
 
         /// <summary>
@@ -654,6 +686,58 @@ namespace BalloonFirmware
             catch (Exception)
             {
             }
+        }
+
+        public void CheckThreads()
+        {
+            if (!gpsThread.IsAlive)
+            {
+                gpsThread = new Thread(new ThreadStart(StartGpsThread));
+                gpsThread.Start();
+                LogError("GPS Thread restarted");
+            }
+            if (!transmitThread.IsAlive)
+            {
+                transmitThread = new Thread(new ThreadStart(StartTransmitThread));
+                transmitThread.Start();
+                LogError("Transmit Thread restarted");
+            }
+            if (!telemetryThread.IsAlive)
+            {
+                telemetryThread = new Thread(new ThreadStart(StartTelemetryThread));
+                telemetryThread.Start();
+                LogError("Telemetry Thread restarted");
+            }
+            if (!cameraThread.IsAlive)
+            {
+                cameraThread = new Thread(new ThreadStart(StartCameraThread));
+                cameraThread.Start();
+                LogError("Camera Thread restarted");
+            }
+            if (!motionThread.IsAlive)
+            {
+                motionThread = new Thread(new ThreadStart(StartMotionThread));
+                motionThread.Start();
+                LogError("Motion Thread restarted");
+            }
+            if (!barometerThread.IsAlive)
+            {
+                barometerThread = new Thread(new ThreadStart(StartBarometerThread));
+                barometerThread.Start();
+                LogError("Barometer Thread restarted");
+            }
+        }
+
+        private void LogError(string message)
+        {
+            FileStream fileHandle = new FileStream(errorLogFilename, FileMode.OpenOrCreate);
+            fileHandle.Position = fileHandle.Length;
+            string text = DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss") + ";" + message + "\r\n";
+            fileHandle.Write(Encoding.UTF8.GetBytes(text), 0, text.Length);
+            fileHandle.Close();
+#if DEBUG
+            Debug.Print(text);
+#endif
         }
     }
 }
