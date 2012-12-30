@@ -33,10 +33,10 @@ namespace BalloonFirmware.Drivers
         public LinkspriteCamera2(SerialPort port)
         {
             this.port = port;
-            port.DataBits = 8;
-            port.Parity = Parity.None;
-            port.StopBits = StopBits.One;
-            port.ReadTimeout = 250;
+            this.port.DataBits = 8;
+            this.port.Parity = Parity.None;
+            this.port.StopBits = StopBits.One;
+            this.port.ReadTimeout = 250;
         }
 
         /// <summary>

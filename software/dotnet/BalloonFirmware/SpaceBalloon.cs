@@ -53,7 +53,7 @@ namespace BalloonFirmware
         private DateTime currentImageTimestamp;
         private DateTime lastSentImage;
         
-        private GpsReader gps;
+        private GpsReader2 gps;
 
         private Mpu6050 mpu6050;
         private MotionData[] motionBuffer;
@@ -97,7 +97,7 @@ namespace BalloonFirmware
             tempSensor2 = new AnalogIn((AnalogIn.Pin)FEZ_Pin.AnalogIn.An5);
             vInSensor = new AnalogIn((AnalogIn.Pin)FEZ_Pin.AnalogIn.An2);
 
-            gpsPort = new SerialPort("COM4", 38400, Parity.None, 8, StopBits.One);
+            gpsPort = new SerialPort("COM4");
             xBeePort = new SerialPort("COM1", 38400, Parity.None, 8, StopBits.One);
             cameraPort = new SerialPort("COM3", 38400, Parity.None, 8, StopBits.One);
             barometerPort = new SerialPort("COM2", 9600, Parity.None, 8, StopBits.One);
@@ -109,7 +109,7 @@ namespace BalloonFirmware
             lastXBeeResetCheck = DateTime.Now;
             xBeeDutyCycle = 0;
 
-            gps = new GpsReader();
+            gps = new GpsReader2(gpsPort);
             gps.GpsDataReceived += SetTimeFromGps;
 
             mpu6050 = new Mpu6050();
@@ -204,30 +204,12 @@ namespace BalloonFirmware
         /// Starts the GPS receiver thread.
         /// </summary>
         private void StartGpsThread()
-        {            
-            gpsPort.Open();
-            string strData = "";
-            byte[] gpsBuf = new byte[100];
+        {
+            gps.Initialize();
 
             while (true)
             {
-                int count = gpsPort.Read(gpsBuf, 0, 100);
-                if (count > 0)
-                {
-                    try
-                    {
-                        strData += new String(System.Text.Encoding.UTF8.GetChars(gpsBuf), 0, count);
-                    }
-                    catch (Exception)
-                    {
-                    }
-                    string temp = "";
-                    while (strData != temp)
-                    {
-                        temp = strData;
-                        strData = gps.GetNmeaString(strData);
-                    }
-                }
+                gps.ReadNmeaData();
                 Thread.Sleep(100);
             }
         }

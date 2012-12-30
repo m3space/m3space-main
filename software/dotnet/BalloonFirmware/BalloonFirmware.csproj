@@ -36,6 +36,7 @@
     <Compile Include="BoundedBuffer.cs" />
     <Compile Include="DataProtocol.cs" />
     <Compile Include="Drivers\Barometer.cs" />
+    <Compile Include="Drivers\GpsReader2.cs" />
     <Compile Include="Drivers\LinkspriteCamera2.cs" />
     <Compile Include="Drivers\I2CSlave.cs" />
     <Compile Include="Drivers\Led.cs" />
