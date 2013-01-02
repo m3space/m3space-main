@@ -18,7 +18,7 @@ namespace BalloonFirmware
     {
         private const int TELEMETRY_TX_INTERVAL = 5;
         private const int IMAGE_TX_INTERVAL = 5;
-        private const int IMAGE_CHUNK_SIZE = 60;
+        private const int IMAGE_CHUNK_SIZE = 64;
         private const int MOTION_BUFFER_SIZE = 10;
 
         private const string TelemetryFormat = "Utc;Lat;Lng;Alt;HSpd;VSpd;Head;Sat;IntTemp;Temp1;Temp2;Pressure;PAlt;Vin;Duty\r\n";
