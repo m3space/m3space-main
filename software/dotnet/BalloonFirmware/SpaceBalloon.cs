@@ -73,6 +73,8 @@ namespace BalloonFirmware
         private FileStream telemetryFileHandle = null;
         private FileStream imageFileHandle = null;
 
+        private LinkspriteCamera2 camera;
+
         private Thread gpsThread;
         private Thread transmitThread;
         private Thread telemetryThread;
@@ -120,6 +122,9 @@ namespace BalloonFirmware
             cachedPressureAltitude = 0;
             cachedPressure = 0;
             cachedTemperature = 0;
+
+            camera = new LinkspriteCamera2(cameraPort);
+            camera.ImageChunkReceived += CameraImageDataReceived;
 
             waitTimeSync = new AutoResetEvent(false);
         }
@@ -218,7 +223,7 @@ namespace BalloonFirmware
         /// Processes GPS data.
         /// </summary>
         /// <param name="gpsPoint">the GPS data</param>
-        private void GpsDataHandler(GpsPoint gpsPoint)
+        private void GpsDataReceived(GpsPoint gpsPoint)
         {
             Monitor.Enter(gpsLock);
             // compute vertical speed
@@ -244,7 +249,7 @@ namespace BalloonFirmware
             Debug.Print("Time synchronized to " + gpsPoint.UtcTimestamp.ToString("yyyyMMdd_HHmmss"));
 #endif
             waitTimeSync.Set();
-            gps.GpsDataReceived += GpsDataHandler;
+            gps.GpsDataReceived += GpsDataReceived;
         }
 
         /// <summary>
@@ -431,19 +436,22 @@ namespace BalloonFirmware
         /// Starts the serial camera thread.
         /// </summary>
         private void StartCameraThread()
-        {            
-            LinkspriteCamera camera = new LinkspriteCamera(cameraPort);
+        {
+            camera.Initialize();
+            Thread.Sleep(5000);     // wait for camera to initialize
+            camera.FlushInput();
 
-            //camera.SetBaudRate(LinkspriteCamera.Baudrate.Baud_115200);
-            //camera.SetPictureSize(LinkspriteCamera.SET_SIZE_640x480);
             while (true)
             {
-                camera.Reset();
-                //camera.SetPictureSize(LinkspriteCamera.SET_SIZE_640x480);
-                camera.GetPicture(CameraDataHandler);
-                camera.Stop();
-
-                Thread.Sleep(60000);
+                if (camera.CaptureImage())
+                {
+                    Thread.Sleep(60000);
+                }
+                else
+                {
+                    camera.Reset();
+                    Thread.Sleep(5000);
+                }
             }
         }
 
@@ -451,17 +459,17 @@ namespace BalloonFirmware
         /// Processes image data received from camera.
         /// </summary>
         /// <param name="data">the data</param>
-        private void CameraDataHandler(byte[] data)
+        private void CameraImageDataReceived(byte[] chunk, int chunkSize, bool complete)
         {
             try
             {
                 // the begin of a new jpg image
-                if ((data.Length >= 2) && (data[0] == 0xFF) && (data[1] == 0xD8))
+                if ((chunkSize >= 2) && (chunk[0] == 0xFF) && (chunk[1] == 0xD8))
                 {
 #if DEBUG
                     Debug.Print("Begin of JPG");
 #endif
-                    if (imageFileHandle != null && imageFileHandle.CanWrite)
+                    if ((imageFileHandle != null) && imageFileHandle.CanWrite)
                     {
                         imageFileHandle.Close();
                     }
@@ -470,10 +478,10 @@ namespace BalloonFirmware
                     imageFileHandle = new FileStream(currentImageFilename, FileMode.OpenOrCreate);
                 }
 
-                StoreImageChunk(data);
+                StoreImageChunk(chunk, chunkSize);
 
                 // the end of a jpg image
-                if ((data.Length >= 2) && (data[data.Length - 2] == 0xFF) && (data[data.Length - 1] == 0xD9))
+                if (complete)
                 {
 #if DEBUG
                     Debug.Print("End of JPG");
@@ -516,7 +524,8 @@ namespace BalloonFirmware
         /// Stores a chunk of image data to the SD card.
         /// </summary>
         /// <param name="data">the data to save</param>
-        private void StoreImageChunk(byte[] data)
+        /// <param name="size">the data size</param>
+        private void StoreImageChunk(byte[] data, int size)
         {
             //// save the jpg image part on SD card
             //FileStream fileHandle = new FileStream(currentImageFilename, FileMode.OpenOrCreate);
@@ -533,7 +542,7 @@ namespace BalloonFirmware
                 imageFileHandle = new FileStream(currentImageFilename, FileMode.OpenOrCreate);
             }
             imageFileHandle.Position = imageFileHandle.Length;
-            imageFileHandle.Write(data, 0, data.Length);
+            imageFileHandle.Write(data, 0, size);
             imageFileHandle.Flush();
         }
 

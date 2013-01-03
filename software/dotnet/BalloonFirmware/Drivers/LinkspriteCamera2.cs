@@ -56,7 +56,7 @@ namespace BalloonFirmware.Drivers
         /// Constructor.
         /// </summary>
         /// <param name="port">the serial port</param>
-        public LinkspriteCamera2(SerialPort port, int chunkSize)
+        public LinkspriteCamera2(SerialPort port)
         {
             this.port = port;
             this.port.DataBits = 8;
@@ -330,7 +330,7 @@ namespace BalloonFirmware.Drivers
         /// <summary>
         /// Discards remaining serial input.
         /// </summary>
-        private void FlushInput()
+        public void FlushInput()
         {
             int n = 0;
             do
