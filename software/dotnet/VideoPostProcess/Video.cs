@@ -27,18 +27,21 @@ namespace VideoPostProcess
 
         internal void Init(List<string> videoList)
         {
-            m_inputVideoList = videoList;
-            m_numberOfFrames = 0;
-            foreach (var videofilename in m_inputVideoList)
+            if (videoList.Count > 0)
             {
-                m_inputVideo.Open(videofilename);
-                m_videosize = new Size(m_inputVideo.Width, m_inputVideo.Height);
-                m_framerate = m_inputVideo.FrameRate;
-                m_videocodec = m_inputVideo.CodecName;
-                m_numberOfFrames += m_inputVideo.FrameCount;
-                m_inputVideo.Close();
+                m_inputVideoList = videoList;
+                m_numberOfFrames = 0;
+                foreach (var videofilename in m_inputVideoList)
+                {
+                    m_inputVideo.Open(videofilename);
+                    m_videosize = new Size(m_inputVideo.Width, m_inputVideo.Height);
+                    m_framerate = m_inputVideo.FrameRate;
+                    m_videocodec = m_inputVideo.CodecName;
+                    m_numberOfFrames += m_inputVideo.FrameCount;
+                    m_inputVideo.Close();
+                }
+                m_outputFilename = Path.GetDirectoryName(m_inputVideoList[0]) + @"\Output.mp4";
             }
-            m_outputFilename = Path.GetDirectoryName(m_inputVideoList[0]) + @"\Output.mp4";
         }
 
         internal void WriteVideoFrame(Bitmap bitmap)

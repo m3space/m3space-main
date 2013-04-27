@@ -218,7 +218,7 @@
             this.panel1.Size = new System.Drawing.Size(239, 206);
             this.panel1.TabIndex = 17;
             // 
-            // Form1
+            // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -228,7 +228,7 @@
             this.Controls.Add(this.btnSelectFolder);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.pboxVideo);
-            this.Name = "Form1";
+            this.Name = "MainWindow";
             this.Text = "Video PostProcess";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             ((System.ComponentModel.ISupportInitialize)(this.pboxVideo)).EndInit();

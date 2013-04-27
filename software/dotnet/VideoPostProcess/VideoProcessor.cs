@@ -1,16 +1,14 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using GroundControl.Core;
-using System.Collections.Concurrent;
-using System.Threading.Tasks;
-using GMap.NET.MapProviders;
-using GMap.NET.WindowsForms;
 
 namespace VideoPostProcess
 {
@@ -38,7 +36,7 @@ namespace VideoPostProcess
         private DateTime        m_videoStart = new DateTime(2012, 8, 13, 10, 5, 20);
         private DateTime        m_balloonStart = new DateTime(2012, 8, 13, 10, 17, 0);
         private MapOverlay      m_mapOverlay = new MapOverlay();
-        private TelemetryOverlay m_dataOverlay = new TelemetryOverlay();
+        private TelemetryOverlay m_dataOverlay;
         private int             m_startTime;
         private Task            m_task1;
         private Task            m_task2;
@@ -52,6 +50,12 @@ namespace VideoPostProcess
         public event UpdateProgressEventHandler UpdateProgress;
 
         #region Properties
+        [Browsable(false)]
+        public bool Ready
+        {
+            get { return m_telemetryData.Size > 0 && m_video.VideoCount > 0; }
+        }
+
         [Browsable(false)]
         public Control MapOverlay 
         { 
@@ -185,7 +189,7 @@ namespace VideoPostProcess
             {
                 int elapsedTicks = Environment.TickCount - m_startTime;
                 TimeSpan timeElapsed = TimeSpan.FromMilliseconds(elapsedTicks);
-                TimeSpan timeRemaining = TimeSpan.FromMilliseconds(elapsedTicks * ((NrOfFrames - item.FrameId + 1) / (item.FrameId + 1)));
+                TimeSpan timeRemaining = TimeSpan.FromMilliseconds(elapsedTicks * ((NrOfFrames - item.FrameId + 1) / (double)(item.FrameId + 1)));
                 OnUpdateProgress(new FrameInfo() { FrameId = item.FrameId, Image = item.Image.Clone() as Bitmap, VideoId = item.VideoId }, timeElapsed, timeRemaining);
                 item.Image.Dispose();
             }
@@ -194,8 +198,10 @@ namespace VideoPostProcess
 
         private void ProcessVideo()
         {
-            m_startTime = Environment.TickCount;
+            m_dataOverlay = new TelemetryOverlay();
             m_dataOverlay.MissionName = m_missionName;
+
+            m_startTime = Environment.TickCount;
             int currentFrame = 0;
             int currentVideo = 1; 
             m_inputFrameCollection  = new BlockingCollection<FrameInfo>();

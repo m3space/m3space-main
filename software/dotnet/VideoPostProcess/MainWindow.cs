@@ -48,7 +48,10 @@ namespace VideoPostProcess
                 m_videoProcessor.Init(openFileDialog1.FileNames);
                 progressBar1.Maximum = (int)m_videoProcessor.NrOfFrames;
                 propertyGrid1.Refresh();
-                btnStart.Enabled = true;
+                if (m_videoProcessor.Ready)
+                {
+                    btnStart.Enabled = true;
+                }
             }
         }
 
