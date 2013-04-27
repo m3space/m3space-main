@@ -52,10 +52,10 @@ namespace GroundControl.Gui
             map.Zoom = 15;            
             map.Position = new PointLatLng(47.558119, 7.587800);
 
-            balloonOverlay = new GMapOverlay(map, "Balloon");
-            predictionOverlay = new GMapOverlay(map, "Prediction");
-            groundControlOverlay = new GMapOverlay(map, "GroundControl");
-            routeOverlay = new GMapOverlay(map, "Route");
+            balloonOverlay = new GMapOverlay("Balloon");
+            predictionOverlay = new GMapOverlay("Prediction");
+            groundControlOverlay = new GMapOverlay("GroundControl");
+            routeOverlay = new GMapOverlay("Route");
 
             map.Overlays.Add(balloonOverlay);
             map.Overlays.Add(predictionOverlay);
@@ -110,7 +110,7 @@ namespace GroundControl.Gui
 
         public void LoadFromCache(DataCache dataCache)
         {
-            PointLatLng mapPoint = PointLatLng.Zero;
+            PointLatLng mapPoint = PointLatLng.Empty;
 
             foreach (TelemetryData data in dataCache.Telemetry)
             {
@@ -187,7 +187,7 @@ namespace GroundControl.Gui
             }
             PointLatLng start = predictionOverlay.Markers.First().Position;
             PointLatLng end = predictionOverlay.Markers.Last().Position;
-            MapRoute route = GMapProviders.GoogleMap.GetRouteBetweenPoints(start, end, false, false, 10);
+            MapRoute route = GMapProviders.GoogleMap.GetRoute(start, end, false, false, 10);
             routeOverlay.Routes.Clear();
             routeOverlay.Routes.Add(new GMapRoute(route.Points, "Route"));
         }
@@ -196,7 +196,7 @@ namespace GroundControl.Gui
         {
             PointLatLng start = groundControlMarker.Position;
             PointLatLng end = balloonMarker.Position;
-            MapRoute route = GMapProviders.GoogleMap.GetRouteBetweenPoints(start, end, false, false, 10);
+            MapRoute route = GMapProviders.GoogleMap.GetRoute(start, end, false, false, 10);
             routeOverlay.Routes.Clear();
             routeOverlay.Routes.Add(new GMapRoute(route.Points, "Route"));
 
