@@ -1701,7 +1701,7 @@ namespace NMEA
             }
         }
 
-        private static NMEAStandartSentence ParseSentence(TalkerIdentifiers talkerID, string sentenceIDString, List<string> parameters)
+        private static NMEAStandardSentence ParseSentence(TalkerIdentifiers talkerID, string sentenceIDString, List<string> parameters)
         {
             SentenceIdentifiers sentenceID = SentenceIdentifiers.unknown;
             try
@@ -1719,7 +1719,7 @@ namespace NMEA
                 throw new ArgumentException(string.Format("Specified sentence \"{0}\" from talker \"{1}\" is unknown", sentenceID, talkerID));
             }
 
-            NMEAStandartSentence result = new NMEAStandartSentence();
+            NMEAStandardSentence result = new NMEAStandardSentence();
             result.TalkerID = talkerID;
             result.SentenceID = sentenceID;
 

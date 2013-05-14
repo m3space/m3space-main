@@ -1,7 +1,7 @@
 ﻿
 namespace NMEA
 {
-    public sealed class NMEAStandartSentence : NMEASentence
+    public sealed class NMEAStandardSentence : NMEASentence
     {
         public TalkerIdentifiers TalkerID { get; set; }
         public SentenceIdentifiers SentenceID { get; set; }        

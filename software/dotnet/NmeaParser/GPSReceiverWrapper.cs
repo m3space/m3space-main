@@ -277,9 +277,9 @@ namespace NMEA
             {
                 var parsedSentence = NMEAParser.Parse((string)outQueue.Dequeque());
 
-                if (parsedSentence is NMEAStandartSentence)
+                if (parsedSentence is NMEAStandardSentence)
                 {
-                    var parsedStandartSentence = (parsedSentence as NMEAStandartSentence);
+                    var parsedStandartSentence = (parsedSentence as NMEAStandardSentence);
                     if (commandProcessor.ContainsKey(parsedStandartSentence.SentenceID))
                     {
                         commandProcessor[parsedStandartSentence.SentenceID](parsedStandartSentence.parameters);
