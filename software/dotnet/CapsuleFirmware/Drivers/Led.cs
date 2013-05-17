@@ -2,7 +2,7 @@ using System.Threading;
 using GHIElectronics.NETMF.FEZ;
 using Microsoft.SPOT.Hardware;
 
-namespace BalloonFirmware.Drivers
+namespace M3Space.Capsule.Drivers
 {
     abstract class OnboardLed
     {

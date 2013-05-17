@@ -1,4 +1,4 @@
-namespace BalloonFirmware
+namespace M3Space.Capsule.Util
 {
     public static class BitConverter
     {

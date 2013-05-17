@@ -1,6 +1,7 @@
 ﻿using System;
+using M3Space.Capsule.Drivers;
 
-namespace BalloonFirmware
+namespace M3Space.Capsule
 {
     public struct TelemetryData
     {

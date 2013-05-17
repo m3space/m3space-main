@@ -1,12 +1,14 @@
 using System;
 using System.IO.Ports;
+using Microsoft.SPOT;
 
-namespace BalloonFirmware.Drivers
+namespace M3Space.Capsule.Drivers
 {
     /// <summary>
     /// NMEA GPS Reader.
+    /// version 2.01
     /// </summary>
-    public class GpsReader2
+    public class GpsReader
     {
         private const int RECEIVE_BUFFER_SIZE = 100;
         private const int NMEA_LINE_SIZE = 80;
@@ -28,7 +30,7 @@ namespace BalloonFirmware.Drivers
         /// Constructor.
         /// </summary>
         /// <param name="port">the serial port</param>
-        public GpsReader2(SerialPort port)
+        public GpsReader(SerialPort port)
         {
             this.port = port;
             this.port.BaudRate = 38400;
@@ -69,6 +71,9 @@ namespace BalloonFirmware.Drivers
                     case 0x0A:
                         // \n (marks end of line)
                         string line = new String(lineBuf, 0, iLine);
+#if DEBUG
+                        Debug.Print(line);
+#endif
                         ParseLine(line);
                         iLine = 0;
                         break;
@@ -106,14 +111,22 @@ namespace BalloonFirmware.Drivers
                         try
                         {
                             if ((parts.Length != 15) || parts[6].Equals("0"))
+                            {
+#if DEBUG
+                                Debug.Print("Length " + parts.Length + " " + parts[6]);
+#endif
                                 return;
+                            }
 
                             cachedGpsData.Satellites = Byte.Parse(parts[7]);            // satellites
                             cachedGpsData.Altitude = (ushort)Double.Parse(parts[9]);    // altitude
                             OnGpsData();
                         }
-                        catch (Exception)
+                        catch (Exception e)
                         {
+#if DEBUG
+                            Debug.Print(e.Message);
+#endif
                         }
                         
                     }
@@ -124,7 +137,12 @@ namespace BalloonFirmware.Drivers
                         try
                         {
                             if ((parts.Length != 13) || !parts[2].Equals("A"))
+                            {
+#if DEBUG
+                                Debug.Print("Length " + parts.Length + " " + parts[2]);
+#endif
                                 return;
+                            }
 
                             if ((parts[9].Length == 6) && (parts[1].Length == 10))
                             {
@@ -170,8 +188,11 @@ namespace BalloonFirmware.Drivers
                             cachedGpsData.Heading = (ushort)double.Parse(parts[8]);
                             OnGpsData();
                         }
-                        catch (Exception)
+                        catch (Exception e)
                         {
+#if DEBUG
+                            Debug.Print(e.Message);
+#endif
                         }
                     }
                 }
@@ -195,7 +216,11 @@ namespace BalloonFirmware.Drivers
             for (int i = iStart + 1; i < iEnd; i++)
                 result ^= (byte)strSentence[i];
 
-            return (result == Convert.ToInt32(strSentence.Substring(iEnd + 1, 2), 16));
+            int cs = Convert.ToInt32(strSentence.Substring(iEnd + 1, 2), 16);
+#if DEBUG
+            Debug.Print("Checksum " + result + " " + cs);
+#endif
+            return (result == cs);
         }
 
         /// <summary>

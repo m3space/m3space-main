@@ -1,11 +1,13 @@
 using System;
 using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;
+using M3Space.Capsule.Util;
 
-namespace BalloonFirmware.Drivers
+namespace M3Space.Capsule.Drivers
 {
     /// <summary>
     /// MPU6050 Gyro/Accelerometer implementation.
+    /// version 1.00
     /// </summary>
     public class Mpu6050 : I2CSlave
     {
@@ -50,16 +52,23 @@ namespace BalloonFirmware.Drivers
         /// <summary>
         /// Sets up the device.
         /// </summary>
-        public void Initialize()
+        /// <returns>true if successful, false otherwise</returns>
+        public bool Initialize()
         {
             // set clock source to X-gyro reference
-            WriteBitsToRegister(MPU6050_RA_PWR_MGMT_1, MPU6050_CLOCK_PLL_XGYRO, MPU6050_PWR1_CLKSEL_MASK);
+            if (!WriteBitsToRegister(MPU6050_RA_PWR_MGMT_1, MPU6050_CLOCK_PLL_XGYRO, MPU6050_PWR1_CLKSEL_MASK))
+                return false;
             // set full-scale gyro range
-            WriteBitsToRegister(MPU6050_RA_GYRO_CONFIG, MPU6050_GYRO_FS_2000, MPU6050_GCONFIG_FS_SEL_MASK);
+            if (!WriteBitsToRegister(MPU6050_RA_GYRO_CONFIG, MPU6050_GYRO_FS_2000, MPU6050_GCONFIG_FS_SEL_MASK))
+                return false;
             // set full-scale accelerometer range
-            WriteBitsToRegister(MPU6050_RA_ACCEL_CONFIG, MPU6050_ACCEL_FS_16, MPU6050_ACONFIG_AFS_SEL_MASK);
+            if (!WriteBitsToRegister(MPU6050_RA_ACCEL_CONFIG, MPU6050_ACCEL_FS_16, MPU6050_ACONFIG_AFS_SEL_MASK))
+                return false;
             // disable sleep
-            WriteBitsToRegister(MPU6050_RA_PWR_MGMT_1, MPU6050_SLEEP_DISABLE, MPU6050_PWR1_SLEEP_MASK);
+            if (!WriteBitsToRegister(MPU6050_RA_PWR_MGMT_1, MPU6050_SLEEP_DISABLE, MPU6050_PWR1_SLEEP_MASK))
+                return false;
+
+            return true;
         }
 
         /// <summary>

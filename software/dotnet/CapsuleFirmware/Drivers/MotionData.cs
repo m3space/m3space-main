@@ -1,7 +1,7 @@
 using System;
 using Microsoft.SPOT;
 
-namespace BalloonFirmware
+namespace M3Space.Capsule.Drivers
 {
     public struct MotionData
     {

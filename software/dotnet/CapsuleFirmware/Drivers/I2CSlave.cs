@@ -2,7 +2,7 @@ using System;
 using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;
 
-namespace BalloonFirmware.Drivers
+namespace M3Space.Capsule.Drivers
 {
     /// <summary>
     /// Abstract base class for I2C devices.
@@ -10,7 +10,7 @@ namespace BalloonFirmware.Drivers
     public abstract class I2CSlave
     {
         protected const int ClockRate = 100;
-        protected int Timeout = 1000;
+        protected const int Timeout = 1000;
 
         protected I2CDevice i2c;
 

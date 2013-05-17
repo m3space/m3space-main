@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Threading;
 
-namespace BalloonFirmware
+namespace M3Space.Capsule
 {
     public class BoundedBuffer
     {

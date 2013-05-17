@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Threading;
+using M3Space.Capsule.Util;
 
-namespace BalloonFirmware
+namespace M3Space.Capsule
 {
     public class DataProtocol
     {

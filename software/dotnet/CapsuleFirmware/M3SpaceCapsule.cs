@@ -9,12 +9,13 @@ using GHIElectronics.NETMF.IO;
 using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;
 using Microsoft.SPOT.IO;
-using BalloonFirmware.Drivers;
+using M3Space.Capsule.Drivers;
+using M3Space.Capsule.Util;
 
 
-namespace BalloonFirmware
+namespace M3Space.Capsule
 {
-    public class SpaceBalloon
+    public class M3SpaceCapsule
     {
         private const int TELEMETRY_TX_INTERVAL = 5;
         private const int IMAGE_TX_INTERVAL = 5;
@@ -53,7 +54,7 @@ namespace BalloonFirmware
         private DateTime currentImageTimestamp;
         private DateTime lastSentImage;
         
-        private GpsReader2 gps;
+        private GpsReader gps;
 
         private Mpu6050 mpu6050;
         private MotionData[] motionBuffer;
@@ -73,19 +74,20 @@ namespace BalloonFirmware
         private FileStream telemetryFileHandle = null;
         private FileStream imageFileHandle = null;
 
-        private LinkspriteCamera2 camera;
+        private LinkspriteCamera camera;
 
         private Thread gpsThread;
-        private Thread transmitThread;
+        private Thread xbeeTransmitThread;
         private Thread telemetryThread;
         private Thread cameraThread;
         private Thread motionThread;
         private Thread barometerThread;
+        private Thread imageTransmitThread;
 
         /// <summary>
         /// Constructor.
         /// </summary>
-        public SpaceBalloon()
+        public M3SpaceCapsule()
         {
             CheckSDcard();
 
@@ -111,7 +113,7 @@ namespace BalloonFirmware
             lastXBeeResetCheck = DateTime.Now;
             xBeeDutyCycle = 0;
 
-            gps = new GpsReader2(gpsPort);
+            gps = new GpsReader(gpsPort);
             gps.GpsDataReceived += SetTimeFromGps;
 
             mpu6050 = new Mpu6050();
@@ -123,7 +125,7 @@ namespace BalloonFirmware
             cachedPressure = 0;
             cachedTemperature = 0;
 
-            camera = new LinkspriteCamera2(cameraPort);
+            camera = new LinkspriteCamera(cameraPort);
             camera.ImageChunkReceived += CameraImageDataReceived;
 
             waitTimeSync = new AutoResetEvent(false);
@@ -135,6 +137,9 @@ namespace BalloonFirmware
             OnboardLed.Blink(100);
             while (!PersistentStorage.DetectSDCard())
             {
+#if DEBUG
+                Debug.Print("SD card missing");
+#endif
                 Thread.Sleep(1000);
             }
             OnboardLed.Off();
@@ -153,11 +158,12 @@ namespace BalloonFirmware
 
                 // create threads
                 gpsThread = new Thread(new ThreadStart(StartGpsThread));
-                transmitThread = new Thread(new ThreadStart(StartTransmitThread));
+                xbeeTransmitThread = new Thread(new ThreadStart(StartXbeeTransmitThread));
                 telemetryThread = new Thread(new ThreadStart(StartTelemetryThread));
                 cameraThread = new Thread(new ThreadStart(StartCameraThread));
                 motionThread = new Thread(new ThreadStart(StartMotionThread));
                 barometerThread = new Thread(new ThreadStart(StartBarometerThread));
+                imageTransmitThread = null;
 
                 // start GPS thread to get time.
                 gpsThread.Start();
@@ -184,10 +190,8 @@ namespace BalloonFirmware
                 motionFileHandle.Write(writeData, 0, writeData.Length);
                 motionFileHandle.Flush();
 
-                barometer.Initialize();
-
                 // start all threads
-                transmitThread.Start();
+                xbeeTransmitThread.Start();
                 telemetryThread.Start();
                 cameraThread.Start();
                 motionThread.Start();
@@ -255,7 +259,7 @@ namespace BalloonFirmware
         /// <summary>
         /// Starts the XBee transmitter thread.
         /// </summary>
-        private void StartTransmitThread()
+        private void StartXbeeTransmitThread()
         {
             xBeePort.Open();
 
@@ -290,7 +294,9 @@ namespace BalloonFirmware
                 }
                 catch (Exception e)
                 {
-                    //Debug.Print(e.Message);
+#if DEBUG
+                    Debug.Print(e.Message);
+#endif
                 }
             }
         }
@@ -338,18 +344,21 @@ namespace BalloonFirmware
         /// </summary>
         private void StartMotionThread()
         {
-            mpu6050.Initialize();
-            while (true)
+            if (mpu6050.Initialize())
             {
-                if (mpu6050.GetMotionData(ref motionBuffer[motionBufferIndex++]))
+                motionBufferIndex = 0;
+                while (true)
                 {
-                    if (motionBufferIndex == MOTION_BUFFER_SIZE)
+                    if (mpu6050.GetMotionData(ref motionBuffer[motionBufferIndex++]))
                     {
-                        StoreMotionBuffer();
-                        motionBufferIndex = 0;
+                        if (motionBufferIndex == MOTION_BUFFER_SIZE)
+                        {
+                            StoreMotionBuffer();
+                            motionBufferIndex = 0;
+                        }
                     }
+                    Thread.Sleep(100);
                 }
-                Thread.Sleep(100);
             }
         }
 
@@ -361,6 +370,7 @@ namespace BalloonFirmware
             ushort alt;
             ushort p;
             short t;
+            barometer.Initialize();
             while (true)
             {
                 alt = barometer.GetAltitude();
@@ -461,41 +471,40 @@ namespace BalloonFirmware
         /// <param name="data">the data</param>
         private void CameraImageDataReceived(byte[] chunk, int chunkSize, bool complete)
         {
-            try
+
+            // the begin of a new jpg image
+            if ((chunkSize >= 2) && (chunk[0] == 0xFF) && (chunk[1] == 0xD8))
             {
-                // the begin of a new jpg image
-                if ((chunkSize >= 2) && (chunk[0] == 0xFF) && (chunk[1] == 0xD8))
-                {
 #if DEBUG
-                    Debug.Print("Begin of JPG");
+                Debug.Print("Begin of JPG");
 #endif
-                    if ((imageFileHandle != null) && imageFileHandle.CanWrite)
-                    {
-                        imageFileHandle.Close();
-                    }
-                    currentImageTimestamp = DateTime.Now;
-                    currentImageFilename = sdRootDirectory + @"\" + currentImageTimestamp.ToString("yyyyMMdd_HHmmss") + ".jpg";
-                    imageFileHandle = new FileStream(currentImageFilename, FileMode.OpenOrCreate);
-                }
-
-                StoreImageChunk(chunk, chunkSize);
-
-                // the end of a jpg image
-                if (complete)
+                if (imageFileHandle != null)
                 {
-#if DEBUG
-                    Debug.Print("End of JPG");
-#endif
                     imageFileHandle.Close();
-                    if ((currentImageTimestamp - lastSentImage).Minutes >= IMAGE_TX_INTERVAL)
-                    {
-                        new Thread(new ThreadStart(StartTransmitImageThread)).Start();
-                    }
                 }
+                currentImageTimestamp = DateTime.Now;
+                currentImageFilename = sdRootDirectory + @"\" + currentImageTimestamp.ToString("yyyyMMdd_HHmmss") + ".jpg";
+                imageFileHandle = new FileStream(currentImageFilename, FileMode.OpenOrCreate);
             }
-            catch (Exception e)
+
+            StoreImageChunk(chunk, chunkSize);
+
+            // the end of a jpg image
+            if (complete)
             {
-                //Debug.Print(e.Message);
+#if DEBUG
+                Debug.Print("End of JPG");
+#endif
+                if (imageFileHandle != null)
+                {
+                    imageFileHandle.Close();
+                }
+                imageFileHandle = null;
+                if (((currentImageTimestamp - lastSentImage).Minutes >= IMAGE_TX_INTERVAL) && (imageTransmitThread == null))
+                {
+                    imageTransmitThread = new Thread(new ThreadStart(StartTransmitImageThread));
+                    imageTransmitThread.Start();
+                }
             }
         }
 
@@ -518,6 +527,8 @@ namespace BalloonFirmware
                 Thread.Sleep(500);
             }
             fileHandle.Close();
+            // end of thread
+            imageTransmitThread = null;
         }
 
         /// <summary>
@@ -527,15 +538,11 @@ namespace BalloonFirmware
         /// <param name="size">the data size</param>
         private void StoreImageChunk(byte[] data, int size)
         {
-            //// save the jpg image part on SD card
-            //FileStream fileHandle = new FileStream(currentImageFilename, FileMode.OpenOrCreate);
-            ////Debug.Print("Image chunksize = " + data.Length + " Bytes");
-            //fileHandle.Position = fileHandle.Length;
-            //fileHandle.Write(data, 0, data.Length);
-            //fileHandle.Close();
-
             if (imageFileHandle == null)
+            {
+                // missed begin of JPG
                 imageFileHandle = new FileStream(currentImageFilename, FileMode.OpenOrCreate);
+            }
             if (!imageFileHandle.Name.Equals(currentImageFilename))
             {
                 imageFileHandle.Close();
@@ -687,10 +694,10 @@ namespace BalloonFirmware
                 gpsThread.Start();
                 LogError("GPS Thread restarted");
             }
-            if (!transmitThread.IsAlive)
+            if (!xbeeTransmitThread.IsAlive)
             {
-                transmitThread = new Thread(new ThreadStart(StartTransmitThread));
-                transmitThread.Start();
+                xbeeTransmitThread = new Thread(new ThreadStart(StartXbeeTransmitThread));
+                xbeeTransmitThread.Start();
                 LogError("Transmit Thread restarted");
             }
             if (!telemetryThread.IsAlive)

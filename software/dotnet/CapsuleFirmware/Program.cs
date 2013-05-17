@@ -1,8 +1,9 @@
 ﻿using System.Threading;
 using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;
+using M3Space.Capsule.Drivers;
 
-namespace BalloonFirmware
+namespace M3Space.Capsule
 {
     public class Program
     {
@@ -14,21 +15,22 @@ namespace BalloonFirmware
             Debug.Print("OEM String: " + SystemInfo.OEMString);
             Debug.Print("Version: " + SystemInfo.Version.ToString());
 #endif
-            SpaceBalloon balloon = new SpaceBalloon();
+            M3SpaceCapsule capsule = new M3SpaceCapsule();
 
-            if (balloon.Initialize())
+            if (capsule.Initialize())
             {
-                Drivers.OnboardLed.Off();
+                OnboardLed.Off();
                 while (true)
                 {
                     Thread.Sleep(10000);
-                    balloon.CheckThreads();
+                    capsule.CheckThreads();
                 }
             }
             else
             {
-                Drivers.OnboardLed.Blink(100);
+                OnboardLed.Blink(100);
             }
         }
+
     }
 }

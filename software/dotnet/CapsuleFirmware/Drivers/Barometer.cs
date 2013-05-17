@@ -3,10 +3,11 @@ using Microsoft.SPOT;
 using System.IO.Ports;
 using System.Threading;
 
-namespace BalloonFirmware.Drivers
+namespace M3Space.Capsule.Drivers
 {
     /// <summary>
     /// Sure Electronics Barometer Module with MS5561 Sensor.
+    /// version 1.00
     /// </summary>
     public class Barometer
     {

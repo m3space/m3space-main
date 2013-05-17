@@ -3,14 +3,15 @@ using System.IO.Ports;
 using System.Threading;
 using Microsoft.SPOT;
 
-namespace BalloonFirmware.Drivers
+namespace M3Space.Capsule.Drivers
 {
     /// <summary>
     /// New LinkSprite serial camera implementation.
+    /// version 2.02
     /// </summary>
-    public class LinkspriteCamera2
+    public class LinkspriteCamera
     {
-        private const int RECEIVE_BUFFER_SIZE = 128;
+        private const int RECEIVE_BUFFER_SIZE = 256;
 
         public const byte Size_640x480 = 0x00;
         public const byte Size_320x240 = 0x11;
@@ -56,7 +57,7 @@ namespace BalloonFirmware.Drivers
         /// Constructor.
         /// </summary>
         /// <param name="port">the serial port</param>
-        public LinkspriteCamera2(SerialPort port)
+        public LinkspriteCamera(SerialPort port)
         {
             this.port = port;
             this.port.DataBits = 8;
@@ -141,6 +142,7 @@ namespace BalloonFirmware.Drivers
             bool ok = ReceiveResponse(SET_BAUDRATE_OK_RESPONSE);
             if (ok)
             {
+                Thread.Sleep(5000);
                 FlushInput();
                 this.port.Close();
                 this.port.BaudRate = (int)baudrate;
@@ -269,6 +271,7 @@ namespace BalloonFirmware.Drivers
                                 return false;
                             }
                         }
+                        return true;
                     }
                 }
             }

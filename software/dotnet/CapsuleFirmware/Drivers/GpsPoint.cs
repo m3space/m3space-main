@@ -1,6 +1,6 @@
 using System;
 
-namespace BalloonFirmware
+namespace M3Space.Capsule.Drivers
 {
     public struct GpsPoint
     {
