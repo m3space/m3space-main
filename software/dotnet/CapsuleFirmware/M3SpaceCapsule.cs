@@ -53,6 +53,7 @@ namespace M3Space.Capsule
         private string currentImageFilename;
         private DateTime currentImageTimestamp;
         private DateTime lastSentImage;
+        private bool imageTransmitting;
         
         private GpsReader gps;
 
@@ -82,7 +83,6 @@ namespace M3Space.Capsule
         private Thread cameraThread;
         private Thread motionThread;
         private Thread barometerThread;
-        private Thread imageTransmitThread;
 
         /// <summary>
         /// Constructor.
@@ -163,7 +163,6 @@ namespace M3Space.Capsule
                 cameraThread = new Thread(new ThreadStart(StartCameraThread));
                 motionThread = new Thread(new ThreadStart(StartMotionThread));
                 barometerThread = new Thread(new ThreadStart(StartBarometerThread));
-                imageTransmitThread = null;
 
                 // start GPS thread to get time.
                 gpsThread.Start();
@@ -235,7 +234,7 @@ namespace M3Space.Capsule
             if (timediff != 0)
                 gpsPoint.VerticalSpeed = (gpsPoint.Altitude - cachedGpsPoint.Altitude) / timediff;
             else
-                gpsPoint.VerticalSpeed = 0;
+                gpsPoint.VerticalSpeed = cachedGpsPoint.VerticalSpeed;
             this.cachedGpsPoint = gpsPoint;
             Monitor.Exit(gpsLock);
         }
@@ -450,15 +449,22 @@ namespace M3Space.Capsule
             camera.Initialize();
             Thread.Sleep(5000);     // wait for camera to initialize
             camera.FlushInput();
+            imageTransmitting = false;
 
             while (true)
             {
                 if (camera.CaptureImage())
                 {
+                    if (((currentImageTimestamp - lastSentImage).Minutes >= IMAGE_TX_INTERVAL) && (!imageTransmitting))
+                    {
+                        imageTransmitting = true;
+                        new Thread(new ThreadStart(StartTransmitImageThread)).Start();
+                    }
                     Thread.Sleep(60000);
                 }
                 else
                 {
+                    LogError("Capture failed");
                     camera.Reset();
                     Thread.Sleep(5000);
                 }
@@ -500,11 +506,6 @@ namespace M3Space.Capsule
                     imageFileHandle.Close();
                 }
                 imageFileHandle = null;
-                if (((currentImageTimestamp - lastSentImage).Minutes >= IMAGE_TX_INTERVAL) && (imageTransmitThread == null))
-                {
-                    imageTransmitThread = new Thread(new ThreadStart(StartTransmitImageThread));
-                    imageTransmitThread.Start();
-                }
             }
         }
 
@@ -527,8 +528,7 @@ namespace M3Space.Capsule
                 Thread.Sleep(500);
             }
             fileHandle.Close();
-            // end of thread
-            imageTransmitThread = null;
+            imageTransmitting = false;
         }
 
         /// <summary>

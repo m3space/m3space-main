@@ -7,11 +7,11 @@ namespace M3Space.Capsule.Drivers
 {
     /// <summary>
     /// New LinkSprite serial camera implementation.
-    /// version 2.02
+    /// version 2.03
     /// </summary>
     public class LinkspriteCamera
     {
-        private const int RECEIVE_BUFFER_SIZE = 256;
+        private const int RECEIVE_BUFFER_SIZE = 128;
 
         public const byte Size_640x480 = 0x00;
         public const byte Size_320x240 = 0x11;
@@ -187,12 +187,12 @@ namespace M3Space.Capsule.Drivers
         {
             // send command to capture an image.
             SendCommand(SNAP_COMMAND);
-            Thread.Sleep(50);
+            Thread.Sleep(100);
             if (ReceiveResponse(SNAP_OK_RESPONSE))
             {
                 // get image size.
                 SendCommand(IMAGE_SIZE_COMMAND);
-                Thread.Sleep(50);
+                Thread.Sleep(100);
                 if (ReceiveResponse(IMAGE_SIZE_OK_RESPONSE))
                 {
                     int n = port.Read(rcvBuf, 0, 2);
@@ -216,7 +216,7 @@ namespace M3Space.Capsule.Drivers
 
                             // get chunk
                             SendCommand(GET_CHUNK_COMMAND);
-                            Thread.Sleep(50);
+                            Thread.Sleep(100);
                             if (ReceiveResponse(GET_CHUNK_OK_RESPONSE))
                             {
                                 // get chunk data
@@ -258,7 +258,7 @@ namespace M3Space.Capsule.Drivers
                                         retry++;
                                         if (retry > 2)
                                             return false;
-                                        Thread.Sleep(50);                                        
+                                        Thread.Sleep(100);                                        
                                     }
                                 }
                                 else
@@ -324,7 +324,7 @@ namespace M3Space.Capsule.Drivers
                 }
                 else if (i < 2)
                 {
-                    Thread.Sleep(50);
+                    Thread.Sleep(100);
                 }
             }
             return false;

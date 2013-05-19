@@ -22,7 +22,7 @@ namespace M3Space.Capsule
                 OnboardLed.Off();
                 while (true)
                 {
-                    Thread.Sleep(10000);
+                    Thread.Sleep(15000);
                     capsule.CheckThreads();
                 }
             }
