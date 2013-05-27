@@ -102,7 +102,16 @@ namespace GroundControl.Core
                 doRun = false;
                 rcvThread.Join(10000);
                 if (rcvThread.IsAlive)
-                    rcvThread.Abort();
+                {
+                    try
+                    {
+                        rcvThread.Abort();
+                    }
+                    catch (Exception)
+                    {
+                        OnError("Transceiver thread aborted.");
+                    }
+                }
                 rcvThread = null;
             }
         }

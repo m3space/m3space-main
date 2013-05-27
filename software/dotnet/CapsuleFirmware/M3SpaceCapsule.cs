@@ -17,6 +17,7 @@ namespace M3Space.Capsule
 {
     public class M3SpaceCapsule
     {
+        private const int XBEE_TX_POWER = 4;    // 0=1mW, 1=25mW, 2=100mW, 3=150mW, 4=300mW
         private const int TELEMETRY_TX_INTERVAL = 5;
         private const int IMAGE_TX_INTERVAL = 5;
         private const int IMAGE_CHUNK_SIZE = 64;
@@ -54,6 +55,7 @@ namespace M3Space.Capsule
         private DateTime currentImageTimestamp;
         private DateTime lastSentImage;
         private bool imageTransmitting;
+        private bool transmitReady;
         
         private GpsReader gps;
 
@@ -66,6 +68,7 @@ namespace M3Space.Capsule
         private ushort cachedPressure;
         private short cachedTemperature;
 
+        private object logFileLock = new object();
         private object gpsLock = new object();
         private object dutyCycleLock = new object();
         private object barometerLock = new object();
@@ -112,6 +115,8 @@ namespace M3Space.Capsule
 
             lastXBeeResetCheck = DateTime.Now;
             xBeeDutyCycle = 0;
+            imageTransmitting = false;
+            transmitReady = false;
 
             gps = new GpsReader(gpsPort);
             gps.GpsDataReceived += SetTimeFromGps;
@@ -191,10 +196,10 @@ namespace M3Space.Capsule
 
                 // start all threads
                 xbeeTransmitThread.Start();
+                barometerThread.Start();
                 telemetryThread.Start();
                 cameraThread.Start();
                 motionThread.Start();
-                barometerThread.Start();
 
                 return true;
             }
@@ -231,10 +236,14 @@ namespace M3Space.Capsule
             Monitor.Enter(gpsLock);
             // compute vertical speed
             float timediff = (gpsPoint.UtcTimestamp.Ticks - cachedGpsPoint.UtcTimestamp.Ticks) * 1e-7f;
-            if (timediff != 0)
+            if (timediff > 0.0f)
+            {
                 gpsPoint.VerticalSpeed = (gpsPoint.Altitude - cachedGpsPoint.Altitude) / timediff;
+            }
             else
+            {
                 gpsPoint.VerticalSpeed = cachedGpsPoint.VerticalSpeed;
+            }
             this.cachedGpsPoint = gpsPoint;
             Monitor.Exit(gpsLock);
         }
@@ -262,7 +271,10 @@ namespace M3Space.Capsule
         {
             xBeePort.Open();
 
-            SetXbeeTransmitPower();
+            // set XBee power level
+            //SetXbeeTransmitPower();
+
+            transmitReady = true;
 
             while (true)
             {
@@ -285,17 +297,22 @@ namespace M3Space.Capsule
                     Thread.Sleep(100);
 
                     // read dutycycle value every 2 minutes and reset xBee if value >= 40%
-                    if ((DateTime.Now - lastXBeeResetCheck).Minutes >= 2)
+                    
+                    if ((!imageTransmitting) && ((DateTime.Now - lastXBeeResetCheck).Minutes >= 2))
                     {
+                        transmitReady = false;
                         GetDutyCycleAndReset(xBeePort, 40);
                         lastXBeeResetCheck = DateTime.Now;
-                    }
+                        transmitReady = true;
+                    }                    
                 }
                 catch (Exception e)
                 {
 #if DEBUG
                     Debug.Print(e.Message);
 #endif
+                    LogError("Transmit failure");
+                    Thread.Sleep(500);
                 }
             }
         }
@@ -327,11 +344,14 @@ namespace M3Space.Capsule
                 Monitor.Exit(barometerLock);
                 StoreTelemetry(cachedTelemetry);
                 count--;
-                if (count == 0)
+                if (count <= 0)
                 {
                     // transmit data
-                    txQueue.Add(dataProtocol.GetTelemetry(cachedTelemetry));
-                    count = TELEMETRY_TX_INTERVAL;
+                    if (transmitReady)
+                    {
+                        txQueue.Add(dataProtocol.GetTelemetry(cachedTelemetry));
+                        count = TELEMETRY_TX_INTERVAL;
+                    }                    
                 }
 
                 Thread.Sleep(1000);
@@ -455,9 +475,8 @@ namespace M3Space.Capsule
             {
                 if (camera.CaptureImage())
                 {
-                    if (((currentImageTimestamp - lastSentImage).Minutes >= IMAGE_TX_INTERVAL) && (!imageTransmitting))
+                    if (transmitReady && (!imageTransmitting) && ((currentImageTimestamp - lastSentImage).Minutes >= IMAGE_TX_INTERVAL))
                     {
-                        imageTransmitting = true;
                         new Thread(new ThreadStart(StartTransmitImageThread)).Start();
                     }
                     Thread.Sleep(60000);
@@ -514,18 +533,27 @@ namespace M3Space.Capsule
         /// </summary>
         private void StartTransmitImageThread()
         {
+            imageTransmitting = true;
             FileStream fileHandle = new FileStream(currentImageFilename, FileMode.Open);
             lastSentImage = currentImageTimestamp;
 
+            while (!transmitReady)
+            {
+                Thread.Sleep(150);
+            }
             txQueue.Add(dataProtocol.GetBeginImage(lastSentImage, (int)fileHandle.Length));
             byte[] chunk = new byte[IMAGE_CHUNK_SIZE];
             int imgOffset = 0;
             while (fileHandle.Position < fileHandle.Length)
             {
                 int length = fileHandle.Read(chunk, 0, IMAGE_CHUNK_SIZE);
+                while (!transmitReady)
+                {
+                    Thread.Sleep(150);
+                }
                 txQueue.Add(dataProtocol.GetImageData(imgOffset, chunk, length));
                 imgOffset += length;
-                Thread.Sleep(500);
+                Thread.Sleep(300);
             }
             fileHandle.Close();
             imageTransmitting = false;
@@ -563,7 +591,8 @@ namespace M3Space.Capsule
             port.Write(false);   // reset the xBee module 
             Thread.Sleep(1);     // wait (at least 100us)
             port.Active = false; // set port as input
-            Thread.Sleep(100);
+            // give the module time to reboot
+            Thread.Sleep(1000);
         }
 
         /// <summary>
@@ -573,19 +602,6 @@ namespace M3Space.Capsule
         {
             try
             {
-                byte pwr = 0;
-                InputPort jp0 = new InputPort((Cpu.Pin)FEZ_Pin.Digital.Di4, true, Port.ResistorMode.PullUp);
-                InputPort jp1 = new InputPort((Cpu.Pin)FEZ_Pin.Digital.Di5, true, Port.ResistorMode.PullUp);
-                InputPort jp2 = new InputPort((Cpu.Pin)FEZ_Pin.Digital.Di6, true, Port.ResistorMode.PullUp);
-                if (jp0.Read())
-                    pwr |= 1;
-                if (jp1.Read())
-                    pwr |= 2;
-                if (jp2.Read())
-                    pwr |= 4;
-                if (pwr > 4)
-                    pwr = 4;
-
                 // switch to AT-Command mode
                 Thread.Sleep(150);
                 xBeePort.Write(Encoding.UTF8.GetBytes("+++"), 0, 3);
@@ -603,14 +619,14 @@ namespace M3Space.Capsule
                         // now we are in at-command mode
 
                         // set TX power (0=1mW, 1=23mW, 2=100mW, 3=158mW, 4=316mW)
-                        xBeePort.Write(Encoding.UTF8.GetBytes("ATPL" + pwr + "\r"), 0, 6);
+                        xBeePort.Write(Encoding.UTF8.GetBytes("ATPL" + XBEE_TX_POWER + "\r"), 0, 6);
                         Thread.Sleep(150);
                         //readBytes = new byte[xBeePort.BytesToRead];
                         //xBeePort.Read(readBytes, 0, readBytes.Length);
                         //readString = new String(System.Text.Encoding.UTF8.GetChars(readBytes)).TrimEnd("\r".ToCharArray());
                         
 #if DEBUG
-                        Debug.Print("TX Power Level = " + pwr);
+                        Debug.Print("TX Power Level = " + XBEE_TX_POWER);
 #endif
 
                         // exit at-command mode
@@ -683,6 +699,7 @@ namespace M3Space.Capsule
             }
             catch (Exception)
             {
+                LogError("XBee check failed");
             }
         }
 
@@ -728,6 +745,7 @@ namespace M3Space.Capsule
 
         private void LogError(string message)
         {
+            Monitor.Enter(logFileLock);
             FileStream fileHandle = new FileStream(errorLogFilename, FileMode.OpenOrCreate);
             fileHandle.Position = fileHandle.Length;
             string text = DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss") + ";" + message + "\r\n";
@@ -736,6 +754,7 @@ namespace M3Space.Capsule
 #if DEBUG
             Debug.Print(text);
 #endif
+            Monitor.Exit(logFileLock);
         }
     }
 }
