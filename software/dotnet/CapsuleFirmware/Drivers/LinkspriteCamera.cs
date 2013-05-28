@@ -7,11 +7,11 @@ namespace M3Space.Capsule.Drivers
 {
     /// <summary>
     /// New LinkSprite serial camera implementation.
-    /// version 2.03
+    /// version 2.04
     /// </summary>
     public class LinkspriteCamera
     {
-        private const int RECEIVE_BUFFER_SIZE = 128;
+        private const int CHUNK_SIZE = 128;
 
         public const byte Size_640x480 = 0x00;
         public const byte Size_320x240 = 0x11;
@@ -38,6 +38,7 @@ namespace M3Space.Capsule.Drivers
 
 
         private byte[] rcvBuf;
+        private byte[] chunkBuf;
         private SerialPort port;
 
         /// <summary>
@@ -65,7 +66,8 @@ namespace M3Space.Capsule.Drivers
             this.port.StopBits = StopBits.One;
             this.port.ReadTimeout = 250;
 
-            rcvBuf = new byte[RECEIVE_BUFFER_SIZE];
+            rcvBuf = new byte[CHUNK_SIZE];
+            chunkBuf = new byte[CHUNK_SIZE];
         }
 
         /// <summary>
@@ -142,11 +144,11 @@ namespace M3Space.Capsule.Drivers
             bool ok = ReceiveResponse(SET_BAUDRATE_OK_RESPONSE);
             if (ok)
             {
-                Thread.Sleep(5000);
-                FlushInput();
+                Thread.Sleep(5000);                
                 this.port.Close();
-                this.port.BaudRate = (int)baudrate;
+                this.port.BaudRate = baudrate;
                 this.port.Open();
+                FlushInput();
             }
             return ok;
         }
@@ -203,8 +205,8 @@ namespace M3Space.Capsule.Drivers
                         int bytesRead = 0;
 
                         // set chunk size
-                        GET_CHUNK_COMMAND[12] = (byte)((RECEIVE_BUFFER_SIZE >> 8) & 0xFF);
-                        GET_CHUNK_COMMAND[13] = (byte)(RECEIVE_BUFFER_SIZE & 0xFF);
+                        GET_CHUNK_COMMAND[12] = (byte)((CHUNK_SIZE >> 8) & 0xFF);
+                        GET_CHUNK_COMMAND[13] = (byte)(CHUNK_SIZE & 0xFF);
 
                         bool finished = false;
                         int retry = 0;
@@ -220,28 +222,27 @@ namespace M3Space.Capsule.Drivers
                             if (ReceiveResponse(GET_CHUNK_OK_RESPONSE))
                             {
                                 // get chunk data
-                                if (ReadData(RECEIVE_BUFFER_SIZE))
+                                if (ReadData(CHUNK_SIZE))
                                 {
-                                    byte[] chunk = new byte[RECEIVE_BUFFER_SIZE];
-                                    Array.Copy(rcvBuf, chunk, RECEIVE_BUFFER_SIZE);
+                                    Array.Copy(rcvBuf, chunkBuf, CHUNK_SIZE);
 
                                     // check trailer
                                     if (ReceiveResponse(GET_CHUNK_OK_RESPONSE))
                                     {
-                                        bytesRead += RECEIVE_BUFFER_SIZE;
-                                        int chunkSize = RECEIVE_BUFFER_SIZE;
+                                        bytesRead += CHUNK_SIZE;
+                                        int chunkSize = CHUNK_SIZE;
                                         if (bytesRead >= fileSize)
                                         {
-                                            chunkSize = FindEnd(chunk);
+                                            chunkSize = FindEnd(chunkBuf);
                                             finished = true;
 #if DEBUG
                                             Debug.Print("JPEG image complete.");
 #endif
                                         }
                                         if (chunkSize > 0)
-                                        {                                            
-                                            OnImageChunkReceived(chunk, chunkSize, finished);
-                                            startAddress += RECEIVE_BUFFER_SIZE;
+                                        {
+                                            OnImageChunkReceived(chunkBuf, chunkSize, finished);
+                                            startAddress += CHUNK_SIZE;
                                             retry = 0;
                                         }
                                         else
@@ -338,7 +339,7 @@ namespace M3Space.Capsule.Drivers
             int n = 0;
             do
             {
-                n = port.Read(rcvBuf, 0, RECEIVE_BUFFER_SIZE);
+                n = port.Read(rcvBuf, 0, CHUNK_SIZE);
             }
             while (n != 0);
         }

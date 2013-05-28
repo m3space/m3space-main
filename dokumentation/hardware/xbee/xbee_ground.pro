@@ -11,7 +11,7 @@ XBP08-DP_1061.mxi
 [A]PL=1
 [A]DH=13A200
 [A]DL=40679589
-[A]NI= M3Space Ground
+[A]NI=M3Space Ground
 [A]NT=82
 [A]NO=0
 [A]DD=60000
@@ -45,8 +45,8 @@ XBP08-DP_1061.mxi
 [A]IC=0
 [A]IR=0
 [A]IF=1
-[A]CT=64
-[A]GT=3E8
+[A]CT=5
+[A]GT=C8
 [A]CC=2B
 [A]WH=0
 [A]SO=0

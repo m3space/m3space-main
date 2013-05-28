@@ -18,10 +18,13 @@ namespace M3Space.Capsule
     public class M3SpaceCapsule
     {
         private const int XBEE_TX_POWER = 4;    // 0=1mW, 1=25mW, 2=100mW, 3=150mW, 4=300mW
+        private const uint XBEE_RESET_THRESHOLD = 40;
+        private const uint XBEE_CRITICAL_THRESHOLD = 85;
         private const int TELEMETRY_TX_INTERVAL = 5;
         private const int IMAGE_TX_INTERVAL = 5;
         private const int IMAGE_CHUNK_SIZE = 64;
         private const int MOTION_BUFFER_SIZE = 10;
+        
 
         private const string TelemetryFormat = "Utc;Lat;Lng;Alt;HSpd;VSpd;Head;Sat;IntTemp;Temp1;Temp2;Pressure;PAlt;Vin;Duty\r\n";
         private const string MotionFormat = "Utc;Ax;Ay;Az;Gx;Gy;Gz\r\n";
@@ -80,6 +83,8 @@ namespace M3Space.Capsule
 
         private LinkspriteCamera camera;
 
+        private Xbee xbee;
+
         private Thread gpsThread;
         private Thread xbeeTransmitThread;
         private Thread telemetryThread;
@@ -117,6 +122,7 @@ namespace M3Space.Capsule
             xBeeDutyCycle = 0;
             imageTransmitting = false;
             transmitReady = false;
+            xbee = new Xbee(xBeePort);
 
             gps = new GpsReader(gpsPort);
             gps.GpsDataReceived += SetTimeFromGps;
@@ -260,6 +266,12 @@ namespace M3Space.Capsule
 #if DEBUG
             Debug.Print("Time synchronized to " + gpsPoint.UtcTimestamp.ToString("yyyyMMdd_HHmmss"));
 #endif
+            // reinitialize some datetime objects
+            currentImageTimestamp = DateTime.Now;
+            lastSentImage = DateTime.Now;
+            cachedGpsPoint.UtcTimestamp = DateTime.Now;
+            lastXBeeResetCheck = DateTime.Now;
+
             waitTimeSync.Set();
             gps.GpsDataReceived += GpsDataReceived;
         }
@@ -269,10 +281,10 @@ namespace M3Space.Capsule
         /// </summary>
         private void StartXbeeTransmitThread()
         {
-            xBeePort.Open();
+            xbee.Initialize();
 
             // set XBee power level
-            //SetXbeeTransmitPower();
+            //xbee.SetTransmitPower(XBEE_TX_POWER);
 
             transmitReady = true;
 
@@ -291,9 +303,7 @@ namespace M3Space.Capsule
                     int len = DataProtocol.PreparePacket(txBuffer, packet);
 
                     // send escaped packet
-                    xBeePort.Write(txBuffer, 0, len);
-                    xBeePort.Flush();
-
+                    xbee.Send(txBuffer, 0, len);
                     Thread.Sleep(100);
 
                     // read dutycycle value every 2 minutes and reset xBee if value >= 40%
@@ -301,7 +311,20 @@ namespace M3Space.Capsule
                     if ((!imageTransmitting) && ((DateTime.Now - lastXBeeResetCheck).Minutes >= 2))
                     {
                         transmitReady = false;
-                        GetDutyCycleAndReset(xBeePort, 40);
+                        uint dc = xbee.GetDutyCycle();
+                        Monitor.Enter(dutyCycleLock);
+                        xBeeDutyCycle = (byte)dc;
+                        Monitor.Exit(dutyCycleLock);
+                        if ((dc >= XBEE_CRITICAL_THRESHOLD) && (dc < Byte.MaxValue))
+                        {
+                            // pause all transmissions to recover
+                            Thread.Sleep(60000);
+                        }
+                        else if ((dc >= XBEE_RESET_THRESHOLD) && (dc < Byte.MaxValue))
+                        {
+                            xbee.Reset();
+                            Thread.Sleep(1000);
+                        }                        
                         lastXBeeResetCheck = DateTime.Now;
                         transmitReady = true;
                     }                    
@@ -541,19 +564,23 @@ namespace M3Space.Capsule
             {
                 Thread.Sleep(150);
             }
-            txQueue.Add(dataProtocol.GetBeginImage(lastSentImage, (int)fileHandle.Length));
+            int imgSize = (int)fileHandle.Length;
+            txQueue.Add(dataProtocol.GetBeginImage(lastSentImage, imgSize));
             byte[] chunk = new byte[IMAGE_CHUNK_SIZE];
             int imgOffset = 0;
-            while (fileHandle.Position < fileHandle.Length)
+            while (imgOffset < imgSize)
             {
                 int length = fileHandle.Read(chunk, 0, IMAGE_CHUNK_SIZE);
-                while (!transmitReady)
+                if (length > 0)
                 {
-                    Thread.Sleep(150);
+                    while (!transmitReady)
+                    {
+                        Thread.Sleep(150);
+                    }
+                    txQueue.Add(dataProtocol.GetImageData(imgOffset, chunk, length));
+                    imgOffset += length;
+                    Thread.Sleep(300);
                 }
-                txQueue.Add(dataProtocol.GetImageData(imgOffset, chunk, length));
-                imgOffset += length;
-                Thread.Sleep(300);
             }
             fileHandle.Close();
             imageTransmitting = false;
@@ -582,127 +609,8 @@ namespace M3Space.Capsule
         }
 
         /// <summary>
-        /// Resets the XBee module.
+        /// Checks if any threads have crashed.
         /// </summary>
-        private void ResetXbee()
-        {
-            TristatePort port = new TristatePort((Cpu.Pin)FEZ_Pin.Digital.Di7, false, false, Port.ResistorMode.PullUp);
-            port.Active = true;  // set port as output
-            port.Write(false);   // reset the xBee module 
-            Thread.Sleep(1);     // wait (at least 100us)
-            port.Active = false; // set port as input
-            // give the module time to reboot
-            Thread.Sleep(1000);
-        }
-
-        /// <summary>
-        /// Sets the Xbee transmit power
-        /// </summary>
-        private void SetXbeeTransmitPower()
-        {
-            try
-            {
-                // switch to AT-Command mode
-                Thread.Sleep(150);
-                xBeePort.Write(Encoding.UTF8.GetBytes("+++"), 0, 3);
-                Thread.Sleep(150);
-                byte[] readBytes = new byte[xBeePort.BytesToRead];
-                xBeePort.Read(readBytes, 0, readBytes.Length);
-                if (readBytes.Length == 3)
-                {
-                    string readString = new String(System.Text.Encoding.UTF8.GetChars(readBytes)).TrimEnd("\r".ToCharArray());
-#if DEBUG
-                    Debug.Print("Enter ATmode = " + readString);
-#endif
-                    if (readString.IndexOf("OK") == 0)
-                    {
-                        // now we are in at-command mode
-
-                        // set TX power (0=1mW, 1=23mW, 2=100mW, 3=158mW, 4=316mW)
-                        xBeePort.Write(Encoding.UTF8.GetBytes("ATPL" + XBEE_TX_POWER + "\r"), 0, 6);
-                        Thread.Sleep(150);
-                        //readBytes = new byte[xBeePort.BytesToRead];
-                        //xBeePort.Read(readBytes, 0, readBytes.Length);
-                        //readString = new String(System.Text.Encoding.UTF8.GetChars(readBytes)).TrimEnd("\r".ToCharArray());
-                        
-#if DEBUG
-                        Debug.Print("TX Power Level = " + XBEE_TX_POWER);
-#endif
-
-                        // exit at-command mode
-                        xBeePort.DiscardInBuffer();
-                        xBeePort.Write(Encoding.UTF8.GetBytes("ATCN\r"), 0, 5);
-                        Thread.Sleep(150);
-                        readBytes = new byte[xBeePort.BytesToRead];
-                        xBeePort.Read(readBytes, 0, readBytes.Length);
-                        readString = new String(System.Text.Encoding.UTF8.GetChars(readBytes)).TrimEnd("\r".ToCharArray());
-#if DEBUG
-                        Debug.Print("Exit ATmode = " + readString + "\n");
-#endif
-                    }
-                }
-            }
-            catch (Exception)
-            {
-            }
-        }
-
-        private void GetDutyCycleAndReset(SerialPort xBeePort, byte resetThreshold)
-        {
-            try
-            {
-                // switch to AT-Command mode
-                Thread.Sleep(150);
-                xBeePort.Write(Encoding.UTF8.GetBytes("+++"), 0, 3);
-                Thread.Sleep(150);
-                byte[] readBytes = new byte[xBeePort.BytesToRead];
-                xBeePort.Read(readBytes, 0, readBytes.Length);
-                if (readBytes.Length == 3)
-                {
-                    string readString = new String(System.Text.Encoding.UTF8.GetChars(readBytes)).TrimEnd("\r".ToCharArray());
-#if DEBUG
-                    Debug.Print("Enter ATmode = " + readString);
-#endif
-                    if (readString.IndexOf("OK") == 0)
-                    {
-                        // now we are in at-command mode
-
-                        //get DutyCycle counter (0 to 0x64) 0x64 means 10% dutycycle is reached
-                        xBeePort.Write(Encoding.UTF8.GetBytes("ATDC\r"), 0, 5);
-                        Thread.Sleep(150);
-                        readBytes = new byte[xBeePort.BytesToRead];
-                        xBeePort.Read(readBytes, 0, readBytes.Length);
-                        readString = new String(System.Text.Encoding.UTF8.GetChars(readBytes)).TrimEnd("\r".ToCharArray());
-                        Monitor.Enter(dutyCycleLock);
-                        xBeeDutyCycle = (byte)BitConverter.Hex2Dec(readString);
-                        Monitor.Exit(dutyCycleLock);
-#if DEBUG
-                        Debug.Print("DutyCycle   = " + xBeeDutyCycle + "%");
-#endif
-
-                        // exit at-command mode
-                        xBeePort.DiscardInBuffer();
-                        xBeePort.Write(Encoding.UTF8.GetBytes("ATCN\r"), 0, 5);
-                        Thread.Sleep(150);
-                        readBytes = new byte[xBeePort.BytesToRead];
-                        xBeePort.Read(readBytes, 0, readBytes.Length);
-                        readString = new String(System.Text.Encoding.UTF8.GetChars(readBytes)).TrimEnd("\r".ToCharArray());
-#if DEBUG
-                        Debug.Print("Exit ATmode = " + readString + "\n");
-#endif
-                        if (xBeeDutyCycle >= resetThreshold)
-                        {
-                            ResetXbee();
-                        }
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                LogError("XBee check failed");
-            }
-        }
-
         public void CheckThreads()
         {
             if (!gpsThread.IsAlive)

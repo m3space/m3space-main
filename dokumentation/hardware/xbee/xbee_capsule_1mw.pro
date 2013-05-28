@@ -45,8 +45,8 @@ XBP08-DP_1061.mxi
 [A]IC=0
 [A]IR=0
 [A]IF=1
-[A]CT=64
-[A]GT=3E8
+[A]CT=5
+[A]GT=C8
 [A]CC=2B
 [A]WH=0
 [A]SO=0

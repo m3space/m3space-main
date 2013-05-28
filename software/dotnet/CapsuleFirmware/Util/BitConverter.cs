@@ -1,8 +1,12 @@
 namespace M3Space.Capsule.Util
 {
+    /// <summary>
+    /// Number conversion utilities.
+    /// version 1.02
+    /// </summary>
     public static class BitConverter
     {
-        private static string ConversionTable = "0123456789ABCDEF";
+        private static readonly string ConversionTable = "0123456789ABCDEF";
 
         public static byte[] GetBytes(long value)
         {

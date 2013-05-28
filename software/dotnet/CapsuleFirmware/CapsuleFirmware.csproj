@@ -42,6 +42,7 @@
     <Compile Include="Drivers\LinkspriteCamera.cs" />
     <Compile Include="Drivers\MotionData.cs" />
     <Compile Include="Drivers\Mpu6050.cs" />
+    <Compile Include="Drivers\Xbee.cs" />
     <Compile Include="M3SpaceCapsule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
