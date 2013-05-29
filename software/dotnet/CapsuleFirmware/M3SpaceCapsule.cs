@@ -28,6 +28,8 @@ namespace M3Space.Capsule
 
         private const string TelemetryFormat = "Utc;Lat;Lng;Alt;HSpd;VSpd;Head;Sat;IntTemp;Temp1;Temp2;Pressure;PAlt;Vin;Duty\r\n";
         private const string MotionFormat = "Utc;Ax;Ay;Az;Gx;Gy;Gz\r\n";
+        private const string FileDateFormat = "yyyyMMdd_HHmmss";
+        private const string DisplayDateFormat = "dd.MM.yyyy HH:mm:ss";
 
         private BoundedBuffer txQueue;
         private byte[] txBuffer;
@@ -44,11 +46,6 @@ namespace M3Space.Capsule
 
         private TelemetryData cachedTelemetry;
         private GpsPoint cachedGpsPoint;
-
-        private SerialPort gpsPort;
-        private SerialPort xBeePort;
-        private SerialPort cameraPort;
-        private SerialPort barometerPort;
 
         private byte xBeeDutyCycle;
         private DateTime lastXBeeResetCheck;
@@ -109,11 +106,6 @@ namespace M3Space.Capsule
             tempSensor2 = new AnalogIn((AnalogIn.Pin)FEZ_Pin.AnalogIn.An5);
             vInSensor = new AnalogIn((AnalogIn.Pin)FEZ_Pin.AnalogIn.An2);
 
-            gpsPort = new SerialPort("COM4");
-            xBeePort = new SerialPort("COM1", 38400, Parity.None, 8, StopBits.One);
-            cameraPort = new SerialPort("COM3", 38400, Parity.None, 8, StopBits.One);
-            barometerPort = new SerialPort("COM2", 9600, Parity.None, 8, StopBits.One);
-
             currentImageTimestamp = DateTime.Now;
             lastSentImage = DateTime.Now;
             cachedGpsPoint.UtcTimestamp = DateTime.Now;
@@ -122,21 +114,21 @@ namespace M3Space.Capsule
             xBeeDutyCycle = 0;
             imageTransmitting = false;
             transmitReady = false;
-            xbee = new Xbee(xBeePort);
+            xbee = new Xbee("COM1");
 
-            gps = new GpsReader(gpsPort);
+            gps = new GpsReader("COM4");
             gps.GpsDataReceived += SetTimeFromGps;
 
             mpu6050 = new Mpu6050();
             motionBuffer = new MotionData[MOTION_BUFFER_SIZE];
             motionBufferIndex = 0;
 
-            barometer = new Barometer(barometerPort);
+            barometer = new Barometer("COM2");
             cachedPressureAltitude = 0;
             cachedPressure = 0;
             cachedTemperature = 0;
 
-            camera = new LinkspriteCamera(cameraPort);
+            camera = new LinkspriteCamera("COM3", 38400);
             camera.ImageChunkReceived += CameraImageDataReceived;
 
             waitTimeSync = new AutoResetEvent(false);
@@ -182,7 +174,7 @@ namespace M3Space.Capsule
                 waitTimeSync.WaitOne();
 
                 // initialize SD card files
-                string now = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+                string now = DateTime.Now.ToString(FileDateFormat);
                 telemetryFileName = sdRootDirectory + @"\telemetry_" + now + ".csv";
                 motionFileName = sdRootDirectory + @"\motiondata_" + now + ".csv";
                 errorLogFilename = sdRootDirectory + @"\errorLog_" + now + ".csv";
@@ -264,7 +256,7 @@ namespace M3Space.Capsule
             gps.GpsDataReceived -= SetTimeFromGps;          // deactivate handler
             Utility.SetLocalTime(gpsPoint.UtcTimestamp);    // set system time to UTC, therefore DateTime.Now returns UTC.
 #if DEBUG
-            Debug.Print("Time synchronized to " + gpsPoint.UtcTimestamp.ToString("yyyyMMdd_HHmmss"));
+            Debug.Print("Time synchronized to " + gpsPoint.UtcTimestamp.ToString(FileDateFormat));
 #endif
             // reinitialize some datetime objects
             currentImageTimestamp = DateTime.Now;
@@ -437,7 +429,7 @@ namespace M3Space.Capsule
         {
             for (int i = 0; i < MOTION_BUFFER_SIZE; i++)
             {
-                string text = motionBuffer[i].UtcTimestamp.ToString("dd.MM.yyyy HH:mm:ss") + ';' +
+                string text = motionBuffer[i].UtcTimestamp.ToString(DisplayDateFormat) + ';' +
                     motionBuffer[i].Ax.ToString() + ';' +
                     motionBuffer[i].Ay.ToString() + ';' +
                     motionBuffer[i].Az.ToString() + ';' +
@@ -460,7 +452,7 @@ namespace M3Space.Capsule
         /// <param name="data">the telemetry data to save</param>
         private void StoreTelemetry(TelemetryData data)
         {
-            string text = data.UtcTimestamp.ToString("dd.MM.yyyy HH:mm:ss") + ';' +
+            string text = data.UtcTimestamp.ToString(DisplayDateFormat) + ';' +
                 data.GpsData.Latitude.ToString("F5") + ';' +
                 data.GpsData.Longitude.ToString("F5") + ';' +
                 data.GpsData.Altitude.ToString() + ';' +
@@ -531,7 +523,7 @@ namespace M3Space.Capsule
                     imageFileHandle.Close();
                 }
                 currentImageTimestamp = DateTime.Now;
-                currentImageFilename = sdRootDirectory + @"\" + currentImageTimestamp.ToString("yyyyMMdd_HHmmss") + ".jpg";
+                currentImageFilename = sdRootDirectory + @"\" + currentImageTimestamp.ToString(FileDateFormat) + ".jpg";
                 imageFileHandle = new FileStream(currentImageFilename, FileMode.OpenOrCreate);
             }
 
@@ -656,7 +648,7 @@ namespace M3Space.Capsule
             Monitor.Enter(logFileLock);
             FileStream fileHandle = new FileStream(errorLogFilename, FileMode.OpenOrCreate);
             fileHandle.Position = fileHandle.Length;
-            string text = DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss") + ";" + message + "\r\n";
+            string text = DateTime.Now.ToString(DisplayDateFormat) + ";" + message + "\r\n";
             fileHandle.Write(Encoding.UTF8.GetBytes(text), 0, text.Length);
             fileHandle.Close();
 #if DEBUG

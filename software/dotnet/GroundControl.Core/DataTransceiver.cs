@@ -56,6 +56,7 @@ namespace GroundControl.Core
         public DataTransceiver(string port)
         {
             serialPort = new SerialPort(port, 38400, Parity.None, 8, StopBits.One);
+            serialPort.ReadTimeout = 500;
             doRun = false;
             rcvBuf = new byte[RECEIVE_BUFFER_SIZE];
             frameBuf = new byte[FRAME_BUFFER_SIZE];
@@ -132,15 +133,17 @@ namespace GroundControl.Core
 
                 while (doRun)
                 {
-                    int count = serialPort.Read(rcvBuf, 0, RECEIVE_BUFFER_SIZE);
-                    if (count > 0)
+                    try
                     {
-                        for (int i = 0; i < count; i++)
-                            ReceiveByte(rcvBuf[i]);
+                        int count = serialPort.Read(rcvBuf, 0, RECEIVE_BUFFER_SIZE);
+                        if (count > 0)
+                        {
+                            for (int i = 0; i < count; i++)
+                                ReceiveByte(rcvBuf[i]);
+                        }
                     }
-                    else
+                    catch (TimeoutException)
                     {
-                        Thread.Sleep(100);
                     }
                 }
             }

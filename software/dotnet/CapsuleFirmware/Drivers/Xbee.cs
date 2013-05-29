@@ -11,11 +11,18 @@ namespace M3Space.Capsule.Drivers
 {
     /// <summary>
     /// An XBee 868 Pro driver.
-    /// version 1.00
+    /// Designed for 38400 baud.
+    /// version 1.03
     /// </summary>
     public class Xbee
     {
-        const int RECEIVE_BUFFER_SIZE = 32;
+        const int RECEIVE_BUFFER_SIZE = 16;
+        const int ATMODE_GUARD_TIME = 300;
+
+        static readonly byte[] ENTER_ATMODE = new byte[] { 0x2B, 0x2B, 0x2B };                      // +++
+        static readonly byte[] EXIT_ATMODE = new byte[] { 0x41, 0x54, 0x43, 0x4E, 0x0D };           // ATCN\r
+        static readonly byte[] SET_TX_POWER = new byte[] { 0x41, 0x54, 0x50, 0x4C, 0x00, 0x0D };    // ATPLx\r  x=level
+        static readonly byte[] GET_DUTYCYCLE = new byte[] { 0x41, 0x54, 0x44, 0x43, 0x0D };         // ATDC\r
 
         private SerialPort port;
         private byte[] rcvBuf;
@@ -23,10 +30,15 @@ namespace M3Space.Capsule.Drivers
         /// <summary>
         /// Constructor.
         /// </summary>
-        /// <param name="port">the serial port</param>
-        public Xbee(SerialPort port)
+        /// <param name="portName">the serial port name</param>
+        public Xbee(string portName)
         {
-            this.port = port;
+            port = new SerialPort(portName);
+            port.BaudRate = 38400;
+            port.DataBits = 8;
+            port.Parity = Parity.None;
+            port.StopBits = StopBits.One;
+            port.ReadTimeout = 200;
             rcvBuf = new byte[RECEIVE_BUFFER_SIZE];
         }
 
@@ -66,8 +78,11 @@ namespace M3Space.Capsule.Drivers
                 // now we are in at-command mode
 
                 // set TX power (0=1mW, 1=23mW, 2=100mW, 3=158mW, 4=316mW)
-                port.Write(Encoding.UTF8.GetBytes("ATPL" + level + "\r"), 0, 6);
-                Thread.Sleep(200);
+                SET_TX_POWER[4] = level;
+                port.DiscardInBuffer();
+                port.Write(SET_TX_POWER, 0, 6);
+                port.Flush();
+                Thread.Sleep(150);
 
 #if DEBUG
                 Debug.Print("TX Power Level = " + level);
@@ -85,18 +100,21 @@ namespace M3Space.Capsule.Drivers
         /// <returns>the duty cycle in percent</returns>
         public uint GetDutyCycle()
         {
-            uint dc = Byte.MaxValue;
+            uint dc = uint.MaxValue;
             if (EnterAtMode())
             {
                 //get DutyCycle counter (0 to 0x64) 0x64 means 100% dutycycle is reached
-                port.Write(Encoding.UTF8.GetBytes("ATDC\r"), 0, 5);
-                Thread.Sleep(200);
+                port.DiscardInBuffer();
+                port.Write(GET_DUTYCYCLE, 0, 5);
+                port.Flush();
+                Thread.Sleep(150);
+
                 int n = port.Read(rcvBuf, 0, RECEIVE_BUFFER_SIZE);
                 if (n > 1)
                 {
-                    string readString = new String(Encoding.UTF8.GetChars(rcvBuf), 0 , n).TrimEnd('\r');    // subtract \r
-                    dc = BitConverter.Hex2Dec(readString);
+                    dc = BitConverter.Hex2Dec(rcvBuf, 0, n - 1);   // subtract \r
                 }
+
 #if DEBUG
                 Debug.Print("DutyCycle = " + dc + "%");
 #endif
@@ -123,18 +141,19 @@ namespace M3Space.Capsule.Drivers
         /// <returns>true if in AT mode, false otherwise</returns>
         public bool EnterAtMode()
         {
-            Thread.Sleep(150);
-            port.Write(Encoding.UTF8.GetBytes("+++"), 0, 3);
-            Thread.Sleep(200);
-
+            Thread.Sleep(ATMODE_GUARD_TIME);
+            port.DiscardInBuffer();
+            port.Write(ENTER_ATMODE, 0, 3);
+            port.Flush();
+            Thread.Sleep(ATMODE_GUARD_TIME);
+ 
             int n = port.Read(rcvBuf, 0, RECEIVE_BUFFER_SIZE);
             if (n >= 3)
             {
-                string readString = new String(System.Text.Encoding.UTF8.GetChars(rcvBuf), 0, n).TrimEnd('\r');    // subtract \r
 #if DEBUG
-            Debug.Print("Enter ATmode = " + readString);
+                Debug.Print("Enter ATmode = " + ((rcvBuf[0] == 79) && (rcvBuf[1] == 75)));
 #endif
-                return (readString.Equals("OK"));
+                return ((rcvBuf[0] == 79) && (rcvBuf[1] == 75));       // OK
             }
 
             return false;
@@ -147,18 +166,20 @@ namespace M3Space.Capsule.Drivers
         public bool ExitAtMode()
         {
             port.DiscardInBuffer();
-            port.Write(Encoding.UTF8.GetBytes("ATCN\r"), 0, 5);
-            Thread.Sleep(200);
+            port.Write(EXIT_ATMODE, 0, 5);
+            port.Flush();
+            Thread.Sleep(150);
 
             int n = port.Read(rcvBuf, 0, RECEIVE_BUFFER_SIZE);
-            if (n > 0)
+            if (n >= 3)
             {
-                string readString = new String(Encoding.UTF8.GetChars(rcvBuf), 0, n).TrimEnd('\r');    // subtract \r
 #if DEBUG
-                Debug.Print("Exit ATmode = " + readString + "\n");
+                Debug.Print("Exit ATmode = " + ((rcvBuf[0] == 79) && (rcvBuf[1] == 75)));
 #endif
-                return true;
+                port.DiscardInBuffer();
+                return ((rcvBuf[0] == 79) && (rcvBuf[1] == 75));        // OK
             }
+
             return false;
         }
     }
