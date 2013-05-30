@@ -310,6 +310,7 @@ namespace M3Space.Capsule
                         if ((dc >= XBEE_CRITICAL_THRESHOLD) && (dc < Byte.MaxValue))
                         {
                             // pause all transmissions to recover
+                            xbee.Reset();
                             Thread.Sleep(60000);
                         }
                         else if ((dc >= XBEE_RESET_THRESHOLD) && (dc < Byte.MaxValue))
@@ -366,7 +367,7 @@ namespace M3Space.Capsule
                     {
                         txQueue.Add(dataProtocol.GetTelemetry(cachedTelemetry));
                         count = TELEMETRY_TX_INTERVAL;
-                    }                    
+                    }
                 }
 
                 Thread.Sleep(1000);
@@ -490,6 +491,7 @@ namespace M3Space.Capsule
             {
                 if (camera.CaptureImage())
                 {
+                    camera.Stop();
                     if (transmitReady && (!imageTransmitting) && ((currentImageTimestamp - lastSentImage).Minutes >= IMAGE_TX_INTERVAL))
                     {
                         new Thread(new ThreadStart(StartTransmitImageThread)).Start();
@@ -549,8 +551,9 @@ namespace M3Space.Capsule
         private void StartTransmitImageThread()
         {
             imageTransmitting = true;
-            FileStream fileHandle = new FileStream(currentImageFilename, FileMode.Open);
+            string fileToSend = currentImageFilename;
             lastSentImage = currentImageTimestamp;
+            FileStream fileHandle = new FileStream(fileToSend, FileMode.Open);            
 
             while (!transmitReady)
             {
@@ -571,7 +574,7 @@ namespace M3Space.Capsule
                     }
                     txQueue.Add(dataProtocol.GetImageData(imgOffset, chunk, length));
                     imgOffset += length;
-                    Thread.Sleep(300);
+                    Thread.Sleep(100);
                 }
             }
             fileHandle.Close();
