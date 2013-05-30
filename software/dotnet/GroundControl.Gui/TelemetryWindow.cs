@@ -41,7 +41,7 @@ namespace GroundControl.Gui
             float lngDecMins = (lngAbs - lngDegs) * 60;
             char lngOri = (data.Latitude >= 0.0f) ? 'E' : 'W';
 
-            dateLbl.Text = String.Format("{0:dd.MM.yyyy HH:mm:ss}", data.UtcTimestamp.ToLocalTime());
+            dateLbl.Text = String.Format("{0:dd.MM.yyyy HH:mm:ss.fff}", data.UtcTimestamp.ToLocalTime());
             latLbl.Text = String.Format("{0}° {1:0.###}' {2}", latDegs, latDecMins, latOri);
             lngLbl.Text = String.Format("{0}° {1:0.###}' {2}", lngDegs, lngDecMins, lngOri);
             altLbl.Text = String.Format("{0:0.#} m", data.GpsAltitude);

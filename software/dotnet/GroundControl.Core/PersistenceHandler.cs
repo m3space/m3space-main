@@ -15,6 +15,7 @@ namespace GroundControl.Core
         private static string imageDirName = "images";
         private static string telemetryDirName = "telemetry";
         private static string telemetryPrefix = "telemetry_";
+        private static string fileDateFormat = "yyyyMMdd_HHmmss";
 
         private string dataDirectory;
         private string telemetryFileName;
@@ -65,7 +66,7 @@ namespace GroundControl.Core
         /// <param name="data">the image data</param>
         public void SaveImage(DateTime utc, byte[] data)
         {
-            string filename = DataDirectory + Path.DirectorySeparatorChar + imageDirName + Path.DirectorySeparatorChar + utc.ToString("yyyyMMdd_HHmmss") + ".jpg";
+            string filename = DataDirectory + Path.DirectorySeparatorChar + imageDirName + Path.DirectorySeparatorChar + utc.ToString(fileDateFormat) + ".jpg";
             BinaryWriter writer = new BinaryWriter(File.Create(filename));
             writer.Write(data);
             writer.Close();
@@ -77,7 +78,7 @@ namespace GroundControl.Core
         /// <param name="createDate">the date of creation</param>
         public void CreateTelemetryFile(DateTime createDate)
         {
-            string filename = DataDirectory + Path.DirectorySeparatorChar + telemetryDirName + Path.DirectorySeparatorChar + telemetryPrefix + createDate.ToString("yyyyMMdd_HHmmss") + ".csv";
+            string filename = DataDirectory + Path.DirectorySeparatorChar + telemetryDirName + Path.DirectorySeparatorChar + telemetryPrefix + createDate.ToString(fileDateFormat) + ".csv";
             CreateTelemetryFile(filename);
         }
 
@@ -106,7 +107,7 @@ namespace GroundControl.Core
             if (telemetryFileName != null)
             {
                 StreamWriter writer = File.AppendText(telemetryFileName);
-                writer.WriteLine(String.Format("{0:dd.MM.yyyy HH:mm:ss};{1:0.####};{2:0.####};{3:0.#};{4:0.#};{5:0.#};{6:0.#};{7:0.#};{8};{9};{10:0.#};{11:0.#};{12:0.####};{13:0.##};{14};{15};{16};{17}",
+                writer.WriteLine(String.Format("{0:dd.MM.yyyy HH:mm:ss.fff};{1:0.####};{2:0.####};{3:0.#};{4:0.#};{5:0.#};{6:0.#};{7:0.#};{8};{9};{10:0.#};{11:0.#};{12:0.####};{13:0.##};{14};{15};{16};{17}",
                     telemetry.UtcTimestamp,
                     telemetry.Latitude,
                     telemetry.Longitude,

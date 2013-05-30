@@ -15,6 +15,9 @@ using M3Space.Capsule.Util;
 
 namespace M3Space.Capsule
 {
+    /// <summary>
+    /// M3 Space Balloon Capsule.
+    /// </summary>
     public class M3SpaceCapsule
     {
         private const int XBEE_TX_POWER = 4;    // 0=1mW, 1=25mW, 2=100mW, 3=150mW, 4=300mW
@@ -29,7 +32,7 @@ namespace M3Space.Capsule
         private const string TelemetryFormat = "Utc;Lat;Lng;Alt;HSpd;VSpd;Head;Sat;IntTemp;Temp1;Temp2;Pressure;PAlt;Vin;Duty\r\n";
         private const string MotionFormat = "Utc;Ax;Ay;Az;Gx;Gy;Gz\r\n";
         private const string FileDateFormat = "yyyyMMdd_HHmmss";
-        private const string DisplayDateFormat = "dd.MM.yyyy HH:mm:ss";
+        private const string DisplayDateFormat = "dd.MM.yyyy HH:mm:ss.fff";
 
         private BoundedBuffer txQueue;
         private byte[] txBuffer;
@@ -38,7 +41,7 @@ namespace M3Space.Capsule
         private PersistentStorage sdStorage;
         private string telemetryFileName;
         private string motionFileName;
-        private string errorLogFilename;
+        private string logFileName;
 
         private AnalogIn tempSensor1;
         private AnalogIn tempSensor2;
@@ -51,7 +54,7 @@ namespace M3Space.Capsule
         private DateTime lastXBeeResetCheck;
 
         private string sdRootDirectory;
-        private string currentImageFilename;
+        private string currentImageFileName;
         private DateTime currentImageTimestamp;
         private DateTime lastSentImage;
         private bool imageTransmitting;
@@ -134,6 +137,9 @@ namespace M3Space.Capsule
             waitTimeSync = new AutoResetEvent(false);
         }
 
+        /// <summary>
+        /// Checks if the SD card is attached.
+        /// </summary>
         private void CheckSDcard()
         {
             // wait for SD-card
@@ -158,6 +164,10 @@ namespace M3Space.Capsule
             {
                 sdStorage.MountFileSystem();
                 sdRootDirectory = VolumeInfo.GetVolumes()[0].RootDirectory;
+                if (!Directory.Exists(sdRootDirectory + @"\images\"))
+                {
+                    Directory.CreateDirectory(sdRootDirectory + @"\images\");
+                }
 
                 // create threads
                 gpsThread = new Thread(new ThreadStart(StartGpsThread));
@@ -177,8 +187,8 @@ namespace M3Space.Capsule
                 string now = DateTime.Now.ToString(FileDateFormat);
                 telemetryFileName = sdRootDirectory + @"\telemetry_" + now + ".csv";
                 motionFileName = sdRootDirectory + @"\motiondata_" + now + ".csv";
-                errorLogFilename = sdRootDirectory + @"\errorLog_" + now + ".csv";
-                currentImageFilename = sdRootDirectory + @"\" + now + ".jpg";
+                logFileName = sdRootDirectory + @"\log_" + now + ".csv";
+                currentImageFileName = sdRootDirectory + @"\images\" + now + ".jpg";
 
                 telemetryFileHandle = new FileStream(telemetryFileName, FileMode.OpenOrCreate);
                 byte[] writeData = Encoding.UTF8.GetBytes(TelemetryFormat);
@@ -525,8 +535,8 @@ namespace M3Space.Capsule
                     imageFileHandle.Close();
                 }
                 currentImageTimestamp = DateTime.Now;
-                currentImageFilename = sdRootDirectory + @"\" + currentImageTimestamp.ToString(FileDateFormat) + ".jpg";
-                imageFileHandle = new FileStream(currentImageFilename, FileMode.OpenOrCreate);
+                currentImageFileName = sdRootDirectory + @"\images\" + currentImageTimestamp.ToString(FileDateFormat) + ".jpg";
+                imageFileHandle = new FileStream(currentImageFileName, FileMode.OpenOrCreate);
             }
 
             StoreImageChunk(chunk, chunkSize);
@@ -551,7 +561,7 @@ namespace M3Space.Capsule
         private void StartTransmitImageThread()
         {
             imageTransmitting = true;
-            string fileToSend = currentImageFilename;
+            string fileToSend = currentImageFileName;
             lastSentImage = currentImageTimestamp;
             FileStream fileHandle = new FileStream(fileToSend, FileMode.Open);            
 
@@ -591,12 +601,12 @@ namespace M3Space.Capsule
             if (imageFileHandle == null)
             {
                 // missed begin of JPG
-                imageFileHandle = new FileStream(currentImageFilename, FileMode.OpenOrCreate);
+                imageFileHandle = new FileStream(currentImageFileName, FileMode.OpenOrCreate);
             }
-            if (!imageFileHandle.Name.Equals(currentImageFilename))
+            if (!imageFileHandle.Name.Equals(currentImageFileName))
             {
                 imageFileHandle.Close();
-                imageFileHandle = new FileStream(currentImageFilename, FileMode.OpenOrCreate);
+                imageFileHandle = new FileStream(currentImageFileName, FileMode.OpenOrCreate);
             }
             imageFileHandle.Position = imageFileHandle.Length;
             imageFileHandle.Write(data, 0, size);
@@ -646,10 +656,14 @@ namespace M3Space.Capsule
             }
         }
 
+        /// <summary>
+        /// Writes an error message to a log file.
+        /// </summary>
+        /// <param name="message">the error message</param>
         private void LogError(string message)
         {
             Monitor.Enter(logFileLock);
-            FileStream fileHandle = new FileStream(errorLogFilename, FileMode.OpenOrCreate);
+            FileStream fileHandle = new FileStream(logFileName, FileMode.OpenOrCreate);
             fileHandle.Position = fileHandle.Length;
             string text = DateTime.Now.ToString(DisplayDateFormat) + ";" + message + "\r\n";
             fileHandle.Write(Encoding.UTF8.GetBytes(text), 0, text.Length);

@@ -44,6 +44,8 @@
             this.label1 = new System.Windows.Forms.Label();
             this.dateLbl = new System.Windows.Forms.Label();
             this.groupBoxTemp = new System.Windows.Forms.GroupBox();
+            this.intTempLbl = new System.Windows.Forms.Label();
+            this.label14 = new System.Windows.Forms.Label();
             this.temp2Lbl = new System.Windows.Forms.Label();
             this.temp1Lbl = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
@@ -56,8 +58,6 @@
             this.groupBoxSystem = new System.Windows.Forms.GroupBox();
             this.vinLbl = new System.Windows.Forms.Label();
             this.label11 = new System.Windows.Forms.Label();
-            this.intTempLbl = new System.Windows.Forms.Label();
-            this.label14 = new System.Windows.Forms.Label();
             this.groupBoxLocation.SuspendLayout();
             this.groupBoxTemp.SuspendLayout();
             this.groupBoxPressure.SuspendLayout();
@@ -84,7 +84,7 @@
             this.groupBoxLocation.Controls.Add(this.dateLbl);
             this.groupBoxLocation.Location = new System.Drawing.Point(2, 0);
             this.groupBoxLocation.Name = "groupBoxLocation";
-            this.groupBoxLocation.Size = new System.Drawing.Size(159, 149);
+            this.groupBoxLocation.Size = new System.Drawing.Size(175, 149);
             this.groupBoxLocation.TabIndex = 0;
             this.groupBoxLocation.TabStop = false;
             this.groupBoxLocation.Text = "Location";
@@ -227,10 +227,28 @@
             this.groupBoxTemp.Controls.Add(this.label6);
             this.groupBoxTemp.Location = new System.Drawing.Point(2, 155);
             this.groupBoxTemp.Name = "groupBoxTemp";
-            this.groupBoxTemp.Size = new System.Drawing.Size(159, 70);
+            this.groupBoxTemp.Size = new System.Drawing.Size(175, 70);
             this.groupBoxTemp.TabIndex = 1;
             this.groupBoxTemp.TabStop = false;
             this.groupBoxTemp.Text = "Temperature";
+            // 
+            // intTempLbl
+            // 
+            this.intTempLbl.AutoSize = true;
+            this.intTempLbl.Location = new System.Drawing.Point(47, 51);
+            this.intTempLbl.Name = "intTempLbl";
+            this.intTempLbl.Size = new System.Drawing.Size(27, 13);
+            this.intTempLbl.TabIndex = 14;
+            this.intTempLbl.Text = "N/A";
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(6, 51);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(22, 13);
+            this.label14.TabIndex = 13;
+            this.label14.Text = "Int.";
             // 
             // temp2Lbl
             // 
@@ -278,7 +296,7 @@
             this.groupBoxPressure.Controls.Add(this.label9);
             this.groupBoxPressure.Location = new System.Drawing.Point(2, 231);
             this.groupBoxPressure.Name = "groupBoxPressure";
-            this.groupBoxPressure.Size = new System.Drawing.Size(159, 54);
+            this.groupBoxPressure.Size = new System.Drawing.Size(175, 54);
             this.groupBoxPressure.TabIndex = 2;
             this.groupBoxPressure.TabStop = false;
             this.groupBoxPressure.Text = "Pressure";
@@ -327,7 +345,7 @@
             this.groupBoxSystem.Controls.Add(this.label11);
             this.groupBoxSystem.Location = new System.Drawing.Point(2, 291);
             this.groupBoxSystem.Name = "groupBoxSystem";
-            this.groupBoxSystem.Size = new System.Drawing.Size(159, 37);
+            this.groupBoxSystem.Size = new System.Drawing.Size(175, 37);
             this.groupBoxSystem.TabIndex = 3;
             this.groupBoxSystem.TabStop = false;
             this.groupBoxSystem.Text = "System";
@@ -350,30 +368,12 @@
             this.label11.TabIndex = 15;
             this.label11.Text = "Vin.";
             // 
-            // intTempLbl
-            // 
-            this.intTempLbl.AutoSize = true;
-            this.intTempLbl.Location = new System.Drawing.Point(47, 51);
-            this.intTempLbl.Name = "intTempLbl";
-            this.intTempLbl.Size = new System.Drawing.Size(27, 13);
-            this.intTempLbl.TabIndex = 14;
-            this.intTempLbl.Text = "N/A";
-            // 
-            // label14
-            // 
-            this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(6, 51);
-            this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(22, 13);
-            this.label14.TabIndex = 13;
-            this.label14.Text = "Int.";
-            // 
             // TelemetryWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
-            this.ClientSize = new System.Drawing.Size(165, 333);
+            this.ClientSize = new System.Drawing.Size(181, 333);
             this.ControlBox = false;
             this.Controls.Add(this.groupBoxSystem);
             this.Controls.Add(this.groupBoxPressure);
