@@ -40,7 +40,7 @@ namespace TestWebUpload
 
             byte[] img = File.ReadAllBytes("test.jpg");
 
-            webaccess.UploadLiveImage(DateTime.UtcNow, img);
+            webaccess.UploadLiveImage(DateTime.UtcNow, img, true);
 
             Console.Write("Press [Enter]...");
             Console.ReadLine();

@@ -75,9 +75,10 @@ namespace GroundControl.Console
         /// </summary>
         /// <param name="utc">the image timestamp</param>
         /// <param name="data">the image data</param>
-        static void NotifyImageComplete(DateTime utc, byte[] data)
+        /// <param name="ok">true if ok, false if with errors</param>
+        static void NotifyImageComplete(DateTime utc, byte[] data, bool ok)
         {
-            System.Console.WriteLine(String.Format("[Image] {0:dd.MM.yyyy HH:mm:ss} Size: {1} bytes", utc.ToLocalTime(), data.Length));
+            System.Console.WriteLine(String.Format("[Image] {0:dd.MM.yyyy HH:mm:ss} Size: {1} bytes {2}", utc.ToLocalTime(), data.Length, (ok) ? "OK" : "with errors"));
         }
 
         /// <summary>

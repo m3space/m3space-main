@@ -242,11 +242,12 @@ namespace M3Space.Capsule
         private void GpsDataReceived(GpsPoint gpsPoint)
         {
             Monitor.Enter(gpsLock);
-            // compute vertical speed
-            float timediff = (gpsPoint.UtcTimestamp.Ticks - cachedGpsPoint.UtcTimestamp.Ticks) * 1e-7f;
-            if (timediff > 0.0f)
+            // 1 second = 10'000'000 ticks
+            long timediff = gpsPoint.UtcTimestamp.Ticks - cachedGpsPoint.UtcTimestamp.Ticks;
+            if (timediff > 0)
             {
-                gpsPoint.VerticalSpeed = (gpsPoint.Altitude - cachedGpsPoint.Altitude) / timediff;
+                // compute vertical speed
+                gpsPoint.VerticalSpeed = 1e7f * (gpsPoint.Altitude - cachedGpsPoint.Altitude) / timediff;
             }
             else
             {

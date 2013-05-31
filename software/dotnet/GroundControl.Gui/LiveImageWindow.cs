@@ -25,9 +25,10 @@ namespace GroundControl.Gui
         /// </summary>
         /// <param name="utcTs">the UTC timestamp of the image</param>
         /// <param name="imgData">the image data</param>
-        public void UpdateImage(DateTime utcTs, byte[] imgData)
+        /// <param name="ok">true if ok, false if with errors</param>
+        public void UpdateImage(DateTime utcTs, byte[] imgData, bool ok)
         {
-            dateLbl.Text = String.Format("{0:dd.MM.yyyy HH:mm:ss}", utcTs.ToLocalTime());
+            dateLbl.Text = String.Format("{0:dd.MM.yyyy HH:mm:ss} {1}", utcTs.ToLocalTime(), (ok) ? "OK" : "with errors");
 
             MemoryStream stream = new MemoryStream(imgData);
 

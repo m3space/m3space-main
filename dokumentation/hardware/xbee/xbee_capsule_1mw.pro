@@ -9,8 +9,8 @@ XBP08-DP_1061.mxi
 [A]MT=3
 [A]CE=0
 [A]PL=0
-[A]DH=0
-[A]DL=FFFF
+[A]DH=13A200
+[A]DL=4067EA0C
 [A]NI=M3Space Capsule
 [A]NT=82
 [A]NO=0

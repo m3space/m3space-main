@@ -92,9 +92,8 @@ namespace GroundControl.Core
                             if (!imageDecoder.IsIdle)
                             {
                                 OnError("Begin image, but last image was not fully decoded.");
-                                OnImageComplete(imageDecoder.CurrentUtcTimestamp, imageDecoder.ImageData);
-                                imageDecoder.EndImage();
-                                
+                                OnImageComplete(imageDecoder.CurrentUtcTimestamp, imageDecoder.ImageData, false);
+                                imageDecoder.EndImage();                                
                             }
                             if (!imageDecoder.BeginImage(new DateTime(ticks), length))
                             {
@@ -106,17 +105,27 @@ namespace GroundControl.Core
                         case ImageData:
                             int imgOffset = BitConverter.ToUInt16(payload, 0);
                             int chunkLength = payload.Length - 2;
-                            if (imageDecoder.InsertChunk(imgOffset, payload, 2, chunkLength))
+
+                            int result = imageDecoder.InsertChunk(imgOffset, payload, 2, chunkLength);
+                            switch (result)
                             {
-                                if (imageDecoder.IsImageComplete)
-                                {
-                                    OnImageComplete(imageDecoder.CurrentUtcTimestamp, imageDecoder.ImageData);
+                                case ImageDecoder.OK:
+                                    if (imageDecoder.IsImageComplete)
+                                    {
+                                        OnImageComplete(imageDecoder.CurrentUtcTimestamp, imageDecoder.ImageData, true);
+                                        imageDecoder.EndImage();
+                                    }
+                                    break;
+
+                                case ImageDecoder.UnexpectedEnd:
+                                    OnError("Unexpected end of image.");
+                                    OnImageComplete(imageDecoder.CurrentUtcTimestamp, imageDecoder.ImageData, false);
                                     imageDecoder.EndImage();
-                                }
-                            }
-                            else
-                            {
-                                OnError("Cannot insert image data, begin image first.");
+                                    break;
+
+                                default:
+                                    OnError(String.Format("Cannot insert image data (offset {0}, length {1})", imgOffset, chunkLength));
+                                    break;
                             }
                             break;
 
@@ -162,13 +171,14 @@ namespace GroundControl.Core
         /// </summary>
         /// <param name="utcTimestamp">the image timestamp (UTC)</param>
         /// <param name="data">the image data</param>
-        private void OnImageComplete(DateTime utcTimestamp, byte[] data)
+        /// <param name="ok">true if ok, false if with errors</param>
+        private void OnImageComplete(DateTime utcTimestamp, byte[] data, bool ok)
         {
             if (data != null)
             {
                 if (ImageComplete != null)
                 {
-                    ImageComplete(utcTimestamp, data);
+                    ImageComplete(utcTimestamp, data, ok);
                 }
             }
             else

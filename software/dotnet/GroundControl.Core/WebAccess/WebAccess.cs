@@ -38,7 +38,7 @@ namespace GroundControl.Core.WebAccess
             new Thread(delegate() { UploadTelemetryExec(telemetry); }).Start();
         }
 
-        public void UploadLiveImage(DateTime utcTs, byte[] imgData)
+        public void UploadLiveImage(DateTime utcTs, byte[] imgData, bool ok)
         {
             new Thread(delegate() { UploadLiveImageExec(utcTs, imgData); }).Start();
         }

@@ -64,7 +64,8 @@ namespace GroundControl.Core
         /// </summary>
         /// <param name="utc">the image timestamp</param>
         /// <param name="data">the image data</param>
-        public void SaveImage(DateTime utc, byte[] data)
+        /// <param name="ok">true if ok, false if with errors</param>
+        public void SaveImage(DateTime utc, byte[] data, bool ok)
         {
             string filename = DataDirectory + Path.DirectorySeparatorChar + imageDirName + Path.DirectorySeparatorChar + utc.ToString(fileDateFormat) + ".jpg";
             BinaryWriter writer = new BinaryWriter(File.Create(filename));

@@ -11,7 +11,22 @@ namespace GroundControl.Core
     /// </summary>
     public class ImageDecoder
     {
-        private const int YEAR_OFFSET = 1600;  // because different DateTime origin in the microframework (year 1601 instead of 0001)
+        /// <summary>
+        /// OK.
+        /// </summary>
+        public const int OK = 0;
+
+        /// <summary>
+        /// Missed end of image.
+        /// </summary>
+        public const int UnexpectedEnd = 1;
+
+        /// <summary>
+        /// Decoder still idle.
+        /// </summary>
+        public const int NotInitialized = -1;
+
+        private const int NETMF_YEAR_OFFSET = 1600;  // because different DateTime origin in the microframework (year 1601 instead of 0001)
         // http://netmf.codeplex.com/workitem/1003
 
         private byte[] dataBuffer;
@@ -60,7 +75,7 @@ namespace GroundControl.Core
             {
                 imageComplete = false;
                 lastOffset = -1;
-                currentTs = utcTs.AddYears(YEAR_OFFSET);
+                currentTs = utcTs.AddYears(NETMF_YEAR_OFFSET);
                 dataBuffer = new byte[length];
                 Array.Clear(dataBuffer, 0, dataBuffer.Length);
                 return true;
@@ -75,36 +90,32 @@ namespace GroundControl.Core
         /// <param name="data">the chunk data</param>
         /// <param name="srcIdx">the start index of the chunk data</param>
         /// <param name="length">the chunk length</param>
-        /// <returns>ok if data can be inserted, false if image is not initialized</returns>
-        public bool InsertChunk(int imgOffset, byte[] data, int srcIdx, int length)
+        /// <returns>an integer result</returns>
+        public int InsertChunk(int imgOffset, byte[] data, int srcIdx, int length)
         {
             if (dataBuffer != null)
             {
                 if (imgOffset <= lastOffset)
                 {
                     // missed BeginImage
-                    EndImage();
-                    return false;
+                    return UnexpectedEnd;
                 }
-
-                try
-                {
-                    Array.Copy(data, srcIdx, dataBuffer, imgOffset, length);
-                    lastOffset = imgOffset;
-                    if (imgOffset + length >= dataBuffer.Length)
-                    {
-                        imageComplete = true;
-                    }
-                    return true;
-                }
-                catch (IndexOutOfRangeException)
+                if (imgOffset + length > dataBuffer.Length)
                 {
                     // chunk does not fit in buffer, missed end of image and begin of new image
-                    EndImage();
-                    return false;
+                    return UnexpectedEnd;
                 }
+
+                Array.Copy(data, srcIdx, dataBuffer, imgOffset, length);
+                lastOffset = imgOffset;
+                if (imgOffset + length == dataBuffer.Length)
+                {
+                    imageComplete = true;
+                }
+
+                return OK;                
             }
-            return false;
+            return NotInitialized;
         }
 
         /// <summary>
@@ -114,6 +125,7 @@ namespace GroundControl.Core
         {
             dataBuffer = null;
             imageComplete = false;
+            lastOffset = -1;
         }
 
     }

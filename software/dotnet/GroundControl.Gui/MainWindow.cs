@@ -148,11 +148,12 @@ namespace GroundControl.Gui
         /// </summary>
         /// <param name="utcTs">the UTC timestamp</param>
         /// <param name="data">the image data</param>
-        private void HandleImage(DateTime utcTs, byte[] data)
+        /// <param name="ok">true if ok, false if with errors</param>
+        private void HandleImage(DateTime utcTs, byte[] data, bool ok)
         {
-            string str = String.Format("[Image] {0:yyyy/MM/dd HH:mm:ss} Size: {1} bytes", utcTs.ToLocalTime(), data.Length);
+            string str = String.Format("[Image] {0:yyyy/MM/dd HH:mm:ss} Size: {1} bytes {2}", utcTs.ToLocalTime(), data.Length, (ok) ? "OK" : "with errors");
             logWindow.Invoke(new WriteString(logWindow.WriteLine), new object[] { str });
-            liveImageWindow.Invoke(new ImageCompleteHandler(liveImageWindow.UpdateImage), new object[] { utcTs, data });
+            liveImageWindow.Invoke(new ImageCompleteHandler(liveImageWindow.UpdateImage), new object[] { utcTs, data, ok });
         }
 
         /// <summary>
