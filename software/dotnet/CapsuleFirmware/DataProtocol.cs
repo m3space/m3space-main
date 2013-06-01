@@ -21,8 +21,8 @@ namespace M3Space.Capsule
             Array.Copy(BitConverter.GetBytes(data.UtcTimestamp.Ticks), 0, packet, 3, 8);
             Array.Copy(BitConverter.GetBytes(data.GpsData.Latitude), 0, packet, 11, 4);
             Array.Copy(BitConverter.GetBytes(data.GpsData.Longitude), 0, packet, 15, 4);
-            Array.Copy(BitConverter.GetBytes(data.GpsData.Altitude), 0, packet, 19, 2);
-            Array.Copy(BitConverter.GetBytes(data.GpsData.Heading), 0, packet, 21, 2);
+            Array.Copy(BitConverter.GetBytes((ushort)data.GpsData.Altitude), 0, packet, 19, 2);
+            Array.Copy(BitConverter.GetBytes((ushort)data.GpsData.Heading), 0, packet, 21, 2);
             Array.Copy(BitConverter.GetBytes(data.GpsData.HorizontalSpeed), 0, packet, 23, 4);
             Array.Copy(BitConverter.GetBytes(data.GpsData.VerticalSpeed), 0, packet, 27, 4);
             packet[31] = data.GpsData.Satellites;

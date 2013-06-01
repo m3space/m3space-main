@@ -167,6 +167,9 @@ namespace M3Space.Capsule
                 if (!Directory.Exists(sdRootDirectory + @"\images\"))
                 {
                     Directory.CreateDirectory(sdRootDirectory + @"\images\");
+#if DEBUG
+                    Debug.Print("Create image directory.");
+#endif
                 }
 
                 // create threads
@@ -267,7 +270,7 @@ namespace M3Space.Capsule
             gps.GpsDataReceived -= SetTimeFromGps;          // deactivate handler
             Utility.SetLocalTime(gpsPoint.UtcTimestamp);    // set system time to UTC, therefore DateTime.Now returns UTC.
 #if DEBUG
-            Debug.Print("Time synchronized to " + gpsPoint.UtcTimestamp.ToString(FileDateFormat));
+            Debug.Print("Time synchronized to " + gpsPoint.UtcTimestamp.ToString(DisplayDateFormat));
 #endif
             // reinitialize some datetime objects
             currentImageTimestamp = DateTime.Now;
@@ -286,6 +289,9 @@ namespace M3Space.Capsule
         {
             xbee.Initialize();
 
+            xbee.Reset();
+            Thread.Sleep(1000);
+
             // set XBee power level
             //xbee.SetTransmitPower(XBEE_TX_POWER);
 
@@ -297,10 +303,6 @@ namespace M3Space.Capsule
                 {
                     // get packet from queue
                     byte[] packet = (byte[])txQueue.Take();
-
-                    #if DEBUG
-                    Debug.Print("Sending packet ID " + packet[0]);
-                    #endif
 
                     // escape packet
                     int len = DataProtocol.PreparePacket(txBuffer, packet);
@@ -467,10 +469,10 @@ namespace M3Space.Capsule
             string text = data.UtcTimestamp.ToString(DisplayDateFormat) + ';' +
                 data.GpsData.Latitude.ToString("F5") + ';' +
                 data.GpsData.Longitude.ToString("F5") + ';' +
-                data.GpsData.Altitude.ToString() + ';' +
+                data.GpsData.Altitude.ToString("F2") + ';' +
                 data.GpsData.HorizontalSpeed.ToString("F2") + ';' +
                 data.GpsData.VerticalSpeed.ToString("F2") + ';' +
-                data.GpsData.Heading.ToString() + ';' +
+                data.GpsData.Heading.ToString("F2") + ';' +
                 data.GpsData.Satellites.ToString() + ';' +
                 data.IntTemperature.ToString() + ';' +
                 data.Temperature1Raw.ToString() + ';' +
@@ -503,14 +505,26 @@ namespace M3Space.Capsule
                 if (camera.CaptureImage())
                 {
                     camera.Stop();
+#if DEBUG
+                    Debug.Print("Image captured.");
+#endif
                     if (transmitReady && (!imageTransmitting) && ((currentImageTimestamp - lastSentImage).Minutes >= IMAGE_TX_INTERVAL))
                     {
                         new Thread(new ThreadStart(StartTransmitImageThread)).Start();
                     }
+#if DEBUG
+                    else
+                    {
+                        Debug.Print("Do not transmit image.");
+                    }
+#endif
                     Thread.Sleep(60000);
                 }
                 else
                 {
+#if DEBUG
+                    Debug.Print("Image capture failed.");
+#endif
                     LogError("Capture failed");
                     camera.Reset();
                     Thread.Sleep(5000);
@@ -528,7 +542,7 @@ namespace M3Space.Capsule
             // the begin of a new jpg image
             if ((chunkSize >= 2) && (chunk[0] == 0xFF) && (chunk[1] == 0xD8))
             {
-#if DEBUG
+#if (DEBUG && VERBOSE)
                 Debug.Print("Begin of JPG");
 #endif
                 if (imageFileHandle != null)
@@ -545,7 +559,7 @@ namespace M3Space.Capsule
             // the end of a jpg image
             if (complete)
             {
-#if DEBUG
+#if (DEBUG && VERBOSE)
                 Debug.Print("End of JPG");
 #endif
                 if (imageFileHandle != null)
@@ -561,18 +575,20 @@ namespace M3Space.Capsule
         /// </summary>
         private void StartTransmitImageThread()
         {
-            imageTransmitting = true;
+#if DEBUG
+            Debug.Print("Image transmission start.");
+#endif
             string fileToSend = currentImageFileName;
             lastSentImage = currentImageTimestamp;
-            FileStream fileHandle = new FileStream(fileToSend, FileMode.Open);            
-
+            FileStream fileHandle = new FileStream(fileToSend, FileMode.Open);
+            int imgSize = (int)fileHandle.Length;
+            byte[] chunk = new byte[IMAGE_CHUNK_SIZE];
             while (!transmitReady)
             {
                 Thread.Sleep(150);
             }
-            int imgSize = (int)fileHandle.Length;
-            txQueue.Add(dataProtocol.GetBeginImage(lastSentImage, imgSize));
-            byte[] chunk = new byte[IMAGE_CHUNK_SIZE];
+            imageTransmitting = true;            
+            txQueue.Add(dataProtocol.GetBeginImage(lastSentImage, imgSize));            
             int imgOffset = 0;
             while (imgOffset < imgSize)
             {
@@ -585,11 +601,20 @@ namespace M3Space.Capsule
                     }
                     txQueue.Add(dataProtocol.GetImageData(imgOffset, chunk, length));
                     imgOffset += length;
-                    Thread.Sleep(100);
+                    Thread.Sleep(150);
+                }
+                else
+                {
+                    break;
                 }
             }
-            fileHandle.Close();
+            Thread.Sleep(250);
             imageTransmitting = false;
+            fileHandle.Close();
+            
+#if DEBUG
+            Debug.Print("Image transmission end.");
+#endif      
         }
 
         /// <summary>

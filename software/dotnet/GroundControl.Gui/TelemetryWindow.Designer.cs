@@ -84,10 +84,10 @@
             this.groupBoxLocation.Controls.Add(this.dateLbl);
             this.groupBoxLocation.Location = new System.Drawing.Point(2, 0);
             this.groupBoxLocation.Name = "groupBoxLocation";
-            this.groupBoxLocation.Size = new System.Drawing.Size(175, 149);
+            this.groupBoxLocation.Size = new System.Drawing.Size(158, 149);
             this.groupBoxLocation.TabIndex = 0;
             this.groupBoxLocation.TabStop = false;
-            this.groupBoxLocation.Text = "Location";
+            this.groupBoxLocation.Text = "GPS Location";
             // 
             // vspdLbl
             // 
@@ -112,9 +112,9 @@
             this.label10.AutoSize = true;
             this.label10.Location = new System.Drawing.Point(6, 16);
             this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(27, 13);
+            this.label10.Size = new System.Drawing.Size(30, 13);
             this.label10.TabIndex = 10;
-            this.label10.Text = "Dat.";
+            this.label10.Text = "Time";
             // 
             // hspdLbl
             // 
@@ -227,7 +227,7 @@
             this.groupBoxTemp.Controls.Add(this.label6);
             this.groupBoxTemp.Location = new System.Drawing.Point(2, 155);
             this.groupBoxTemp.Name = "groupBoxTemp";
-            this.groupBoxTemp.Size = new System.Drawing.Size(175, 70);
+            this.groupBoxTemp.Size = new System.Drawing.Size(158, 70);
             this.groupBoxTemp.TabIndex = 1;
             this.groupBoxTemp.TabStop = false;
             this.groupBoxTemp.Text = "Temperature";
@@ -296,10 +296,10 @@
             this.groupBoxPressure.Controls.Add(this.label9);
             this.groupBoxPressure.Location = new System.Drawing.Point(2, 231);
             this.groupBoxPressure.Name = "groupBoxPressure";
-            this.groupBoxPressure.Size = new System.Drawing.Size(175, 54);
+            this.groupBoxPressure.Size = new System.Drawing.Size(158, 54);
             this.groupBoxPressure.TabIndex = 2;
             this.groupBoxPressure.TabStop = false;
-            this.groupBoxPressure.Text = "Pressure";
+            this.groupBoxPressure.Text = "Air Pressure";
             // 
             // pAltLbl
             // 
@@ -345,7 +345,7 @@
             this.groupBoxSystem.Controls.Add(this.label11);
             this.groupBoxSystem.Location = new System.Drawing.Point(2, 291);
             this.groupBoxSystem.Name = "groupBoxSystem";
-            this.groupBoxSystem.Size = new System.Drawing.Size(175, 37);
+            this.groupBoxSystem.Size = new System.Drawing.Size(158, 37);
             this.groupBoxSystem.TabIndex = 3;
             this.groupBoxSystem.TabStop = false;
             this.groupBoxSystem.Text = "System";
@@ -373,7 +373,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
-            this.ClientSize = new System.Drawing.Size(181, 333);
+            this.ClientSize = new System.Drawing.Size(164, 333);
             this.ControlBox = false;
             this.Controls.Add(this.groupBoxSystem);
             this.Controls.Add(this.groupBoxPressure);
