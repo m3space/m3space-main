@@ -22,7 +22,7 @@ namespace M3Space.Capsule
     {
         private const int XBEE_TX_POWER = 4;    // 0=1mW, 1=25mW, 2=100mW, 3=150mW, 4=300mW
         private const uint XBEE_RESET_THRESHOLD = 40;
-        private const uint XBEE_CRITICAL_THRESHOLD = 85;
+        private const uint XBEE_CRITICAL_THRESHOLD = 80;
         private const int TELEMETRY_TX_INTERVAL = 5;
         private const int IMAGE_TX_INTERVAL = 5;
         private const int IMAGE_CHUNK_SIZE = 64;
@@ -245,17 +245,6 @@ namespace M3Space.Capsule
         private void GpsDataReceived(GpsPoint gpsPoint)
         {
             Monitor.Enter(gpsLock);
-            // 1 second = 10'000'000 ticks
-            long timediff = gpsPoint.UtcTimestamp.Ticks - cachedGpsPoint.UtcTimestamp.Ticks;
-            if (timediff > 0)
-            {
-                // compute vertical speed
-                gpsPoint.VerticalSpeed = 1e7f * (gpsPoint.Altitude - cachedGpsPoint.Altitude) / timediff;
-            }
-            else
-            {
-                gpsPoint.VerticalSpeed = cachedGpsPoint.VerticalSpeed;
-            }
             this.cachedGpsPoint = gpsPoint;
             Monitor.Exit(gpsLock);
         }
@@ -288,9 +277,6 @@ namespace M3Space.Capsule
         private void StartXbeeTransmitThread()
         {
             xbee.Initialize();
-
-            xbee.Reset();
-            Thread.Sleep(1000);
 
             // set XBee power level
             //xbee.SetTransmitPower(XBEE_TX_POWER);

@@ -6,7 +6,7 @@ namespace M3Space.Capsule.Drivers
 {
     /// <summary>
     /// NMEA GPS Reader.
-    /// version 2.04
+    /// version 2.06
     /// </summary>
     public class GpsReader
     {
@@ -18,6 +18,8 @@ namespace M3Space.Capsule.Drivers
         private int iLine;
         private SerialPort port;
         private GpsPoint cachedGpsData;
+        private float lastAlt;
+        private long lastTs;
 
         public delegate void GpsDataHandler(GpsPoint gpsPoint);
 
@@ -42,6 +44,8 @@ namespace M3Space.Capsule.Drivers
             lineBuf = new char[NMEA_LINE_SIZE];
             iLine = 0;
             cachedGpsData = new GpsPoint();
+            lastAlt = 0.0f;
+            lastTs = 0;
         }
 
         /// <summary>
@@ -122,9 +126,10 @@ namespace M3Space.Capsule.Drivers
                             }
 
                             cachedGpsData.Satellites = Byte.Parse(parts[7]);            // satellites
+                            lastAlt = cachedGpsData.Altitude;
                             cachedGpsData.Altitude = (float)Double.Parse(parts[9]);    // altitude
                             
-                            // no position change
+                            // no position change but altitude change
                             //OnGpsData();
                         }
                         catch (Exception e)
@@ -160,6 +165,7 @@ namespace M3Space.Capsule.Drivers
                                 int minute = int.Parse(time.Substring(2, 2));
                                 int second = int.Parse(time.Substring(4, 2));
                                 int milliseconds = int.Parse(time.Substring(7, 3));
+                                lastTs = cachedGpsData.UtcTimestamp.Ticks;
                                 cachedGpsData.UtcTimestamp = new DateTime(year, month, day, hour, minute, second, milliseconds);
                             }
 
@@ -191,6 +197,15 @@ namespace M3Space.Capsule.Drivers
 
                             cachedGpsData.HorizontalSpeed = (float)Double.Parse(parts[7]) * 0.51444f; // knots to m/s
                             cachedGpsData.Heading = (float)Double.Parse(parts[8]);
+
+                            // 1 second = 10'000'000 ticks
+                            long timediff = cachedGpsData.UtcTimestamp.Ticks - lastTs;
+                            if (timediff > 0)
+                            {
+                                // compute vertical speed
+                                cachedGpsData.VerticalSpeed = 1e7f * (cachedGpsData.Altitude - lastAlt) / timediff;
+                            }
+
                             // only fire event when position and time changes
                             OnGpsData();
                         }
