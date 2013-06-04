@@ -1,0 +1,10 @@
+<?php
+	$authkey = 'gn8lgz7xg73d22e0xif';
+	
+	$imagedir = './images/';
+	
+	$dbhost = 'webdb.cs.technik.fhnw.ch';
+	$dbname = 'mmmspace';
+	$dbuser = 'mmmspace';
+	$dbpass = 'mmm#db11';
+?>
