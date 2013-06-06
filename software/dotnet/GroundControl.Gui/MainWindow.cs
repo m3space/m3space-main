@@ -31,6 +31,7 @@ namespace GroundControl.Gui
         private TelemetryWindow telemetryWindow;
         private MapWindow mapWindow;
         private GraphWindow graphWindow;
+        private PredictorWindow predictorWindow;
 
         private PersistenceHandler persistHandler;
         private DataTransceiver transceiver;
@@ -75,6 +76,9 @@ namespace GroundControl.Gui
             mapWindow = new MapWindow();
             mapWindow.MdiParent = this;
 
+            predictorWindow = new PredictorWindow();
+            predictorWindow.MdiParent = this;
+
             if (Settings.Default.DataDirectory.Equals(""))
             {
                 Settings.Default.DataDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + Path.DirectorySeparatorChar + "m3space";
@@ -89,6 +93,7 @@ namespace GroundControl.Gui
             liveImageWindow.Show();
             telemetryWindow.Show();
             mapWindow.Show();
+            predictorWindow.Show();
 
             webAccess = new WebAccess();
             persistHandler = new PersistenceHandler();
@@ -115,6 +120,10 @@ namespace GroundControl.Gui
                 protocol.ImageComplete += webAccess.UploadLiveImage;
             }
 
+            mapWindow.MapPositionChanged += new PositionChanged(predictorWindow.MapPositionChanged);
+            predictorWindow.NewPrediction += new EventHandler(predictorWindow_NewPrediction);
+
+
             elapsedTimer = new Timer();
             elapsedTimer.Interval = 1000;
             elapsedTimer.Tick += ElapsedTick;
@@ -122,9 +131,15 @@ namespace GroundControl.Gui
             RestoreSettings();
         }
 
+        void predictorWindow_NewPrediction(object sender, EventArgs e)
+        {
+            LoadPrediction(predictorWindow.Filename);
+        }
+
         private void gpsReceiver_NewFix(DateTime fixTime, GeographicDimension latitude, GeographicDimension longitude)
         {
             mapWindow.Invoke(new PositionDelegate(mapWindow.UpdateGroundPosition), new object[] { latitude.Angle, longitude.Angle });
+            predictorWindow.GroundControlPositionChanged(new PointLatLng(latitude.Angle, longitude.Angle));
         }
 
         /// <summary>
@@ -141,6 +156,8 @@ namespace GroundControl.Gui
             telemetryWindow.Invoke(new TelemetryHandler(telemetryWindow.DisplayTelemetry), new object[] { data });
             mapWindow.Invoke(new TelemetryHandler(mapWindow.AddTelemetryPoint), new object[] { data });
             graphWindow.Invoke(new TelemetryHandler(graphWindow.AddTelemetry), new object[] { data });
+
+            predictorWindow.CapsulePositionChanged(new PointLatLng(data.Latitude, data.Longitude), data.GpsAltitude);
         }
 
         /// <summary>
@@ -206,6 +223,7 @@ namespace GroundControl.Gui
             logWindow.Size = Settings.Default.LogWindowSize;
             graphWindow.Location = Settings.Default.GraphWindowLocation;
             graphWindow.Size = Settings.Default.GraphWindowSize;
+            predictorWindow.Location = Settings.Default.PredictorWindowLocation;
         }
 
         private void MainWindow_FormClosed(object sender, FormClosedEventArgs e)
@@ -222,6 +240,7 @@ namespace GroundControl.Gui
             Settings.Default.LogWindowSize = logWindow.Size;
             Settings.Default.GraphWindowLocation = graphWindow.Location;
             Settings.Default.GraphWindowSize = graphWindow.Size;
+            Settings.Default.PredictorWindowLocation = predictorWindow.Location;
             Settings.Default.Save();
             transceiver.Stop();
         }
@@ -293,6 +312,20 @@ namespace GroundControl.Gui
             {
                 graphWindow.Show();
                 graphMenuItem.CheckState = CheckState.Checked;
+            }
+        }
+
+        private void predictorMenuItem_Click(object sender, EventArgs e)
+        {
+            if (predictorWindow.Visible)
+            {
+                predictorWindow.Hide();
+                predictorMenuItem.CheckState = CheckState.Unchecked;
+            }
+            else
+            {
+                predictorWindow.Show();
+                predictorMenuItem.CheckState = CheckState.Checked;
             }
         }
 
@@ -452,49 +485,7 @@ namespace GroundControl.Gui
             DialogResult result = dialog.ShowDialog();
             if (result == DialogResult.OK)
             {
-                KmlFile kml = KmlFile.Load(dialog.FileName);
-
-                List<PointLatLng> coords = new List<PointLatLng>();
-                List<GMapMarker> markers = new List<GMapMarker>();
-                foreach (var placemark in kml.Root.Flatten().OfType<SharpKml.Dom.Placemark>())
-                {
-                    if (placemark.Name.Equals("Flight path"))
-                    {
-                        foreach (var lstr in placemark.Flatten().OfType<LineString>())
-                        {
-                            foreach (var c in lstr.Coordinates)
-                            {
-                                coords.Add(new PointLatLng(c.Latitude, c.Longitude));
-                            }
-                        }
-                    }
-                    else if (placemark.Name.Equals("Balloon Launch"))
-                    {
-                        foreach (var point in placemark.Flatten().OfType<SharpKml.Dom.Point>())
-                        {
-                            markers.Add(new GMapMarkerImage(new PointLatLng(point.Coordinate.Latitude, point.Coordinate.Longitude), Properties.Resources.Ascending, new System.Drawing.Point(-17, -43)));
-                        }
-                    }
-                    else if (placemark.Name.Equals("Balloon Burst"))
-                    {
-                        foreach (var point in placemark.Flatten().OfType<SharpKml.Dom.Point>())
-                        {
-                            markers.Add(new GMapMarkerImage(new PointLatLng(point.Coordinate.Latitude, point.Coordinate.Longitude), Properties.Resources.Burst));
-                        }                        
-                    }
-                    else if (placemark.Name.Equals("Predicted Balloon Landing"))
-                    {
-                        foreach (var point in placemark.Flatten().OfType<SharpKml.Dom.Point>())
-                        {
-                            markers.Add(new GMapMarkerImage(new PointLatLng(point.Coordinate.Latitude, point.Coordinate.Longitude), Properties.Resources.Descending, new System.Drawing.Point(-10, -27)));
-                        }
-                    }
-                }
-
-                if ((coords.Count > 0) && (markers.Count > 0))
-                {
-                    mapWindow.LoadPredictedCourse(coords, markers);
-                }
+                LoadPrediction(dialog.FileName);
             }
         }
 
@@ -511,6 +502,47 @@ namespace GroundControl.Gui
             catch (Exception)
             {
                 MessageBox.Show("Failed to open GPS serial port.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void LoadPrediction(string filename)
+        {
+            KmlFile kml = KmlFile.Load(filename);
+
+            List<PointLatLng> coords = new List<PointLatLng>();
+            List<GMapMarker> markers = new List<GMapMarker>();
+            foreach (var placemark in kml.Root.Flatten().OfType<SharpKml.Dom.Placemark>())
+            {
+                if (placemark.Name.Equals("Flight path"))
+                {
+                    foreach (var lstr in placemark.Flatten().OfType<LineString>())
+                    {
+                        foreach (var c in lstr.Coordinates)
+                        {
+                            coords.Add(new PointLatLng(c.Latitude, c.Longitude));
+                        }
+                    }
+                }
+                else if (placemark.Name.Equals("Balloon Launch"))
+                {
+                    SharpKml.Dom.Point point = placemark.Geometry as SharpKml.Dom.Point;
+                    markers.Add(new GMapMarkerImage(new PointLatLng(point.Coordinate.Latitude, point.Coordinate.Longitude), Properties.Resources.Ascending, new System.Drawing.Point(-17, -43)) { ToolTipMode = MarkerTooltipMode.OnMouseOver, ToolTipText = placemark.Description.Text });
+                }
+                else if (placemark.Name.Equals("Balloon Burst"))
+                {
+                    SharpKml.Dom.Point point = placemark.Geometry as SharpKml.Dom.Point;
+                    markers.Add(new GMapMarkerImage(new PointLatLng(point.Coordinate.Latitude, point.Coordinate.Longitude), Properties.Resources.Burst) { ToolTipMode = MarkerTooltipMode.OnMouseOver, ToolTipText = placemark.Description.Text });
+                }
+                else if (placemark.Name.Equals("Predicted Balloon Landing"))
+                {
+                    SharpKml.Dom.Point point = placemark.Geometry as SharpKml.Dom.Point;
+                    markers.Add(new GMapMarkerImage(new PointLatLng(point.Coordinate.Latitude, point.Coordinate.Longitude), Properties.Resources.Descending, new System.Drawing.Point(-10, -27)) { ToolTipMode = MarkerTooltipMode.OnMouseOver, ToolTipText = placemark.Description.Text });
+                }
+            }
+
+            if ((coords.Count > 0) && (markers.Count > 0))
+            {
+                mapWindow.LoadPredictedCourse(coords, markers);
             }
         }
     }

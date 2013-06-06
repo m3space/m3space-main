@@ -39,6 +39,7 @@
             this.toolStripDropDownButton1 = new System.Windows.Forms.ToolStripDropDownButton();
             this.alongPredictionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toBalloonToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.map = new GMap.NET.WindowsForms.GMapControl();
             this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -142,12 +143,40 @@
             this.toBalloonToolStripMenuItem.Text = "To balloon";
             this.toBalloonToolStripMenuItem.Click += new System.EventHandler(this.toBalloonToolStripMenuItem_Click);
             // 
+            // map
+            // 
+            this.map.Bearing = 0F;
+            this.map.CanDragMap = true;
+            this.map.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.map.EmptyTileColor = System.Drawing.Color.Navy;
+            this.map.GrayScaleMode = false;
+            this.map.HelperLineOption = GMap.NET.WindowsForms.HelperLineOptions.DontShow;
+            this.map.LevelsKeepInMemmory = 5;
+            this.map.Location = new System.Drawing.Point(0, 25);
+            this.map.MarkersEnabled = true;
+            this.map.MaxZoom = 24;
+            this.map.MinZoom = 0;
+            this.map.MouseWheelZoomType = GMap.NET.MouseWheelZoomType.MousePositionAndCenter;
+            this.map.Name = "map";
+            this.map.NegativeMode = false;
+            this.map.PolygonsEnabled = true;
+            this.map.RetryLoadTile = 0;
+            this.map.RoutesEnabled = true;
+            this.map.ScaleMode = GMap.NET.WindowsForms.ScaleModes.Integer;
+            this.map.SelectedAreaFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(33)))), ((int)(((byte)(65)))), ((int)(((byte)(105)))), ((int)(((byte)(225)))));
+            this.map.ShowTileGridLines = false;
+            this.map.Size = new System.Drawing.Size(482, 216);
+            this.map.TabIndex = 1;
+            this.map.Zoom = 15D;
+            this.map.OnPositionChanged += new GMap.NET.PositionChanged(this.map_OnPositionChanged);
+            // 
             // MapWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(482, 241);
             this.ControlBox = false;
+            this.Controls.Add(this.map);
             this.Controls.Add(this.toolStrip1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
             this.Location = new System.Drawing.Point(250, 0);
@@ -177,5 +206,6 @@
         private System.Windows.Forms.ToolStripDropDownButton toolStripDropDownButton1;
         private System.Windows.Forms.ToolStripMenuItem alongPredictionToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem toBalloonToolStripMenuItem;
+        private GMap.NET.WindowsForms.GMapControl map;
     }
 }

@@ -49,6 +49,7 @@
             this.mapMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.telemetryMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.graphMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.predictorMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.settingsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.preferencesMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusBar.SuspendLayout();
@@ -183,7 +184,8 @@
             this.liveImageMenuItem,
             this.mapMenuItem,
             this.telemetryMenuItem,
-            this.graphMenuItem});
+            this.graphMenuItem,
+            this.predictorMenuItem});
             this.windowMenuItem.Name = "windowMenuItem";
             this.windowMenuItem.Size = new System.Drawing.Size(63, 20);
             this.windowMenuItem.Text = "&Window";
@@ -232,6 +234,15 @@
             this.graphMenuItem.Size = new System.Drawing.Size(131, 22);
             this.graphMenuItem.Text = "Graph";
             this.graphMenuItem.Click += new System.EventHandler(this.graphMenuItem_Click);
+            // 
+            // predictorMenuItem
+            // 
+            this.predictorMenuItem.Checked = true;
+            this.predictorMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.predictorMenuItem.Name = "predictorMenuItem";
+            this.predictorMenuItem.Size = new System.Drawing.Size(131, 22);
+            this.predictorMenuItem.Text = "Predictor";
+            this.predictorMenuItem.Click += new System.EventHandler(this.predictorMenuItem_Click);
             // 
             // settingsMenuItem
             // 
@@ -294,6 +305,7 @@
         private System.Windows.Forms.ToolStripStatusLabel filenameLbl;
         private System.Windows.Forms.ToolStripMenuItem graphMenuItem;
         private System.Windows.Forms.ToolStripMenuItem connectGPSToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem predictorMenuItem;
     }
 }
 

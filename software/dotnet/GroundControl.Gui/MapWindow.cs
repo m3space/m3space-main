@@ -21,7 +21,7 @@ namespace GroundControl.Gui
         /// </summary>
         const float BurstSpeed = -15.0f;
 
-        private GMapControl map;
+        //private GMapControl map;
         private GMapOverlay balloonOverlay;
         private GMapOverlay predictionOverlay;
         private GMapOverlay groundControlOverlay;
@@ -37,19 +37,9 @@ namespace GroundControl.Gui
         {
             InitializeComponent();
 
-            map = new GMapControl();
-            map.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            map.Dock = DockStyle.Fill;
-            map.CanDragMap = true;
             map.DragButton = MouseButtons.Right;
             map.Manager.Mode = AccessMode.ServerAndCache;
-            map.MarkersEnabled = true;
-            map.PolygonsEnabled = true;
-            map.MinZoom = 0;
-            map.MaxZoom = 24;
             map.MapProvider = GMapProviders.GoogleMap;
-
-            map.Zoom = 15;            
             map.Position = new PointLatLng(47.558119, 7.587800);
 
             balloonOverlay = new GMapOverlay("Balloon");
@@ -75,7 +65,7 @@ namespace GroundControl.Gui
 
             mapTypeDropDown.SelectedIndex = 0;
 
-            this.Controls.Add(map);
+            //this.Controls.Add(map);
         }
 
         public void AddTelemetryPoint(TelemetryData data)
@@ -214,6 +204,14 @@ namespace GroundControl.Gui
             //        Console.WriteLine(step);
             //    }
             //}
+        }
+        public event GMap.NET.PositionChanged MapPositionChanged;
+        private void map_OnPositionChanged(PointLatLng point)
+        {
+            if (MapPositionChanged != null)
+            {
+                MapPositionChanged.Invoke(point);
+            }
         }
     }
 }
