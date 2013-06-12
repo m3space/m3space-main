@@ -156,8 +156,7 @@ namespace GroundControl.Gui
             telemetryWindow.Invoke(new TelemetryHandler(telemetryWindow.DisplayTelemetry), new object[] { data });
             mapWindow.Invoke(new TelemetryHandler(mapWindow.AddTelemetryPoint), new object[] { data });
             graphWindow.Invoke(new TelemetryHandler(graphWindow.AddTelemetry), new object[] { data });
-
-            predictorWindow.CapsulePositionChanged(new PointLatLng(data.Latitude, data.Longitude), data.GpsAltitude);
+            predictorWindow.Invoke(new TelemetryHandler(predictorWindow.CapsulePositionChanged), new object[] { data });
         }
 
         /// <summary>

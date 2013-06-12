@@ -108,7 +108,7 @@
             // 
             this.numLaunchAltitude.Location = new System.Drawing.Point(112, 33);
             this.numLaunchAltitude.Maximum = new decimal(new int[] {
-            3000,
+            100000,
             0,
             0,
             0});
@@ -188,9 +188,9 @@
             this.label2.AutoSize = true;
             this.label2.Location = new System.Drawing.Point(9, 62);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(69, 13);
+            this.label2.Size = new System.Drawing.Size(98, 13);
             this.label2.TabIndex = 107;
-            this.label2.Text = "Launch Time";
+            this.label2.Text = "Launch Local Time";
             // 
             // label1
             // 
@@ -203,9 +203,9 @@
             // 
             // btnRunPrediction
             // 
-            this.btnRunPrediction.Location = new System.Drawing.Point(12, 195);
+            this.btnRunPrediction.Location = new System.Drawing.Point(4, 195);
             this.btnRunPrediction.Name = "btnRunPrediction";
-            this.btnRunPrediction.Size = new System.Drawing.Size(91, 23);
+            this.btnRunPrediction.Size = new System.Drawing.Size(91, 38);
             this.btnRunPrediction.TabIndex = 10;
             this.btnRunPrediction.Text = "Run Prediction";
             this.btnRunPrediction.UseVisualStyleBackColor = true;
@@ -213,10 +213,10 @@
             // 
             // lblTimeRemaining
             // 
-            this.lblTimeRemaining.AutoSize = true;
-            this.lblTimeRemaining.Location = new System.Drawing.Point(109, 200);
+            this.lblTimeRemaining.AutoEllipsis = true;
+            this.lblTimeRemaining.Location = new System.Drawing.Point(101, 192);
             this.lblTimeRemaining.Name = "lblTimeRemaining";
-            this.lblTimeRemaining.Size = new System.Drawing.Size(16, 13);
+            this.lblTimeRemaining.Size = new System.Drawing.Size(114, 53);
             this.lblTimeRemaining.TabIndex = 123;
             this.lblTimeRemaining.Text = "...";
             // 
@@ -247,7 +247,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
-            this.ClientSize = new System.Drawing.Size(216, 229);
+            this.ClientSize = new System.Drawing.Size(216, 245);
             this.ControlBox = false;
             this.Controls.Add(this.cboxPosition);
             this.Controls.Add(this.lblTimeRemaining);

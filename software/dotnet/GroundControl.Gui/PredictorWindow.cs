@@ -8,6 +8,7 @@ using System.Web.Script.Serialization;
 using System.Windows.Forms;
 using GMap.NET;
 using GroundControl.Gui.Properties;
+using GroundControl.Core;
 
 namespace GroundControl.Gui
 {
@@ -17,9 +18,9 @@ namespace GroundControl.Gui
         private string      m_filename;
         private PointLatLng m_mapPosition;
         private PointLatLng m_groundControlPosition;
-        private PointLatLng m_capsulePosition;
-        Thread m_workerThread;
-        int m_launchIndex = 0;
+        //private PointLatLng m_capsulePosition;
+        private TelemetryData m_telemetry;
+        private int         m_launchIndex = 0;
         public event EventHandler NewPrediction;
         
         public string Filename
@@ -35,8 +36,8 @@ namespace GroundControl.Gui
 
         private void btnRunPrediction_Click(object sender, EventArgs e)
         {
-            m_workerThread = new Thread(new ThreadStart(CheckState));
-            m_workerThread.Start();
+            Thread workerThread = new Thread(new ThreadStart(CheckState));
+            workerThread.Start();
         }
 
         private void CheckState()
@@ -56,11 +57,15 @@ namespace GroundControl.Gui
         private void RunPrediction()
         {
             bool success = true;
+            string error = "";
             try
             {
                 RefreshProgress("starting...");
                 double latitude = 0;
                 double longitude = 0;
+                int altitude = (int)numLaunchAltitude.Value;
+                DateTime date = new DateTime(datepickerLaunchDate.Value.Year, datepickerLaunchDate.Value.Month, datepickerLaunchDate.Value.Day,
+                    datepickerLaunchTime.Value.Hour, datepickerLaunchTime.Value.Minute, datepickerLaunchTime.Value.Second).ToUniversalTime();
 
                 switch (m_launchIndex)
                 {
@@ -69,8 +74,10 @@ namespace GroundControl.Gui
                         longitude = m_mapPosition.Lng;
                         break;
                     case 1://"Ballon"
-                        latitude = m_capsulePosition.Lat;
-                        longitude = m_capsulePosition.Lng;
+                        latitude = m_telemetry.Latitude;
+                        longitude = m_telemetry.Longitude;
+                        altitude = (int)m_telemetry.GpsAltitude;
+                        date = m_telemetry.UtcTimestamp;
                         break;
                     case 2://"GroundControl"
                         latitude = m_groundControlPosition.Lat;
@@ -81,13 +88,13 @@ namespace GroundControl.Gui
                 string postData = "launchsite=Other&" +
                     "lat=" + latitude + "&" +
                     "lon=" + longitude + "&" +
-                    "initial_alt=" + numLaunchAltitude.Value + "&" +
-                    "hour=" + datepickerLaunchTime.Value.Hour + "&" +
-                    "min=" + datepickerLaunchTime.Value.Minute + "&" +
-                    "second=" + datepickerLaunchTime.Value.Second + "&" +
-                    "day=" + datepickerLaunchDate.Value.Day + "&" +
-                    "month=" + datepickerLaunchDate.Value.Month + "&" +
-                    "year=" + datepickerLaunchDate.Value.Year + "&" +
+                    "initial_alt=" + altitude + "&" +
+                    "hour=" + date.Hour + "&" +
+                    "min=" + date.Minute + "&" +
+                    "second=" + date.Second + "&" +
+                    "day=" + date.Day + "&" +
+                    "month=" + date.Month + "&" +
+                    "year=" + date.Year + "&" +
                     "ascent=" + numAscentRate.Value + "&" +
                     "burst=" + numBurstAltitude.Value + "&" +
                     "drag=8&" +
@@ -118,8 +125,12 @@ namespace GroundControl.Gui
                     if (dict["valid"].ToString().Equals("false"))
                     {
                         success = false;
+                        error = dict["error"].ToString();
                     }
-                    uuid = dict["uuid"].ToString();
+                    else
+                    {
+                        uuid = dict["uuid"].ToString();
+                    }
                 }
                 if (success)
                 {
@@ -177,8 +188,9 @@ namespace GroundControl.Gui
             {
                 Console.WriteLine(ex);
                 success = false;
+                error = ex.Message;
             }
-            RefreshProgress(success? "Finished" : "Failed");
+            RefreshProgress(success? "Finished" : error);
         }
 
         private void RefreshProgress(string text)
@@ -207,15 +219,17 @@ namespace GroundControl.Gui
             m_groundControlPosition = point;
         }
 
-        public void CapsulePositionChanged(PointLatLng point, float altitude)
+        public void CapsulePositionChanged(TelemetryData telemetry)
         {
-            m_capsulePosition = point;
-            numLaunchAltitude.Value = (int)altitude;
+            m_telemetry = telemetry;
         }
 
         private void cboxPosition_SelectedIndexChanged(object sender, EventArgs e)
         {
             m_launchIndex = cboxPosition.SelectedIndex;
+            numLaunchAltitude.Enabled = m_launchIndex != 1;
+            datepickerLaunchDate.Enabled = m_launchIndex != 1;
+            datepickerLaunchTime.Enabled = m_launchIndex != 1;
         }
     }
 }
