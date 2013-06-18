@@ -17,6 +17,7 @@ namespace M3Space.Capsule
 {
     /// <summary>
     /// M3 Space Balloon Capsule.
+    /// Version 4.0
     /// </summary>
     public class M3SpaceCapsule
     {
@@ -494,15 +495,17 @@ namespace M3Space.Capsule
 #if DEBUG
                     Debug.Print("Image captured.");
 #endif
+#if WITH_LIVE_IMAGES
                     if (transmitReady && (!imageTransmitting) && ((currentImageTimestamp - lastSentImage).Minutes >= IMAGE_TX_INTERVAL))
                     {
                         new Thread(new ThreadStart(StartTransmitImageThread)).Start();
                     }
-#if DEBUG
+    #if DEBUG
                     else
                     {
                         Debug.Print("Do not transmit image.");
                     }
+    #endif
 #endif
                     Thread.Sleep(60000);
                 }
@@ -556,14 +559,15 @@ namespace M3Space.Capsule
             }
         }
 
+#if WITH_LIVE_IMAGES
         /// <summary>
         /// Starts the transmission of a camera image.
         /// </summary>
         private void StartTransmitImageThread()
         {
-#if DEBUG
+    #if DEBUG
             Debug.Print("Image transmission start.");
-#endif
+    #endif
             string fileToSend = currentImageFileName;
             lastSentImage = currentImageTimestamp;
             FileStream fileHandle = new FileStream(fileToSend, FileMode.Open);
@@ -598,10 +602,11 @@ namespace M3Space.Capsule
             imageTransmitting = false;
             fileHandle.Close();
             
-#if DEBUG
+    #if DEBUG
             Debug.Print("Image transmission end.");
-#endif      
+    #endif      
         }
+#endif
 
         /// <summary>
         /// Stores a chunk of image data to the SD card.
