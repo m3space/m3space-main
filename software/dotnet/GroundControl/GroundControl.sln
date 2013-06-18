@@ -14,8 +14,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NmeaParser", "NmeaParser\NmeaParser.csproj", "{1B36FAA2-6648-42FF-AD91-116E7E730793}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VideoPostProcess", "VideoPostProcess\VideoPostProcess.csproj", "{31DF84D9-F3E3-41E9-8EA0-403170698EA4}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CapsuleFirmware", "CapsuleFirmware\CapsuleFirmware.csproj", "{CEE9E755-E9A2-4CC3-B12E-36B7A36288B5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D977449E-2501-4EB9-95CA-11FB1D025CCC} = {D977449E-2501-4EB9-95CA-11FB1D025CCC}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -97,20 +98,6 @@ Global
 		{31DF84D9-F3E3-41E9-8EA0-403170698EA4}.Release|Mixed Platforms.Build.0 = Release|x86
 		{31DF84D9-F3E3-41E9-8EA0-403170698EA4}.Release|x86.ActiveCfg = Release|x86
 		{31DF84D9-F3E3-41E9-8EA0-403170698EA4}.Release|x86.Build.0 = Release|x86
-		{CEE9E755-E9A2-4CC3-B12E-36B7A36288B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CEE9E755-E9A2-4CC3-B12E-36B7A36288B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CEE9E755-E9A2-4CC3-B12E-36B7A36288B5}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
-		{CEE9E755-E9A2-4CC3-B12E-36B7A36288B5}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{CEE9E755-E9A2-4CC3-B12E-36B7A36288B5}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{CEE9E755-E9A2-4CC3-B12E-36B7A36288B5}.Debug|Mixed Platforms.Deploy.0 = Debug|Any CPU
-		{CEE9E755-E9A2-4CC3-B12E-36B7A36288B5}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{CEE9E755-E9A2-4CC3-B12E-36B7A36288B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CEE9E755-E9A2-4CC3-B12E-36B7A36288B5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CEE9E755-E9A2-4CC3-B12E-36B7A36288B5}.Release|Any CPU.Deploy.0 = Release|Any CPU
-		{CEE9E755-E9A2-4CC3-B12E-36B7A36288B5}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{CEE9E755-E9A2-4CC3-B12E-36B7A36288B5}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{CEE9E755-E9A2-4CC3-B12E-36B7A36288B5}.Release|Mixed Platforms.Deploy.0 = Release|Any CPU
-		{CEE9E755-E9A2-4CC3-B12E-36B7A36288B5}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
