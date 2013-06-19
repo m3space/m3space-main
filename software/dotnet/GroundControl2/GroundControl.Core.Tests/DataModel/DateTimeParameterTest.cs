@@ -4,20 +4,20 @@ using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using M3Space.GroundControl.Core.DataModel;
 
-namespace M3Space.GroundControl.Core.Tests
+namespace M3Space.GroundControl.Core.Tests.DataModel
 {
     [TestClass]
-    public class IntParameterTest
+    public class DateTimeParameterTest
     {
-        static int iTest = 123;
-        static string sTest = "123";
+        static DateTime dTest = DateTime.Now;
+        static string sTest = "23.05.2013 13:37:00.000";
 
         IParameter mParameter;
 
         [TestInitialize]
         public void SetUp()
         {
-            mParameter = new IntParameter("inttest", Unit.None);
+            mParameter = new DateTimeParameter("datetimetest", new string[] { "dd.MM.yyyy HH:mm:ss.fff" }, "dd.MM.yyyy HH:mm:ss.fff");
         }
 
         [TestMethod]
@@ -29,7 +29,7 @@ namespace M3Space.GroundControl.Core.Tests
         [TestMethod]
         public void TestAddInt()
         {
-            Assert.IsTrue(mParameter.AddValue(iTest));
+            Assert.IsTrue(mParameter.AddValue(dTest));
         }
 
         [TestMethod]

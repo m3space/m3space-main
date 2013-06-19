@@ -45,10 +45,11 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DateTimeParameterTest.cs" />
-    <Compile Include="FloatParameterTest.cs" />
+    <Compile Include="DataModel\DataContainerTest.cs" />
+    <Compile Include="DataModel\DateTimeParameterTest.cs" />
+    <Compile Include="DataModel\FloatParameterTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="IntParameterTest.cs" />
+    <Compile Include="DataModel\IntParameterTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\GroundControl.Core\GroundControl.Core.csproj">

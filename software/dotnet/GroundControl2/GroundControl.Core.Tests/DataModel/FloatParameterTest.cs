@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using M3Space.GroundControl.Core.DataModel;
 
-namespace M3Space.GroundControl.Core.Tests
+namespace M3Space.GroundControl.Core.Tests.DataModel
 {
     [TestClass]
     public class FloatParameterTest

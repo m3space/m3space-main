@@ -64,9 +64,9 @@ namespace M3Space.GroundControl.Core.DataModel
         /// The number of columns should match the number of parameters.
         /// </summary>
         /// <param name="values">the values</param>
-        private void AddValues(object[] values)
+        public void AddValues(object[] values)
         {
-            for (int i = 0; i < values.Length; i++)
+            for (int i = 0; i < ParameterCount; i++)
             {
                 mParameters[i].AddValue(values[i]);
             }
