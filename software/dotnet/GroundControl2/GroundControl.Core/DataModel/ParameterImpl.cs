@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace M3Space.GroundControl.Core.DataModel
@@ -34,14 +33,16 @@ namespace M3Space.GroundControl.Core.DataModel
             ValueCount = 0;
         }
 
-        abstract public void AddValue(object value);
+        abstract public bool AddValue(object value);
 
-        abstract public void AddValue(string str);
+        abstract public bool AddValue(string str);
 
         abstract public object GetValue(int i);
 
         abstract public string GetStringValue(int i);
 
         abstract public string GetStringValue(int i, bool withUnit);
+
+        abstract public object ParseValue(string str);
     }
 }

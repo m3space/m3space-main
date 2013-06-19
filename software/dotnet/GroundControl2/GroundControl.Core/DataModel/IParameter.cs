@@ -15,14 +15,16 @@ namespace M3Space.GroundControl.Core.DataModel
         /// The value type must correspond with the parameter type.
         /// </summary>
         /// <param name="value">the value to add</param>
-        void AddValue(object value);
+        /// <returns>true if added, false if invalid type</returns>
+        bool AddValue(object value);
 
         /// <summary>
         /// Adds a value from a string.
         /// The value must be compatible with the parameter type.
         /// </summary>
         /// <param name="value">the value to add</param>
-        void AddValue(string str);
+        /// <returns>true if added, false if invalid format</returns>
+        bool AddValue(string str);
 
         /// <summary>
         /// Gets the value at index i.
@@ -46,6 +48,13 @@ namespace M3Space.GroundControl.Core.DataModel
         /// <param name="withUnit">if true the unit is displayed</param>
         /// <returns>a string</returns>
         string GetStringValue(int i, bool withUnit);
+
+        /// <summary>
+        /// Parses a string and returns a value.
+        /// </summary>
+        /// <param name="str">a string</param>
+        /// <returns>a value of the parameter type, or null if invalid format</returns>
+        object ParseValue(string str);
 
         /// <summary>
         /// Gets the parameter name.

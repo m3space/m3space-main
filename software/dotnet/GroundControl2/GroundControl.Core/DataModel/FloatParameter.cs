@@ -1,32 +1,46 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace M3Space.GroundControl.Core.DataModel
 {
     /// <summary>
-    /// An integer parameter.
+    /// A floating-point parameter.
     /// </summary>
-    public class IntParameter : ParameterImpl
+    public class FloatParameter : ParameterImpl
     {
-        private List<int> mValues;
+        private List<float> mValues;
+        private string mDisplayFormat;
+        private string mDisplayFormatWithUnit;
 
         /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="name">the parameter name</param>
         /// <param name="unit">the parameter unit</param>
-        public IntParameter(string name, string unit)
+        /// <param name="decimals">the number of digits behind the decimal point</param>
+        public FloatParameter(string name, string unit, int decimals)
             : base(name, unit)
         {
-            mValues = new List<int>();
+            mValues = new List<float>();
+            StringBuilder sb = new StringBuilder();
+            sb.Append("{0:#.");
+            for (int i = 0; i < decimals; i++)
+            {
+                sb.Append('#');
+            }
+            sb.Append('}');
+            mDisplayFormat = sb.ToString();
+            sb.Append(" {1}");
+            mDisplayFormatWithUnit = sb.ToString();
         }
 
         override public bool AddValue(object value)
         {
             try
             {
-                mValues.Add((int)value);
+                mValues.Add((float)value);
                 ValueCount++;
                 return true;
             }
@@ -53,14 +67,14 @@ namespace M3Space.GroundControl.Core.DataModel
 
         override public string GetStringValue(int i)
         {
-            return mValues[i].ToString();
+            return String.Format(mDisplayFormat, mValues[i]);
         }
 
         override public string GetStringValue(int i, bool withUnit)
         {
             if (withUnit)
             {
-                return String.Format("{0} {1}", mValues[i], Unit);
+                return String.Format(mDisplayFormatWithUnit, mValues[i], Unit);
             }
             else
             {
@@ -70,8 +84,8 @@ namespace M3Space.GroundControl.Core.DataModel
 
         override public object ParseValue(string str)
         {
-            int value;
-            if (Int32.TryParse(str, out value))
+            float value;
+            if (Single.TryParse(str, out value))
             {
                 return value;
             }

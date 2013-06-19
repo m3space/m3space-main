@@ -1,32 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Globalization;
 
 namespace M3Space.GroundControl.Core.DataModel
 {
     /// <summary>
-    /// An integer parameter.
+    /// A date/time parameter.
     /// </summary>
-    public class IntParameter : ParameterImpl
+    public class DateTimeParameter : ParameterImpl
     {
-        private List<int> mValues;
+        private List<DateTime> mValues;
+        private string[] mImportFormats;
+        private string mDisplayFormat;
 
         /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="name">the parameter name</param>
-        /// <param name="unit">the parameter unit</param>
-        public IntParameter(string name, string unit)
-            : base(name, unit)
+        /// <param name="importFormats">the date/time formats for import</param>
+        /// <param name="displayFormat">the date/time display format</param>
+        public DateTimeParameter(string name, string[] importFormats, string displayFormat)
+            : base(name, DataModel.Unit.None)
         {
-            mValues = new List<int>();
+            mValues = new List<DateTime>();
+            mImportFormats = importFormats;
+            mDisplayFormat = "{0:" + displayFormat + '}';
         }
 
         override public bool AddValue(object value)
         {
             try
             {
-                mValues.Add((int)value);
+                mValues.Add((DateTime)value);
                 ValueCount++;
                 return true;
             }
@@ -53,25 +59,18 @@ namespace M3Space.GroundControl.Core.DataModel
 
         override public string GetStringValue(int i)
         {
-            return mValues[i].ToString();
+            return String.Format(mDisplayFormat, mValues[i]);
         }
 
         override public string GetStringValue(int i, bool withUnit)
         {
-            if (withUnit)
-            {
-                return String.Format("{0} {1}", mValues[i], Unit);
-            }
-            else
-            {
-                return mValues[i].ToString();
-            }
+            return GetStringValue(i);
         }
 
         override public object ParseValue(string str)
         {
-            int value;
-            if (Int32.TryParse(str, out value))
+            DateTime value;
+            if (DateTime.TryParseExact(str, mImportFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out value))
             {
                 return value;
             }

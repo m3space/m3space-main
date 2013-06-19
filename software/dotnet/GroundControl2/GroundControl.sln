@@ -3,7 +3,19 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GroundControl.Core", "GroundControl.Core\GroundControl.Core.csproj", "{40DFBB8B-63AF-4987-9DA0-DD9A95A3A6AF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GroundControl.Core.Tests", "GroundControl.Core.Tests\GroundControl.Core.Tests.csproj", "{0904D167-4B03-4449-B071-4BF290BCEB40}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0EC45B07-206B-4FD3-A5CF-284A44CF5D78}"
+	ProjectSection(SolutionItems) = preProject
+		GroundControl.vsmdi = GroundControl.vsmdi
+		Local.testsettings = Local.testsettings
+		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
+	EndProjectSection
+EndProject
 Global
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = GroundControl.vsmdi
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
@@ -13,6 +25,10 @@ Global
 		{40DFBB8B-63AF-4987-9DA0-DD9A95A3A6AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{40DFBB8B-63AF-4987-9DA0-DD9A95A3A6AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{40DFBB8B-63AF-4987-9DA0-DD9A95A3A6AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0904D167-4B03-4449-B071-4BF290BCEB40}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0904D167-4B03-4449-B071-4BF290BCEB40}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0904D167-4B03-4449-B071-4BF290BCEB40}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0904D167-4B03-4449-B071-4BF290BCEB40}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
