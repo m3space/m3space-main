@@ -12,6 +12,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MotionAnalysis", "MotionAnalysis\MotionAnalysis.csproj", "{96B231AA-0634-4C38-8DE8-F57A4E5E00D4}"
+EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = GroundControl.vsmdi
@@ -29,6 +31,10 @@ Global
 		{0904D167-4B03-4449-B071-4BF290BCEB40}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0904D167-4B03-4449-B071-4BF290BCEB40}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0904D167-4B03-4449-B071-4BF290BCEB40}.Release|Any CPU.Build.0 = Release|Any CPU
+		{96B231AA-0634-4C38-8DE8-F57A4E5E00D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{96B231AA-0634-4C38-8DE8-F57A4E5E00D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{96B231AA-0634-4C38-8DE8-F57A4E5E00D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{96B231AA-0634-4C38-8DE8-F57A4E5E00D4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
