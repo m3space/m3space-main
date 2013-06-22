@@ -44,6 +44,11 @@ namespace GroundControl.Core
                         parseTelemetry = ParseLineV2;
                         dataCache.Locked = true;
                     }
+                    else if (firstLine.Equals(DataFormat.TelemetryFormatCapsule))
+                    {
+                        parseTelemetry = ParseLineCapsule;
+                        dataCache.Locked = true;
+                    }
                     else
                     {
                         dataCache.Locked = wasLocked;
@@ -144,6 +149,43 @@ namespace GroundControl.Core
                 // PressureRaw no longer supported
                 data.VinRaw = UInt16.Parse(parts[15]);
                 data.DutyCycle = Byte.Parse(parts[16]);
+
+                dataCache.AddTelemetry(data);
+            }
+        }
+
+        /// <summary>
+        /// Parses telemetry file from Capsule.
+        /// </summary>
+        /// <param name="dataCache">the data cache</param>
+        /// <param name="parts">the CSV fields</param>
+        private static void ParseLineCapsule(DataCache dataCache, string[] parts)
+        {
+            // Utc;                     Lat;      Lng;     Alt;    HSpd; VSpd; Head;   Sat; IntTemp; Temp1; Temp2; Pressure; PAlt; Vin; Duty
+            // 08.06.2013 11:50:00.278; 46.96256; 7.37088; 482.50; 0.08; 0.30; 359.68; 8;   33;      17;    0;     956;      485;  988; 8
+
+            if ((parts != null) && (parts.Length >= 15))
+            {
+                TelemetryData data = new TelemetryData();
+                data.UtcTimestamp = DateTime.ParseExact(parts[0], "dd.MM.yyyy HH:mm:ss.fff", null);
+                data.Latitude = Single.Parse(parts[1]);
+                data.Longitude = Single.Parse(parts[2]);
+                data.GpsAltitude = Single.Parse(parts[3]);
+                data.HorizontalSpeed = Single.Parse(parts[4]);
+                data.VerticalSpeed = Single.Parse(parts[5]);
+                data.Heading = (short)Single.Parse(parts[6]);
+                data.Satellites = Byte.Parse(parts[7]);
+                data.IntTemperature = Int16.Parse(parts[8]);
+                data.Temperature1Raw = UInt16.Parse(parts[9]);
+                data.Temperature2Raw = UInt16.Parse(parts[10]);
+                data.Pressure = Single.Parse(parts[11]);
+                data.PressureAltitude = Single.Parse(parts[12]);
+                data.VinRaw = UInt16.Parse(parts[13]);
+                data.DutyCycle = Byte.Parse(parts[14]);
+
+                data.Vin = data.VinRaw * TelemetryDecoder.BatteryGain;
+                data.Temperature1 = TelemetryDecoder.Temp1Offset - data.Temperature1Raw * TelemetryDecoder.Temp1Gain;
+                data.Temperature2 = TelemetryDecoder.Temp2Offset - data.Temperature2Raw * TelemetryDecoder.Temp2Gain;
 
                 dataCache.AddTelemetry(data);
             }

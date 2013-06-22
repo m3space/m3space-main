@@ -186,5 +186,48 @@ namespace GroundControl.Core
                 OnError("Cannot fetch image data from decoder.");
             }
         }
+
+        public static int PreparePacket(byte[] output, byte[] input)
+        {
+            output[0] = Sync;
+            int count = 1;
+            for (int i = 0; i < input.Length; i++)
+            {
+                if ((input[i] == Sync) || (input[i] == Esc))
+                {
+                    output[count++] = Esc;
+                    output[count++] = (byte)(input[i] ^ 0x20);
+                }
+                else
+                {
+                    output[count++] = input[i];
+                }
+            }
+            output[count++] = Sync;
+            return count;
+        }
+
+        public static byte[] GetTelemetry(TelemetryData data)
+        {
+            byte[] packet = new byte[45];
+            packet[0] = TransmitTelemetry;
+            Array.Copy(BitConverter.GetBytes((ushort)42), 0, packet, 1, 2);
+            Array.Copy(BitConverter.GetBytes(data.UtcTimestamp.Ticks), 0, packet, 3, 8);
+            Array.Copy(BitConverter.GetBytes(data.Latitude), 0, packet, 11, 4);
+            Array.Copy(BitConverter.GetBytes(data.Longitude), 0, packet, 15, 4);
+            Array.Copy(BitConverter.GetBytes((ushort)data.GpsAltitude), 0, packet, 19, 2);
+            Array.Copy(BitConverter.GetBytes((ushort)data.Heading), 0, packet, 21, 2);
+            Array.Copy(BitConverter.GetBytes(data.HorizontalSpeed), 0, packet, 23, 4);
+            Array.Copy(BitConverter.GetBytes(data.VerticalSpeed), 0, packet, 27, 4);
+            packet[31] = data.Satellites;
+            Array.Copy(BitConverter.GetBytes(data.IntTemperature), 0, packet, 32, 2);
+            Array.Copy(BitConverter.GetBytes(data.Temperature1Raw), 0, packet, 34, 2);
+            Array.Copy(BitConverter.GetBytes(data.Temperature2Raw), 0, packet, 36, 2);
+            Array.Copy(BitConverter.GetBytes(data.Pressure), 0, packet, 38, 2);
+            Array.Copy(BitConverter.GetBytes(data.PressureAltitude), 0, packet, 40, 2);
+            Array.Copy(BitConverter.GetBytes(data.VinRaw), 0, packet, 42, 2);
+            packet[44] = data.DutyCycle;
+            return packet;
+        }
     }
 }
