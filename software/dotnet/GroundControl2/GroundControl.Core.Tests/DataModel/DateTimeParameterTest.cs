@@ -17,7 +17,7 @@ namespace M3Space.GroundControl.Core.Tests.DataModel
         [TestInitialize]
         public void SetUp()
         {
-            mParameter = new DateTimeParameter("datetimetest", new string[] { "dd.MM.yyyy HH:mm:ss.fff" }, "dd.MM.yyyy HH:mm:ss.fff");
+            mParameter = new DateTimeParameter("datetimetest", "dd.MM.yyyy HH:mm:ss.fff", "dd.MM.yyyy HH:mm:ss.fff");
         }
 
         [TestMethod]

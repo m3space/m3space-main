@@ -11,20 +11,20 @@ namespace M3Space.GroundControl.Core.DataModel
     public class DateTimeParameter : ParameterImpl
     {
         private List<DateTime> mValues;
-        private string[] mImportFormats;
+        private string mImportFormat;
         private string mDisplayFormat;
 
         /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="name">the parameter name</param>
-        /// <param name="importFormats">the date/time formats for import</param>
+        /// <param name="importFormat">the date/time format for import</param>
         /// <param name="displayFormat">the date/time display format</param>
-        public DateTimeParameter(string name, string[] importFormats, string displayFormat)
+        public DateTimeParameter(string name, string importFormat, string displayFormat)
             : base(name, DataModel.Unit.None)
         {
             mValues = new List<DateTime>();
-            mImportFormats = importFormats;
+            mImportFormat = importFormat;
             mDisplayFormat = "{0:" + displayFormat + '}';
         }
 
@@ -70,7 +70,7 @@ namespace M3Space.GroundControl.Core.DataModel
         override public object ParseValue(string str)
         {
             DateTime value;
-            if (DateTime.TryParseExact(str, mImportFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out value))
+            if (DateTime.TryParseExact(str, mImportFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out value))
             {
                 return value;
             }

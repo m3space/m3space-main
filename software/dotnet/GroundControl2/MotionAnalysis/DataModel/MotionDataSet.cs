@@ -11,6 +11,11 @@ namespace M3Space.MotionAnalysis.DataModel
     public class MotionDataSet
     {
         /// <summary>
+        /// The starting timestamp (UTC).
+        /// </summary>
+        public DateTime UtcStart { get; set; }
+
+        /// <summary>
         /// The constant time interval between two data records.
         /// Measured in milliseconds.
         /// </summary>

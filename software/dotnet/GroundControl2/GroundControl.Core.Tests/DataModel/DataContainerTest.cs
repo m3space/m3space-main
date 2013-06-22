@@ -19,7 +19,7 @@ namespace M3Space.GroundControl.Core.Tests.DataModel
         public void SetUp()
         {
             mDataContainer = new DataContainer();
-            mDataContainer.AddParameter(new DateTimeParameter("datetime", new string[] { "dd.MM.yyyy HH:mm:ss.fff" }, "dd.MM.yyyy HH:mm:ss.fff"));
+            mDataContainer.AddParameter(new DateTimeParameter("datetime", "dd.MM.yyyy HH:mm:ss.fff", "dd.MM.yyyy HH:mm:ss.fff"));
             mDataContainer.AddParameter(new IntParameter("int", Unit.None));
             mDataContainer.AddParameter(new FloatParameter("float", Unit.None, 2));
         }
