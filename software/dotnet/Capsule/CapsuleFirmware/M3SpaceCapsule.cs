@@ -379,8 +379,10 @@ namespace M3Space.Capsule
         /// </summary>
         private void StartMotionThread()
         {
+            Thread.Sleep(100);
             if (mpu6050.Initialize())
             {
+                Thread.Sleep(1000);
                 motionBufferIndex = 0;
                 while (true)
                 {

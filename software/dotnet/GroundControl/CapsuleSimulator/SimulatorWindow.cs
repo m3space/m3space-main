@@ -46,7 +46,10 @@ namespace CapsuleSimulator
         {
             btnStop.Enabled = false;
             m_timer.Enabled = false;
-            m_serialPort.Close();
+            if (m_serialPort != null)
+            {
+                m_serialPort.Close();
+            }
             btnStart.Enabled = true;
         }
 
