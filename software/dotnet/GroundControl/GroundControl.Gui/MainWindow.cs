@@ -78,6 +78,7 @@ namespace GroundControl.Gui
 
             predictorWindow = new PredictorWindow();
             predictorWindow.MdiParent = this;
+            predictorWindow.MapPosition = mapWindow.MapPosition;
 
             if (Settings.Default.DataDirectory.Equals(""))
             {
@@ -349,7 +350,7 @@ namespace GroundControl.Gui
                 stopCaptureMenuItem.Enabled = true;
                 startCaptureMenuItem.Enabled = false;
                 loadDataMenuItem.Enabled = false;
-                loadPredictedMenuItem.Enabled = false;
+                loadPredictedMenuItem.Enabled = true;
                 clearDataMenuItem.Enabled = false;
                 preferencesMenuItem.Enabled = false;
                 transceiverStateLbl.Text = "Started";

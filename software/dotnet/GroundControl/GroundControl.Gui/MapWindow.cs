@@ -33,6 +33,11 @@ namespace GroundControl.Gui
         private GMapMarkerImage groundControlMarker;
         private GMapMarkerImage burstMarker;
 
+        public PointLatLng MapPosition
+        {
+            get { return map.Position; }
+        }
+
         public MapWindow()
         {
             InitializeComponent();

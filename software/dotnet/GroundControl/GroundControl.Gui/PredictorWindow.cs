@@ -30,6 +30,12 @@ namespace GroundControl.Gui
             get { return m_filename; }
         }
 
+        public PointLatLng MapPosition
+        {
+            get { return m_mapPosition; }
+            set { m_mapPosition = value; }
+        }
+
         public PredictorWindow()
         {
             InitializeComponent();
