@@ -14,7 +14,9 @@ namespace GroundControl.Gui
 {
     public partial class PredictorWindow : Form
     {
-        private const string PREDICTOR_URL = "http://habhub.org/predict";
+        private const string PREDICTOR_URL = "http://predict.habhub.org";
+        private static readonly DateTime UNIX_TIMESTAMP_BASE = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
         private string      m_filename;
         private PointLatLng m_mapPosition;
         private PointLatLng m_groundControlPosition;
@@ -97,11 +99,7 @@ namespace GroundControl.Gui
                     "year=" + date.Year + "&" +
                     "ascent=" + numAscentRate.Value + "&" +
                     "burst=" + numBurstAltitude.Value + "&" +
-                    "drag=8&" +
-                    "software=gfs&" +
-                    "delta_lat=3&" +
-                    "delta_lon=3&" +
-                    "delta_time=5&" +
+                    "drag=" + numDescentRate.Value + "&" +
                     "submit=Run+Prediction";
 
 
@@ -120,7 +118,7 @@ namespace GroundControl.Gui
                 using (StreamReader reader = new StreamReader(request.GetResponse().GetResponseStream()))
                 {
                     // Sample answer:
-                    // {"valid":"true","uuid":"98a901ec92ce344a65a54b8bc176ce087a723492","timestamp":1370692680}
+                    // {"valid":"true","uuid":"226b6e55ba2169a2bc3d9c53fd208b250e9ab2a9","timestamp":1375099200}
                     var dict = new JavaScriptSerializer().Deserialize<Dictionary<string, object>>(reader.ReadToEnd());
                     if (dict["valid"].ToString().Equals("false"))
                     {
@@ -132,36 +130,56 @@ namespace GroundControl.Gui
                         uuid = dict["uuid"].ToString();
                     }
                 }
+
                 if (success)
                 {
                     // Polling for prediction calculation progress
-                    bool finished = false;
+                    bool running = false;
+                    bool complete = false;
+                    int i = 1;
                     do
                     {
                         Thread.Sleep(500);
-                        string reqString = PREDICTOR_URL + "/preds/" + uuid + "/progress.json?_=" + (long)((DateTime.Now.ToUniversalTime() - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc))).TotalMilliseconds;
+                        string reqString = PREDICTOR_URL + "/preds/" + uuid + "/progress.json?_=" + (long)((DateTime.UtcNow - UNIX_TIMESTAMP_BASE)).TotalMilliseconds;
                         request = WebRequest.Create(reqString);
                         request.Method = "GET";
                         using (StreamReader reader = new StreamReader(request.GetResponse().GetResponseStream()))
                         {
                             // Sample answer:
-                            //"pred_running": false, 
-                            //"error": "", 
+                            //"warnings": false,
+                            //"pred_output": [],
+                            //"dataset": "2013072700",
+                            //"pred_running": true, 
                             //"run_time": "1370172040", 
-                            //"gfs_timestamp": "", 
-                            //"warnings": false, 
+                            //"error": "",                             
                             //"pred_complete": false, 
-                            //"pred_output": [], 
-                            //"gfs_percent": 0, 
-                            //"gfs_complete": false, 
-                            //"gfs_timeremaining": "Please wait..."
 
                             var dict = new JavaScriptSerializer().Deserialize<Dictionary<string, object>>(reader.ReadToEnd());
-                            finished = Convert.ToBoolean(dict["gfs_complete"]);
-                            RefreshProgress(Convert.ToInt32(dict["gfs_percent"]) + "%");
+                            running = Convert.ToBoolean(dict["pred_running"]);
+                            complete = Convert.ToBoolean(dict["pred_complete"]);
+                            error = Convert.ToString(dict["error"]);
+                            if (complete)
+                            {
+                                running = false;
+                            }
+                            if (error.Equals(""))
+                            {
+                                RefreshProgress("running... " + i++);
+                            }
+                            else
+                            {
+                                RefreshProgress("Error: " + error);
+                                break;
+                            }
                         }
                     }
-                    while (!finished);
+                    while (running);
+
+                    if (!complete)
+                    {
+                        RefreshProgress("Prediction not finished!");
+                        return;
+                    }
 
                     // prediction was successful. Requesting the KML file
                     RefreshProgress("getting kml...");
@@ -190,7 +208,7 @@ namespace GroundControl.Gui
                 success = false;
                 error = ex.Message;
             }
-            RefreshProgress(success? "Finished" : error);
+            RefreshProgress(success ? "Finished" : error);
         }
 
         private void RefreshProgress(string text)
