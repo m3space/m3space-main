@@ -89,12 +89,36 @@ namespace GroundControl.Gui
             comPortGPS = Settings.Default.ComPortGPS;
             comPortRadio = Settings.Default.ComPortRadio;
 
-            graphWindow.Show();
-            logWindow.Show();
-            liveImageWindow.Show();
-            telemetryWindow.Show();
-            mapWindow.Show();
-            predictorWindow.Show();
+            if (Settings.Default.GraphWindowVisible)
+            {
+                graphWindow.Show();
+                graphMenuItem.Checked = true;
+            }
+            if (Settings.Default.LogWindowVisible)
+            {
+                logWindow.Show();
+                eventLogMenuItem.Checked = true;
+            }
+            if (Settings.Default.LiveImageWindowVisible)
+            {
+                liveImageWindow.Show();
+                liveImageMenuItem.Checked = true;
+            }
+            if (Settings.Default.TelemetryWindowVisible)
+            {
+                telemetryWindow.Show();
+                telemetryMenuItem.Checked = true;
+            }
+            if (Settings.Default.MapWindowVisible)
+            {
+                mapWindow.Show();
+                mapMenuItem.Checked = true;
+            }
+            if (Settings.Default.PredictorWindowVisible)
+            {
+                predictorWindow.Show();
+                predictorMenuItem.Checked = true;
+            }
 
             webAccess = new WebAccess();
             persistHandler = new PersistenceHandler();
@@ -241,6 +265,12 @@ namespace GroundControl.Gui
             Settings.Default.GraphWindowLocation = graphWindow.Location;
             Settings.Default.GraphWindowSize = graphWindow.Size;
             Settings.Default.PredictorWindowLocation = predictorWindow.Location;
+            Settings.Default.MapWindowVisible = mapWindow.Visible;
+            Settings.Default.LogWindowVisible = logWindow.Visible;
+            Settings.Default.LiveImageWindowVisible = liveImageWindow.Visible;
+            Settings.Default.TelemetryWindowVisible = telemetryWindow.Visible;
+            Settings.Default.PredictorWindowVisible = predictorWindow.Visible;
+            Settings.Default.GraphWindowVisible = graphWindow.Visible;
             Settings.Default.Save();
             transceiver.Stop();
         }
@@ -494,10 +524,14 @@ namespace GroundControl.Gui
             if (gpsReceiver.IsOpen)
             {
                 gpsReceiver.Close();
+                connectGPSToolStripMenuItem.Text = "Connect GPS";
+                logWindow.WriteLine("GPS disconnected.");
             }
             try
             {
                 gpsReceiver.Open();
+                connectGPSToolStripMenuItem.Text = "Disconnect GPS";
+                logWindow.WriteLine("GPS connected.");
             }
             catch (Exception)
             {

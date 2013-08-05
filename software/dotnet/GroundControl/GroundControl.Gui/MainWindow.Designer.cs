@@ -192,55 +192,43 @@
             // 
             // eventLogMenuItem
             // 
-            this.eventLogMenuItem.Checked = true;
-            this.eventLogMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.eventLogMenuItem.Name = "eventLogMenuItem";
-            this.eventLogMenuItem.Size = new System.Drawing.Size(131, 22);
+            this.eventLogMenuItem.Size = new System.Drawing.Size(152, 22);
             this.eventLogMenuItem.Text = "Event &Log";
             this.eventLogMenuItem.Click += new System.EventHandler(this.eventLogMenuItem_Click);
             // 
             // liveImageMenuItem
             // 
-            this.liveImageMenuItem.Checked = true;
-            this.liveImageMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.liveImageMenuItem.Name = "liveImageMenuItem";
-            this.liveImageMenuItem.Size = new System.Drawing.Size(131, 22);
+            this.liveImageMenuItem.Size = new System.Drawing.Size(152, 22);
             this.liveImageMenuItem.Text = "Live &Image";
             this.liveImageMenuItem.Click += new System.EventHandler(this.liveImageMenuItem_Click);
             // 
             // mapMenuItem
             // 
-            this.mapMenuItem.Checked = true;
-            this.mapMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.mapMenuItem.Name = "mapMenuItem";
-            this.mapMenuItem.Size = new System.Drawing.Size(131, 22);
+            this.mapMenuItem.Size = new System.Drawing.Size(152, 22);
             this.mapMenuItem.Text = "&Map";
             this.mapMenuItem.Click += new System.EventHandler(this.mapMenuItem_Click);
             // 
             // telemetryMenuItem
             // 
-            this.telemetryMenuItem.Checked = true;
-            this.telemetryMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.telemetryMenuItem.Name = "telemetryMenuItem";
-            this.telemetryMenuItem.Size = new System.Drawing.Size(131, 22);
+            this.telemetryMenuItem.Size = new System.Drawing.Size(152, 22);
             this.telemetryMenuItem.Text = "&Telemetry";
             this.telemetryMenuItem.Click += new System.EventHandler(this.telemetryMenuItem_Click);
             // 
             // graphMenuItem
             // 
-            this.graphMenuItem.Checked = true;
-            this.graphMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.graphMenuItem.Name = "graphMenuItem";
-            this.graphMenuItem.Size = new System.Drawing.Size(131, 22);
+            this.graphMenuItem.Size = new System.Drawing.Size(152, 22);
             this.graphMenuItem.Text = "Graph";
             this.graphMenuItem.Click += new System.EventHandler(this.graphMenuItem_Click);
             // 
             // predictorMenuItem
             // 
-            this.predictorMenuItem.Checked = true;
-            this.predictorMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.predictorMenuItem.Name = "predictorMenuItem";
-            this.predictorMenuItem.Size = new System.Drawing.Size(131, 22);
+            this.predictorMenuItem.Size = new System.Drawing.Size(152, 22);
             this.predictorMenuItem.Text = "Predictor";
             this.predictorMenuItem.Click += new System.EventHandler(this.predictorMenuItem_Click);
             // 
