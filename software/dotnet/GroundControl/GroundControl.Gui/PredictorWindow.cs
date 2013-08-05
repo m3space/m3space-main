@@ -44,6 +44,17 @@ namespace GroundControl.Gui
 
         private void btnRunPrediction_Click(object sender, EventArgs e)
         {
+            // prevent using timestamp in the past
+            DateTime now = DateTime.Now.AddMinutes(1);
+            if (datepickerLaunchDate.Value < now)
+            {
+                datepickerLaunchDate.Value = now;
+            }
+            if (datepickerLaunchTime.Value < now)
+            {
+                datepickerLaunchTime.Value = now;
+            }
+
             Thread workerThread = new Thread(new ThreadStart(CheckState));
             workerThread.Start();
         }
@@ -72,6 +83,7 @@ namespace GroundControl.Gui
                 double latitude = 0;
                 double longitude = 0;
                 int altitude = (int)numLaunchAltitude.Value;
+
                 DateTime date = new DateTime(datepickerLaunchDate.Value.Year, datepickerLaunchDate.Value.Month, datepickerLaunchDate.Value.Day,
                     datepickerLaunchTime.Value.Hour, datepickerLaunchTime.Value.Minute, datepickerLaunchTime.Value.Second).ToUniversalTime();
 
@@ -145,7 +157,7 @@ namespace GroundControl.Gui
                     int i = 1;
                     do
                     {
-                        Thread.Sleep(500);
+                        Thread.Sleep(1000);
                         string reqString = PREDICTOR_URL + "/preds/" + uuid + "/progress.json?_=" + (long)((DateTime.UtcNow - UNIX_TIMESTAMP_BASE)).TotalMilliseconds;
                         request = WebRequest.Create(reqString);
                         request.Method = "GET";
