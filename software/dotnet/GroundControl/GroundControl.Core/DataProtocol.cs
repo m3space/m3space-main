@@ -16,14 +16,24 @@ namespace GroundControl.Core
         public const int HeaderSize = 3;
 
         /// <summary>
-        /// The sync byte definition.
+        /// The packet start byte definition.
         /// </summary>
-        public const byte Sync = 0x7E;
+        public const byte StartPacket = 0x7D;
+
+        /// <summary>
+        /// The packet end byte definition.
+        /// </summary>
+        public const byte EndPacket = 0x7E;
 
         /// <summary>
         /// The escape byte definition.
         /// </summary>
-        public const byte Esc = 0x7D;
+        public const byte Esc = 0x7F;
+
+        /// <summary>
+        /// The escaped byte mask definition.
+        /// </summary>
+        public const byte EscMask = 0x20;
 
         private const byte TransmitTelemetry = 0x01;
         private const byte BeginImage = 0x02;
@@ -137,12 +147,12 @@ namespace GroundControl.Core
                 }
                 else
                 {
-                    OnError("Frame payload incomplete.");
+                    OnError(String.Format("Frame payload incomplete ({0} instead of {1}).", frame.Length, payloadSize));
                 }
             }
             else
             {
-                OnError("Frame header incomplete.");
+                OnError(String.Format("Frame header incomplete ({0} instead of {1}).", HeaderSize, frame.Length));
             }
         }
 
@@ -187,26 +197,38 @@ namespace GroundControl.Core
             }
         }
 
+        /// <summary>
+        /// Prepares a data packet for transmission.
+        /// Start and end bytes are added and the data is escaped.
+        /// </summary>
+        /// <param name="output">the output buffer</param>
+        /// <param name="input">the input data</param>
+        /// <returns>the number of output bytes</returns>
         public static int PreparePacket(byte[] output, byte[] input)
         {
-            output[0] = Sync;
+            output[0] = StartPacket;
             int count = 1;
             for (int i = 0; i < input.Length; i++)
             {
-                if ((input[i] == Sync) || (input[i] == Esc))
+                if ((input[i] == StartPacket) || (input[i] == EndPacket) || (input[i] == Esc))
                 {
                     output[count++] = Esc;
-                    output[count++] = (byte)(input[i] ^ 0x20);
+                    output[count++] = (byte)(input[i] ^ EscMask);
                 }
                 else
                 {
                     output[count++] = input[i];
                 }
             }
-            output[count++] = Sync;
+            output[count++] = EndPacket;
             return count;
         }
 
+        /// <summary>
+        /// Creates a telemetry data packet.
+        /// </summary>
+        /// <param name="data">the telemetry data</param>
+        /// <returns>a data packet</returns>
         public static byte[] GetTelemetry(TelemetryData data)
         {
             byte[] packet = new byte[45];
@@ -215,16 +237,16 @@ namespace GroundControl.Core
             Array.Copy(BitConverter.GetBytes(data.UtcTimestamp.Ticks), 0, packet, 3, 8);
             Array.Copy(BitConverter.GetBytes(data.Latitude), 0, packet, 11, 4);
             Array.Copy(BitConverter.GetBytes(data.Longitude), 0, packet, 15, 4);
-            Array.Copy(BitConverter.GetBytes((ushort)data.GpsAltitude), 0, packet, 19, 2);
-            Array.Copy(BitConverter.GetBytes((ushort)data.Heading), 0, packet, 21, 2);
+            Array.Copy(BitConverter.GetBytes(Convert.ToUInt16(data.GpsAltitude)), 0, packet, 19, 2);
+            Array.Copy(BitConverter.GetBytes(data.Heading), 0, packet, 21, 2);
             Array.Copy(BitConverter.GetBytes(data.HorizontalSpeed), 0, packet, 23, 4);
             Array.Copy(BitConverter.GetBytes(data.VerticalSpeed), 0, packet, 27, 4);
             packet[31] = data.Satellites;
-            Array.Copy(BitConverter.GetBytes(data.IntTemperature), 0, packet, 32, 2);
+            Array.Copy(BitConverter.GetBytes((short)data.IntTemperature), 0, packet, 32, 2);
             Array.Copy(BitConverter.GetBytes(data.Temperature1Raw), 0, packet, 34, 2);
             Array.Copy(BitConverter.GetBytes(data.Temperature2Raw), 0, packet, 36, 2);
-            Array.Copy(BitConverter.GetBytes(data.Pressure), 0, packet, 38, 2);
-            Array.Copy(BitConverter.GetBytes(data.PressureAltitude), 0, packet, 40, 2);
+            Array.Copy(BitConverter.GetBytes(Convert.ToUInt16(data.Pressure*1000)), 0, packet, 38, 2);
+            Array.Copy(BitConverter.GetBytes(Convert.ToUInt16(data.PressureAltitude)), 0, packet, 40, 2);
             Array.Copy(BitConverter.GetBytes(data.VinRaw), 0, packet, 42, 2);
             packet[44] = data.DutyCycle;
             return packet;

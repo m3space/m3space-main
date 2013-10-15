@@ -166,45 +166,54 @@ namespace GroundControl.Core
             switch (receiverState)
             {
                 case WAIT_BEGIN:
-                    if ((b == DataProtocol.Sync) && (lastByte == DataProtocol.Sync))
+                    if (b == DataProtocol.StartPacket)
                     {
+                        // start of new packet
+                        framePos = 0;
                         receiverState = WAIT_END;
                     }
                     break;
 
                 case WAIT_END:
-                    if (b == DataProtocol.Sync)
+                    if (b == DataProtocol.EndPacket)
                     {
+                        // end of packet reached
                         byte[] frame = new byte[framePos];
                         Array.Copy(frameBuf, frame, framePos);
                         OnFrameReceived(frame);
-                        receiverState = WAIT_BEGIN;
+                        receiverState = WAIT_BEGIN;                        
+                    }
+                    else if (b == DataProtocol.StartPacket)
+                    {
+                        // start of new packet, discard incomplete packet
+                        OnError("Missed end of last packet.");
                         framePos = 0;
                     }
                     else if (b != DataProtocol.Esc)
                     {
+                        // data byte received
                         if (framePos < FRAME_BUFFER_SIZE)
                         {
-                            if (lastByte != DataProtocol.Esc)
+                            if (lastByte == DataProtocol.Esc)
                             {
-                                frameBuf[framePos++] = b;
+                                // need to unmask escaped byte
+                                frameBuf[framePos++] = (byte)(b ^ DataProtocol.EscMask);                                
                             }
                             else
                             {
-                                frameBuf[framePos++] = (byte)(b ^ 0x20);
+                                frameBuf[framePos++] = b;
                             }
                         }
                         else
                         {
-                            OnError("Receiving frame buffer too small.");
+                            OnError("Frame too large for receiving buffer.");
                             receiverState = WAIT_BEGIN;
-                            framePos = 0;
                         }
                     }
                     break;
 
                 default:
-                    OnError("Invalid receiver state.");
+                    OnError("Invalid receiver state, resetting.");
                     receiverState = WAIT_BEGIN;
                     break;
             }
@@ -243,20 +252,20 @@ namespace GroundControl.Core
             if (serialPort.IsOpen)
             {
                 int sndPos = 0;
-                sndBuf[sndPos++] = DataProtocol.Sync;
+                sndBuf[sndPos++] = DataProtocol.StartPacket;
                 for (int i = 0; i < data.Length; i++)
                 {
-                    if ((data[i] == DataProtocol.Sync) || (data[i] == DataProtocol.Esc))
+                    if ((data[i] == DataProtocol.StartPacket) || (data[i] == DataProtocol.EndPacket) || (data[i] == DataProtocol.Esc))
                     {
                         sndBuf[sndPos++] = DataProtocol.Esc;
-                        sndBuf[sndPos++] = (byte)(data[i] ^ 0x20);
+                        sndBuf[sndPos++] = (byte)(data[i] ^ DataProtocol.EscMask);
                     }
                     else
                     {
                         sndBuf[sndPos++] = data[i];
                     }
                 }
-                sndBuf[sndPos++] = DataProtocol.Sync;
+                sndBuf[sndPos++] = DataProtocol.EndPacket;
                 serialPort.Write(sndBuf, 0, sndPos);
                 return true;
             }

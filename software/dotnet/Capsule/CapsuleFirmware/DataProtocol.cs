@@ -6,8 +6,11 @@ namespace M3Space.Capsule
 {
     public class DataProtocol
     {
-        private const byte Sync = 0x7E;
-        private const byte Esc = 0x7D;
+        private const byte StartPacket = 0x7D;
+        private const byte EndPacket = 0x7E;
+        private const byte Esc = 0x7F;
+        private const byte EscMask = 0x20;
+
         private const byte TransmitTelemetry = 0x01;
         private const byte BeginImage = 0x02;
         private const byte ImageData = 0x03;
@@ -58,21 +61,21 @@ namespace M3Space.Capsule
 
         public static int PreparePacket(byte[] output, byte[] input)
         {
-            output[0] = Sync;
+            output[0] = StartPacket;
             int count = 1;
             for (int i = 0; i < input.Length; i++)
             {
-                if ((input[i] == Sync) || (input[i] == Esc))
+                if ((input[i] == StartPacket) || (input[i] == EndPacket) || (input[i] == Esc))
                 {
                     output[count++] = Esc;
-                    output[count++] = (byte)(input[i] ^ 0x20);
+                    output[count++] = (byte)(input[i] ^ EscMask);
                 }
                 else
                 {
                     output[count++] = input[i];
                 }
             }
-            output[count++] = Sync;
+            output[count++] = EndPacket;
             return count;
         }
 

@@ -173,12 +173,12 @@ namespace GroundControl.Core
                 data.GpsAltitude = Single.Parse(parts[3]);
                 data.HorizontalSpeed = Single.Parse(parts[4]);
                 data.VerticalSpeed = Single.Parse(parts[5]);
-                data.Heading = (short)Single.Parse(parts[6]);
+                data.Heading = Convert.ToInt16(Single.Parse(parts[6]));
                 data.Satellites = Byte.Parse(parts[7]);
                 data.IntTemperature = Int16.Parse(parts[8]);
                 data.Temperature1Raw = UInt16.Parse(parts[9]);
                 data.Temperature2Raw = UInt16.Parse(parts[10]);
-                data.Pressure = Single.Parse(parts[11]);
+                data.Pressure = Single.Parse(parts[11])*0.001f;
                 data.PressureAltitude = Single.Parse(parts[12]);
                 data.VinRaw = UInt16.Parse(parts[13]);
                 data.DutyCycle = Byte.Parse(parts[14]);
