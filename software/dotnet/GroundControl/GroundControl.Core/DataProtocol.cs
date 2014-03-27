@@ -231,10 +231,12 @@ namespace GroundControl.Core
         /// <returns>a data packet</returns>
         public static byte[] GetTelemetry(TelemetryData data)
         {
+            // correct .NET micro year offset
+            DateTime offsetTs = data.UtcTimestamp.AddYears(-TelemetryDecoder.DotNetMicroYearOffset);
             byte[] packet = new byte[45];
             packet[0] = TransmitTelemetry;
             Array.Copy(BitConverter.GetBytes((ushort)42), 0, packet, 1, 2);
-            Array.Copy(BitConverter.GetBytes(data.UtcTimestamp.Ticks), 0, packet, 3, 8);
+            Array.Copy(BitConverter.GetBytes(offsetTs.Ticks), 0, packet, 3, 8);
             Array.Copy(BitConverter.GetBytes(data.Latitude), 0, packet, 11, 4);
             Array.Copy(BitConverter.GetBytes(data.Longitude), 0, packet, 15, 4);
             Array.Copy(BitConverter.GetBytes(Convert.ToUInt16(data.GpsAltitude)), 0, packet, 19, 2);

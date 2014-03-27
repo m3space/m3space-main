@@ -12,6 +12,10 @@ using GroundControl.Core;
 
 namespace GroundControl.Gui
 {
+    /// <summary>
+    /// CUSF landing predictor window.
+    /// Tested with version 2.5 of predictor web service.
+    /// </summary>
     public partial class PredictorWindow : Form
     {
         private const string PREDICTOR_URL = "http://predict.habhub.org";
@@ -124,7 +128,7 @@ namespace GroundControl.Gui
                 // Requesting a uuid from the predictor website
                 WebRequest request = WebRequest.Create(PREDICTOR_URL + "/ajax.php?action=submitForm");
                 request.Method = "POST";
-                request.ContentType = "application/x-www-form-urlencoded";
+                request.ContentType = "application/x-www-form-urlencoded; charset=UTF-8";
                 request.ContentLength = postData.Length;
                 using (Stream dataStream = request.GetRequestStream())
                 {
@@ -203,10 +207,15 @@ namespace GroundControl.Gui
                     RefreshProgress("getting kml...");
                     request = WebRequest.Create(PREDICTOR_URL + "/kml.php?uuid=" + uuid);
                     request.Method = "GET";
-                    m_filename = Settings.Default.DataDirectory + "\\Predict_" + DateTime.Now.ToShortDateString() + "_" +
-                                 datepickerLaunchDate.Value.ToShortDateString() + "_" +
-                                 datepickerLaunchTime.Value.ToString("HH.mm") + "_" +
-                                 numBurstAltitude.Value + "_" + numAscentRate.Value + "_" + numDescentRate.Value + ".kml";
+
+                    m_filename = String.Format("{0}\\prediction_{1}_{2}_{3}_{4}_{5}_{6}.kml",
+                        Settings.Default.DataDirectory,
+                        DateTime.Now.ToString("yyyyMMdd_HHmm"),
+                        datepickerLaunchDate.Value.ToString("yyyyMMdd"),
+                        datepickerLaunchTime.Value.ToString("HHmm"),
+                        numBurstAltitude.Value,
+                        numAscentRate.Value,
+                        numDescentRate.Value);
 
                     // save kml to file
                     using (var fileStream = File.Create(m_filename))

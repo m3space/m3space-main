@@ -10,7 +10,7 @@ namespace GroundControl.Core
     /// </summary>
     public class TelemetryDecoder
     {
-        private const int YEAR_OFFSET = 1600;  // because different DateTime origin in the microframework (year 1601 instead of 0001)
+        public const int DotNetMicroYearOffset = 1600;  // because different DateTime origin in the microframework (year 1601 instead of 0001)
                                                // http://netmf.codeplex.com/workitem/1003
         public const int TelemetryPayloadSize = 42;
 
@@ -36,7 +36,7 @@ namespace GroundControl.Core
 
             TelemetryData data = new TelemetryData();
 
-            data.UtcTimestamp = new DateTime(BitConverter.ToInt64(rawData, 0)).AddYears(YEAR_OFFSET);
+            data.UtcTimestamp = new DateTime(BitConverter.ToInt64(rawData, 0)).AddYears(DotNetMicroYearOffset);
             data.Latitude = BitConverter.ToSingle(rawData, 8);
             data.Longitude = BitConverter.ToSingle(rawData, 12);
             data.GpsAltitude = BitConverter.ToUInt16(rawData, 16);

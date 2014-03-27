@@ -130,6 +130,7 @@ namespace GroundControl.Core.WebAccess
             request.UserAgent = userAgent;
             request.CookieContainer = new CookieContainer();
             request.ContentLength = formData.Length;
+            request.Timeout = 15000;
 
             // You could add authentication here as well if needed:
             // request.PreAuthenticate = true;

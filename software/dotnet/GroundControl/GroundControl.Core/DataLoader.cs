@@ -85,7 +85,7 @@ namespace GroundControl.Core
             if ((parts != null) && (parts.Length >= 18))
             {
                 TelemetryData data = new TelemetryData();
-                data.UtcTimestamp = DateTime.ParseExact(parts[0], "dd.MM.yyyy HH:mm:ss", null);
+                data.UtcTimestamp = DateTime.ParseExact(parts[0], "dd.MM.yyyy HH:mm:ss.fff", null);
                 data.Latitude = Single.Parse(parts[1]);
                 data.Longitude = Single.Parse(parts[2]);
                 data.GpsAltitude = Single.Parse(parts[3]);
