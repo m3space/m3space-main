@@ -8,6 +8,12 @@
 	else {
 		$since = $today;
 	}
+	if (isset($_GET['blogsince'])) {
+		$blogsince = $_GET['blogsince'];
+	}
+	else {
+		$blogsince = $today;
+	}
 	
 	try {
 		$dbh = new PDO("mysql:host=$dbhost;dbname=$dbname", $dbuser, $dbpass);
@@ -44,7 +50,7 @@
 		}
 		
 		$stmt = $dbh->prepare('SELECT utctimestamp, message FROM live_blog WHERE utctimestamp>:since ORDER BY utctimestamp');
-		$stmt->bindParam(':since', $today);
+		$stmt->bindParam(':since', $blogsince);
 		$stmt->execute();
 		while ($row = $stmt->fetch()) {
 			$blog[] = array('utctimestamp' => $row['utctimestamp'],

@@ -1,5 +1,6 @@
 var gmap;
 var lastdata;
+var lastBlog;
 var endmarker;
 var polyline;
 var blog;
@@ -41,8 +42,18 @@ function initializeMap() {
 
 function refresh() {
 	var query = './ws/fetchdata.php';
+	var params = []
 	if (lastdata != null) {
-		query += '?since=' + escape(lastdata);
+		params.push('since=' + escape(lastdata));
+	}
+	if (lastBlog != null) {
+		params.push('blogsince=' + escape(lastBlog));
+	}
+	if (params.length > 0) {
+		query += '?';
+	}
+	for (var i = 0; i < params.length; i++) {
+		query += params[i] + '&';
 	}
 	$.getJSON(query)
 	.success(function(data, status, jqXHR) {
@@ -84,14 +95,18 @@ function refresh() {
 		}
 
 		if (data.blog != null) {
+			var lastb = null;
 			$.each(data.blog, function() {
-				blog.push(this);
+				lastb = this;
 				$('#blogitems').prepend('<tr><td>' + this.utctimestamp + ':<br />' + this.message + '<hr /></td></tr>');
 			});
+			if (lastb != null) {
+				lastBlog = lastb.utctimestamp;
+			}
 		}
 	})
 	.error(function(jqXHR, status, error) {
-		$('#message').html('Data access error.');
+		$('#message').html('Data access error.' + query);
 	});
 }
 
