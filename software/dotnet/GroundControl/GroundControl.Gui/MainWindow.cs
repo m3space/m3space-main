@@ -145,6 +145,8 @@ namespace GroundControl.Gui
                 protocol.ImageComplete += webAccess.UploadLiveImage;
             }
 
+            blogMessageMenuItem.Enabled = Settings.Default.WebAccessEnabled;
+
             mapWindow.MapPositionChanged += new PositionChanged(predictorWindow.MapPositionChanged);
             predictorWindow.NewPrediction += new EventHandler(predictorWindow_NewPrediction);
 
@@ -464,6 +466,8 @@ namespace GroundControl.Gui
                 gpsReceiver.PortSettings.PortName = comPortGPS;
                 Settings.Default.ComPortGPS = comPortGPS;
 
+                blogMessageMenuItem.Enabled = dialog.WebAccessEnabled;
+
                 Settings.Default.Save();
             }
         }
@@ -536,6 +540,16 @@ namespace GroundControl.Gui
             catch (Exception)
             {
                 MessageBox.Show("Failed to open GPS serial port.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void blogMessageMenuItem_Click(object sender, EventArgs e)
+        {
+            BlogMessageDialog dialog = new BlogMessageDialog();
+            DialogResult result = dialog.ShowDialog();
+            if (result == DialogResult.OK)
+            {
+                webAccess.PostBlog(DateTime.UtcNow, dialog.Message);
             }
         }
 

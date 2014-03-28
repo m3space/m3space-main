@@ -52,6 +52,8 @@
             this.predictorMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.settingsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.preferencesMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.blogMessageMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusBar.SuspendLayout();
             this.mainMenu.SuspendLayout();
             this.SuspendLayout();
@@ -99,6 +101,7 @@
             this.fileMenuItem,
             this.captureMenuItem,
             this.windowMenuItem,
+            this.toolsMenuItem,
             this.settingsMenuItem});
             this.mainMenu.Location = new System.Drawing.Point(0, 0);
             this.mainMenu.Name = "mainMenu";
@@ -243,9 +246,24 @@
             // preferencesMenuItem
             // 
             this.preferencesMenuItem.Name = "preferencesMenuItem";
-            this.preferencesMenuItem.Size = new System.Drawing.Size(135, 22);
+            this.preferencesMenuItem.Size = new System.Drawing.Size(152, 22);
             this.preferencesMenuItem.Text = "&Preferences";
             this.preferencesMenuItem.Click += new System.EventHandler(this.preferencesMenuItem_Click);
+            // 
+            // toolsMenuItem
+            // 
+            this.toolsMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.blogMessageMenuItem});
+            this.toolsMenuItem.Name = "toolsMenuItem";
+            this.toolsMenuItem.Size = new System.Drawing.Size(48, 20);
+            this.toolsMenuItem.Text = "&Tools";
+            // 
+            // blogMessageMenuItem
+            // 
+            this.blogMessageMenuItem.Name = "blogMessageMenuItem";
+            this.blogMessageMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.blogMessageMenuItem.Text = "&Blog message";
+            this.blogMessageMenuItem.Click += new System.EventHandler(this.blogMessageMenuItem_Click);
             // 
             // MainWindow
             // 
@@ -294,6 +312,8 @@
         private System.Windows.Forms.ToolStripMenuItem graphMenuItem;
         private System.Windows.Forms.ToolStripMenuItem connectGPSToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem predictorMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem toolsMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem blogMessageMenuItem;
     }
 }
 

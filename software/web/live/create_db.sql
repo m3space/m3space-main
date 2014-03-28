@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS live_images (
   utctimestamp datetime NOT NULL,
   filename varchar(30) NOT NULL,
   PRIMARY KEY (id)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 
 CREATE TABLE IF NOT EXISTS live_telemetry (
@@ -23,4 +23,12 @@ CREATE TABLE IF NOT EXISTS live_telemetry (
   pressure float NOT NULL,
   vin float NOT NULL,
   PRIMARY KEY (id)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+
+CREATE TABLE IF NOT EXISTS live_blog (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  utctimestamp datetime NOT NULL,
+  message text NOT NULL,
+  PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;

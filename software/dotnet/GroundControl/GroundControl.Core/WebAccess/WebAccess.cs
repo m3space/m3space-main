@@ -38,6 +38,11 @@ namespace GroundControl.Core.WebAccess
             new Thread(delegate() { UploadTelemetryExec(telemetry); }).Start();
         }
 
+        public void PostBlog(DateTime utcTs, string message)
+        {
+            new Thread(delegate() { PostBlogExec(utcTs, message); }).Start();
+        }
+
         public void UploadLiveImage(DateTime utcTs, byte[] imgData, bool ok)
         {
             new Thread(delegate() { UploadLiveImageExec(utcTs, imgData); }).Start();
@@ -68,6 +73,27 @@ namespace GroundControl.Core.WebAccess
                 if (webResponse.StatusCode != HttpStatusCode.OK)
                 {
                     OnError("Failed to upload telemetry to web server.");
+                }
+            }
+            catch (Exception e)
+            {
+                OnError("Web access exception: " + e.Message);
+            }
+        }
+
+        private void PostBlogExec(DateTime utcTs, string message)
+        {
+            try
+            {
+                Dictionary<string, object> postParameters = new Dictionary<string, object>();
+                postParameters.Add("key", key);
+                postParameters.Add("utctimestamp", utcTs.ToString("yyyy-MM-dd HH:mm:ss"));
+                postParameters.Add("message", message);                
+
+                HttpWebResponse webResponse = MultipartFormDataPost(url + "ws/postblog.php", userAgent, postParameters);
+                if (webResponse.StatusCode != HttpStatusCode.OK)
+                {
+                    OnError("Failed to post blog message.");
                 }
             }
             catch (Exception e)

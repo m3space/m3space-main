@@ -14,6 +14,7 @@
 		
 		$telemetry = array();
 		$lastimage = null;
+		$blog = array();
 		
 		$stmt = $dbh->prepare('SELECT utctimestamp, latitude, longitude, galtitude, paltitude, heading, hspeed, vspeed, satellites, inttemperature, temperature1, temperature2, pressure, vin FROM live_telemetry WHERE utctimestamp>:since ORDER BY utctimestamp');
 		$stmt->bindParam(':since', $since);
@@ -41,8 +42,16 @@
 		while ($row = $stmt->fetch()) {
 			$lastimage = array('utctimestamp' => $row['utctimestamp'], 'filename' => $row['filename']);
 		}
+		
+		$stmt = $dbh->prepare('SELECT utctimestamp, message FROM live_blog WHERE utctimestamp>:since ORDER BY utctimestamp');
+		$stmt->bindParam(':since', $today);
+		$stmt->execute();
+		while ($row = $stmt->fetch()) {
+			$blog[] = array('utctimestamp' => $row['utctimestamp'],
+									'message' => $row['message']);
+		}
 
-		$json = json_encode(array('telemetry' => $telemetry, 'liveimage' => $lastimage));
+		$json = json_encode(array('telemetry' => $telemetry, 'liveimage' => $lastimage, 'blog' => $blog));
 		
 		echo $json;
 	}

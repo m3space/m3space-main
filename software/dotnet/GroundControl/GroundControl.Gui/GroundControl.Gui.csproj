@@ -73,6 +73,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BlogMessageDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="BlogMessageDialog.Designer.cs">
+      <DependentUpon>BlogMessageDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="GMapMarkerImage.cs" />
     <Compile Include="GraphWindow.cs">
       <SubType>Form</SubType>
@@ -124,6 +130,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="BlogMessageDialog.resx">
+      <DependentUpon>BlogMessageDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="GraphWindow.resx">
       <DependentUpon>GraphWindow.cs</DependentUpon>
     </EmbeddedResource>

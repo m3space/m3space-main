@@ -14,14 +14,23 @@
 	position:absolute;
 	top: 100px;
 	left: 10px;
-	width: 220px;
+	width: 260px;
+	background-color: #ffffff;
+}
+
+#blog {
+	position:absolute;
+	top: 400px;
+	left: 10px;
+	width: 260px;
+	min-height: 100px;
 	background-color: #ffffff;
 }
 
 #liveimage {
 	position:absolute;
 	top: 610px;
-	left: 240px;
+	left: 280px;
 	width: 640px;
 	min-width: 640px;
 	min-height: 520px;
@@ -31,7 +40,7 @@
 #map {
 	position:absolute;
 	top: 100px;
-	left: 240px;
+	left: 280px;
 	width: 640px;
 	min-width: 640px;
 	min-height: 500px;
@@ -62,6 +71,10 @@ h1 {
 }
 
 table.telemetry {
+	width: 100%;
+}
+
+table.blog {
 	width: 100%;
 }
 

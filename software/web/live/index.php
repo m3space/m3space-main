@@ -39,6 +39,13 @@
 	</table>
 	<div id="refreshbtn" class="button">Refresh</div>
 </div>
+<div id="blog">
+	<div class="title">
+	Blog
+	</div>
+	<table id="blogitems" class="blog">
+	</table>
+</div>
 <div id="map">
 	<div class="title">
 	Flight Map

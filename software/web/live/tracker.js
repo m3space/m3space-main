@@ -2,6 +2,11 @@ var gmap;
 var lastdata;
 var endmarker;
 var polyline;
+var blog;
+
+function initializeBlog() {
+	blog = [];
+}
 
 function initializeMap() {
 	var mapOptions = {
@@ -23,7 +28,6 @@ function initializeMap() {
 	}
 	endmarker = new google.maps.Marker(markerOptions);
 	
-	polylinedata = [];
 	var polyOptions = {
 		strokeColor: '#000080',
 		strokeOpacity: 0.5,
@@ -79,6 +83,12 @@ function refresh() {
 			$('#lastimageupdate').html(data.liveimage.utctimestamp + ' (UTC)');
 		}
 
+		if (data.blog != null) {
+			$.each(data.blog, function() {
+				blog.push(this);
+				$('#blogitems').prepend('<tr><td>' + this.utctimestamp + ':<br />' + this.message + '<hr /></td></tr>');
+			});
+		}
 	})
 	.error(function(jqXHR, status, error) {
 		$('#message').html('Data access error.');
@@ -88,6 +98,7 @@ function refresh() {
 $(document).ready(function() {
 	lastupdate = null;
 
+	initializeBlog();
 	initializeMap();
 	refresh();
 	
