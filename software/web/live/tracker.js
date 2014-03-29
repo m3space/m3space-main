@@ -91,14 +91,14 @@ function refresh() {
 	
 		if (data.liveimage != null) {
 			$('#lastimage').attr('src', './images/' + data.liveimage.filename);
-			$('#lastimageupdate').html(data.liveimage.utctimestamp + ' (UTC)');
+			$('#lastimageupdate').html(data.liveimage.utctimestamp + ' UTC');
 		}
 
 		if (data.blog != null) {
 			var lastb = null;
 			$.each(data.blog, function() {
 				lastb = this;
-				$('#blogitems').prepend('<tr><td>' + this.utctimestamp + ':<br />' + this.message + '<hr /></td></tr>');
+				$('#blogitems').prepend('<tr><td><small>' + this.utctimestamp + ' UTC:</small><br />' + this.message + '<hr /></td></tr>');
 			});
 			if (lastb != null) {
 				lastBlog = lastb.utctimestamp;
@@ -106,7 +106,7 @@ function refresh() {
 		}
 	})
 	.error(function(jqXHR, status, error) {
-		$('#message').html('Data access error.' + query);
+		$('#message').html('Data access error.');
 	});
 }
 
