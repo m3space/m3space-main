@@ -101,7 +101,7 @@ namespace GroundControl.Gui
                         latitude = m_telemetry.Latitude;
                         longitude = m_telemetry.Longitude;
                         altitude = (int)m_telemetry.GpsAltitude;
-                        date = m_telemetry.UtcTimestamp;
+                        date = m_telemetry.UtcTimestamp.AddMinutes(1); // add a minute to prevent a datetime in the past
                         break;
                     case 2://"GroundControl"
                         latitude = m_groundControlPosition.Lat;
