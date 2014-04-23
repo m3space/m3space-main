@@ -20,6 +20,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VideoPostProcess", "VideoPo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CapsuleSimulator", "CapsuleSimulator\CapsuleSimulator.csproj", "{1F51BC40-7AC9-4F5B-AB37-94A153CF0F18}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TelemetryAnalyzer", "TelemetryAnalyzer\TelemetryAnalyzer.csproj", "{734483D3-D46D-407C-B2B3-328CC8304FBE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -110,6 +112,16 @@ Global
 		{1F51BC40-7AC9-4F5B-AB37-94A153CF0F18}.Release|Mixed Platforms.Build.0 = Release|x86
 		{1F51BC40-7AC9-4F5B-AB37-94A153CF0F18}.Release|x86.ActiveCfg = Release|x86
 		{1F51BC40-7AC9-4F5B-AB37-94A153CF0F18}.Release|x86.Build.0 = Release|x86
+		{734483D3-D46D-407C-B2B3-328CC8304FBE}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{734483D3-D46D-407C-B2B3-328CC8304FBE}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{734483D3-D46D-407C-B2B3-328CC8304FBE}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{734483D3-D46D-407C-B2B3-328CC8304FBE}.Debug|x86.ActiveCfg = Debug|x86
+		{734483D3-D46D-407C-B2B3-328CC8304FBE}.Debug|x86.Build.0 = Debug|x86
+		{734483D3-D46D-407C-B2B3-328CC8304FBE}.Release|Any CPU.ActiveCfg = Release|x86
+		{734483D3-D46D-407C-B2B3-328CC8304FBE}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{734483D3-D46D-407C-B2B3-328CC8304FBE}.Release|Mixed Platforms.Build.0 = Release|x86
+		{734483D3-D46D-407C-B2B3-328CC8304FBE}.Release|x86.ActiveCfg = Release|x86
+		{734483D3-D46D-407C-B2B3-328CC8304FBE}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -16,6 +16,7 @@ namespace GroundControl.Core
         public const string TelemetryFormatCurrent = "UtcDate;Lat;Long;GpsAlt;PressureAlt;Heading;HSpeed;VSpeed;Sat;IntTemp;Temp1;Temp2;Press;Vin;Temp1Raw;Temp2Raw;VinRaw;DutyCycle";
         public const string TelemetryFormatV2 = "UtcDate;Lat;Long;GpsAlt;PressureAlt;Heading;Speed;Sat;IntTemp;ExtTemp;Press;Vin;IntTempRaw;ExtTempRaw;PressRaw;VinRaw;DutyCycle";
         public const string TelemetryFormatCapsule = "Utc;Lat;Lng;Alt;HSpd;VSpd;Head;Sat;IntTemp;Temp1;Temp2;Pressure;PAlt;Vin;Duty";
+        public const string TelemetryFormatV1 = "Utc;Lat;Lng;Alt;Spd;Head;Sat;IntTemp;ExtTemp;Pressure;Vin;Duty";
 
         /// <summary>
         /// Displays telemetry as string.

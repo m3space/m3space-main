@@ -30,8 +30,8 @@ namespace VideoPostProcess
             lblHead.Text = String.Format("{0:000}°", data.Heading);
 
             // Temperature
-            lblTin.Text = String.Format("{0:#.0}°C", data.Temperature1);
-            lblTout.Text = String.Format("{0:#.0}°C", data.Temperature2);
+            lblTin.Text = String.Format("{0:#.0}°C", data.Temperature2);
+            lblTout.Text = String.Format("{0:#.0}°C", data.Temperature1);
 
             // Capsule Data
             lblBat.Text = String.Format("{0:0.##}V", data.Vin);

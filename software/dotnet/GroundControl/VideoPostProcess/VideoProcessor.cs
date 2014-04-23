@@ -267,7 +267,7 @@ namespace VideoPostProcess
                         {
                             string videonumber = Path.GetFileName(item).Substring(4, 4);
                             videoList.Add(item);
-                            string[] subvideos = Directory.GetFiles(Path.GetDirectoryName(item), "GO??" + videonumber + ".MP4");
+                            string[] subvideos = Directory.GetFiles(Path.GetDirectoryName(item), "G???" + videonumber + ".MP4");
                             Array.Sort(subvideos);
                             foreach (var subvideo in subvideos)
                             {

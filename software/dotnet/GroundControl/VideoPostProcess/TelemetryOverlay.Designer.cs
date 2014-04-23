@@ -580,7 +580,7 @@
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(178, 32);
             this.label5.TabIndex = 4;
-            this.label5.Text = "Ascend Spd.";
+            this.label5.Text = "Ascent Spd.";
             this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // label3
