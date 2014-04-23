@@ -79,6 +79,8 @@
     <Compile Include="BlogMessageDialog.Designer.cs">
       <DependentUpon>BlogMessageDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="FlightRadar24.cs" />
+    <Compile Include="GMapMarkerFlightRadar24.cs" />
     <Compile Include="GMapMarkerImage.cs" />
     <Compile Include="GraphWindow.cs">
       <SubType>Form</SubType>
@@ -224,6 +226,7 @@
     <None Include="res\Descending.png" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="res\Airplane.png" />
     <Content Include="res\Burst.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

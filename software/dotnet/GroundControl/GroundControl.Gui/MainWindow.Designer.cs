@@ -50,10 +50,11 @@
             this.telemetryMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.graphMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.predictorMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.settingsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.preferencesMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.blogMessageMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.flightradar24ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.settingsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.preferencesMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusBar.SuspendLayout();
             this.mainMenu.SuspendLayout();
             this.SuspendLayout();
@@ -168,7 +169,7 @@
             // startCaptureMenuItem
             // 
             this.startCaptureMenuItem.Name = "startCaptureMenuItem";
-            this.startCaptureMenuItem.Size = new System.Drawing.Size(141, 22);
+            this.startCaptureMenuItem.Size = new System.Drawing.Size(152, 22);
             this.startCaptureMenuItem.Text = "&Start capture";
             this.startCaptureMenuItem.Click += new System.EventHandler(this.startCaptureMenuItem_Click);
             // 
@@ -176,7 +177,7 @@
             // 
             this.stopCaptureMenuItem.Enabled = false;
             this.stopCaptureMenuItem.Name = "stopCaptureMenuItem";
-            this.stopCaptureMenuItem.Size = new System.Drawing.Size(141, 22);
+            this.stopCaptureMenuItem.Size = new System.Drawing.Size(152, 22);
             this.stopCaptureMenuItem.Text = "S&top capture";
             this.stopCaptureMenuItem.Click += new System.EventHandler(this.stopCaptureMenuItem_Click);
             // 
@@ -235,6 +236,30 @@
             this.predictorMenuItem.Text = "Predictor";
             this.predictorMenuItem.Click += new System.EventHandler(this.predictorMenuItem_Click);
             // 
+            // toolsMenuItem
+            // 
+            this.toolsMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.blogMessageMenuItem,
+            this.flightradar24ToolStripMenuItem});
+            this.toolsMenuItem.Name = "toolsMenuItem";
+            this.toolsMenuItem.Size = new System.Drawing.Size(48, 20);
+            this.toolsMenuItem.Text = "&Tools";
+            // 
+            // blogMessageMenuItem
+            // 
+            this.blogMessageMenuItem.Name = "blogMessageMenuItem";
+            this.blogMessageMenuItem.Size = new System.Drawing.Size(184, 22);
+            this.blogMessageMenuItem.Text = "&Blog message";
+            this.blogMessageMenuItem.Click += new System.EventHandler(this.blogMessageMenuItem_Click);
+            // 
+            // flightradar24ToolStripMenuItem
+            // 
+            this.flightradar24ToolStripMenuItem.CheckOnClick = true;
+            this.flightradar24ToolStripMenuItem.Name = "flightradar24ToolStripMenuItem";
+            this.flightradar24ToolStripMenuItem.Size = new System.Drawing.Size(184, 22);
+            this.flightradar24ToolStripMenuItem.Text = "Enable Flightradar 24";
+            this.flightradar24ToolStripMenuItem.Click += new System.EventHandler(this.flightradar24ToolStripMenuItem_Click);
+            // 
             // settingsMenuItem
             // 
             this.settingsMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -249,21 +274,6 @@
             this.preferencesMenuItem.Size = new System.Drawing.Size(152, 22);
             this.preferencesMenuItem.Text = "&Preferences";
             this.preferencesMenuItem.Click += new System.EventHandler(this.preferencesMenuItem_Click);
-            // 
-            // toolsMenuItem
-            // 
-            this.toolsMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.blogMessageMenuItem});
-            this.toolsMenuItem.Name = "toolsMenuItem";
-            this.toolsMenuItem.Size = new System.Drawing.Size(48, 20);
-            this.toolsMenuItem.Text = "&Tools";
-            // 
-            // blogMessageMenuItem
-            // 
-            this.blogMessageMenuItem.Name = "blogMessageMenuItem";
-            this.blogMessageMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.blogMessageMenuItem.Text = "&Blog message";
-            this.blogMessageMenuItem.Click += new System.EventHandler(this.blogMessageMenuItem_Click);
             // 
             // MainWindow
             // 
@@ -314,6 +324,7 @@
         private System.Windows.Forms.ToolStripMenuItem predictorMenuItem;
         private System.Windows.Forms.ToolStripMenuItem toolsMenuItem;
         private System.Windows.Forms.ToolStripMenuItem blogMessageMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem flightradar24ToolStripMenuItem;
     }
 }
 

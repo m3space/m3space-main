@@ -593,5 +593,10 @@ namespace GroundControl.Gui
                 mapWindow.LoadPredictedCourse(coords, markers);
             }
         }
+
+        private void flightradar24ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            mapWindow.EnableFlightRadar24(flightradar24ToolStripMenuItem.Checked);
+        }
     }
 }

@@ -33,6 +33,8 @@ namespace GroundControl.Gui
         private GMapMarkerImage groundControlMarker;
         private GMapMarkerImage burstMarker;
 
+        private FlightRadar24 flightRadar24;
+
         public PointLatLng MapPosition
         {
             get { return map.Position; }
@@ -69,6 +71,8 @@ namespace GroundControl.Gui
             burstMarker = null;
 
             mapTypeDropDown.SelectedIndex = 0;
+
+            flightRadar24 = new FlightRadar24(map);
 
             //this.Controls.Add(map);
         }
@@ -216,6 +220,18 @@ namespace GroundControl.Gui
             if (MapPositionChanged != null)
             {
                 MapPositionChanged.Invoke(point);
+            }
+        }
+
+        internal void EnableFlightRadar24(bool enable)
+        {
+            if (enable)
+            {
+                flightRadar24.Start();
+            }
+            else
+            {
+                flightRadar24.Stop();
             }
         }
     }
