@@ -58,10 +58,14 @@
             this.groupBoxSystem = new System.Windows.Forms.GroupBox();
             this.vinLbl = new System.Windows.Forms.Label();
             this.label11 = new System.Windows.Forms.Label();
+            this.groupBoxRadiation = new System.Windows.Forms.GroupBox();
+            this.gammaLbl = new System.Windows.Forms.Label();
+            this.label15 = new System.Windows.Forms.Label();
             this.groupBoxLocation.SuspendLayout();
             this.groupBoxTemp.SuspendLayout();
             this.groupBoxPressure.SuspendLayout();
             this.groupBoxSystem.SuspendLayout();
+            this.groupBoxRadiation.SuspendLayout();
             this.SuspendLayout();
             // 
             // groupBoxLocation
@@ -343,7 +347,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBoxSystem.Controls.Add(this.vinLbl);
             this.groupBoxSystem.Controls.Add(this.label11);
-            this.groupBoxSystem.Location = new System.Drawing.Point(2, 291);
+            this.groupBoxSystem.Location = new System.Drawing.Point(2, 334);
             this.groupBoxSystem.Name = "groupBoxSystem";
             this.groupBoxSystem.Size = new System.Drawing.Size(158, 37);
             this.groupBoxSystem.TabIndex = 3;
@@ -368,13 +372,45 @@
             this.label11.TabIndex = 15;
             this.label11.Text = "Vin.";
             // 
+            // groupBoxRadiation
+            // 
+            this.groupBoxRadiation.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBoxRadiation.Controls.Add(this.gammaLbl);
+            this.groupBoxRadiation.Controls.Add(this.label15);
+            this.groupBoxRadiation.Location = new System.Drawing.Point(2, 291);
+            this.groupBoxRadiation.Name = "groupBoxRadiation";
+            this.groupBoxRadiation.Size = new System.Drawing.Size(158, 37);
+            this.groupBoxRadiation.TabIndex = 4;
+            this.groupBoxRadiation.TabStop = false;
+            this.groupBoxRadiation.Text = "Radiation";
+            // 
+            // gammaLbl
+            // 
+            this.gammaLbl.AutoSize = true;
+            this.gammaLbl.Location = new System.Drawing.Point(47, 16);
+            this.gammaLbl.Name = "gammaLbl";
+            this.gammaLbl.Size = new System.Drawing.Size(27, 13);
+            this.gammaLbl.TabIndex = 15;
+            this.gammaLbl.Text = "N/A";
+            // 
+            // label15
+            // 
+            this.label15.AutoSize = true;
+            this.label15.Location = new System.Drawing.Point(6, 16);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(43, 13);
+            this.label15.TabIndex = 15;
+            this.label15.Text = "Gamma";
+            // 
             // TelemetryWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
-            this.ClientSize = new System.Drawing.Size(164, 333);
+            this.ClientSize = new System.Drawing.Size(164, 376);
             this.ControlBox = false;
+            this.Controls.Add(this.groupBoxRadiation);
             this.Controls.Add(this.groupBoxSystem);
             this.Controls.Add(this.groupBoxPressure);
             this.Controls.Add(this.groupBoxTemp);
@@ -395,6 +431,8 @@
             this.groupBoxPressure.PerformLayout();
             this.groupBoxSystem.ResumeLayout(false);
             this.groupBoxSystem.PerformLayout();
+            this.groupBoxRadiation.ResumeLayout(false);
+            this.groupBoxRadiation.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -431,6 +469,9 @@
         private System.Windows.Forms.Label label13;
         private System.Windows.Forms.Label intTempLbl;
         private System.Windows.Forms.Label label14;
+        private System.Windows.Forms.GroupBox groupBoxRadiation;
+        private System.Windows.Forms.Label gammaLbl;
+        private System.Windows.Forms.Label label15;
 
     }
 }

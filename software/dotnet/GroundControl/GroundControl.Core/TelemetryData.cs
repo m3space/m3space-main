@@ -96,5 +96,10 @@ namespace GroundControl.Core
         /// XBee duty cycle in %.
         /// </summary>
         public byte DutyCycle { get; set; }
+
+        /// <summary>
+        /// The gamma impulse count.
+        /// </summary>
+        public int GammaCount { get; set; }
     }
 }

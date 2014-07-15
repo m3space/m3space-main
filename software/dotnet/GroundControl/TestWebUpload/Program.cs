@@ -35,6 +35,7 @@ namespace TestWebUpload
             telemetry.Temperature2 = 16.2f;
             telemetry.Pressure = 1.001f;
             telemetry.Vin = 8.25f;
+            telemetry.GammaCount = 123;
 
             webaccess.UploadTelemetry(telemetry);
 

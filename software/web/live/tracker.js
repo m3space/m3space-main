@@ -86,6 +86,7 @@ function refresh() {
 				$('#t_press').html(last.pressure + ' bar');
 				$('#t_palt').html(last.paltitude + ' m');
 				$('#t_vin').html(last.vin + ' V');
+				$('#t_gamma').html(last.gamma + ' counts');
 			}
 		}
 	

@@ -12,7 +12,7 @@ namespace GroundControl.Core
     {
         public const int DotNetMicroYearOffset = 1600;  // because different DateTime origin in the microframework (year 1601 instead of 0001)
                                                // http://netmf.codeplex.com/workitem/1003
-        public const int TelemetryPayloadSize = 42;
+        public const int TelemetryPayloadSize = 44;
 
         private float Deg2Rad = (float)Math.PI / 180.0f;
         //private float TempOffset     = 24.0f;  // Werte empirisch ermittelt. Verglichen mit
@@ -54,6 +54,8 @@ namespace GroundControl.Core
 
             data.VinRaw = BitConverter.ToUInt16(rawData, 39);
             data.DutyCycle = rawData[41];
+
+            data.GammaCount = BitConverter.ToUInt16(rawData, 42);
 
             data.Vin = data.VinRaw * BatteryGain;
 

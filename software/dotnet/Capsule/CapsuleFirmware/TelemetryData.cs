@@ -14,5 +14,6 @@ namespace M3Space.Capsule
         public ushort PressureAltitude;
         public ushort VinRaw;
         public byte DutyCycle;
+        public ushort GammaCount;
     }
 }

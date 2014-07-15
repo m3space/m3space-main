@@ -18,7 +18,7 @@ namespace M3Space.Capsule
 
         public byte[] GetTelemetry(TelemetryData data)
         {
-            byte[] packet = new byte[45];
+            byte[] packet = new byte[47];
             packet[0] = TransmitTelemetry;
             Array.Copy(BitConverter.GetBytes((ushort)42), 0, packet, 1, 2);
             Array.Copy(BitConverter.GetBytes(data.UtcTimestamp.Ticks), 0, packet, 3, 8);
@@ -36,6 +36,7 @@ namespace M3Space.Capsule
             Array.Copy(BitConverter.GetBytes(data.PressureAltitude), 0, packet, 40, 2);
             Array.Copy(BitConverter.GetBytes(data.VinRaw), 0, packet, 42, 2);
             packet[44] = data.DutyCycle;
+            Array.Copy(BitConverter.GetBytes(data.GammaCount), 0, packet, 45, 2);
             return packet;
         }
 

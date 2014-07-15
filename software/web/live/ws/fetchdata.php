@@ -22,7 +22,7 @@
 		$lastimage = null;
 		$blog = array();
 		
-		$stmt = $dbh->prepare('SELECT utctimestamp, latitude, longitude, galtitude, paltitude, heading, hspeed, vspeed, satellites, inttemperature, temperature1, temperature2, pressure, vin FROM live_telemetry WHERE utctimestamp>:since ORDER BY utctimestamp');
+		$stmt = $dbh->prepare('SELECT utctimestamp, latitude, longitude, galtitude, paltitude, heading, hspeed, vspeed, satellites, inttemperature, temperature1, temperature2, pressure, vin, gamma FROM live_telemetry WHERE utctimestamp>:since ORDER BY utctimestamp');
 		$stmt->bindParam(':since', $since);
 		$stmt->execute();
 		while ($row = $stmt->fetch()) {
@@ -39,7 +39,8 @@
 									'temperature1' => $row['temperature1'],
 									'temperature2' => $row['temperature2'],
 									'pressure' => $row['pressure'],
-									'vin' => $row['vin']);
+									'vin' => $row['vin'],
+									'gamma' => $row['gamma']);
 		}
 		
 		$stmt = $dbh->prepare('SELECT utctimestamp, filename FROM live_images WHERE utctimestamp>:since ORDER BY utctimestamp DESC LIMIT 1');

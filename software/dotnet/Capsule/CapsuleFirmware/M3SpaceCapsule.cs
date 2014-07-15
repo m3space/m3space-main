@@ -17,7 +17,7 @@ namespace M3Space.Capsule
 {
     /// <summary>
     /// M3 Space Balloon Capsule.
-    /// Version 4.0
+    /// Version 5.0
     /// </summary>
     public class M3SpaceCapsule
     {
@@ -30,7 +30,7 @@ namespace M3Space.Capsule
         private const int MOTION_BUFFER_SIZE = 10;
         
 
-        private const string TelemetryFormat = "Utc;Lat;Lng;Alt;HSpd;VSpd;Head;Sat;IntTemp;Temp1;Temp2;Pressure;PAlt;Vin;Duty\r\n";
+        private const string TelemetryFormat = "Utc;Lat;Lng;Alt;HSpd;VSpd;Head;Sat;IntTemp;Temp1;Temp2;Pressure;PAlt;Vin;Duty;Gamma\r\n";
         private const string MotionFormat = "Utc;Ax;Ay;Az;Gx;Gy;Gz\r\n";
         private const string FileDateFormat = "yyyyMMdd_HHmmss";
         private const string DisplayDateFormat = "dd.MM.yyyy HH:mm:ss.fff";
@@ -47,6 +47,7 @@ namespace M3Space.Capsule
         private AnalogIn tempSensor1;
         private AnalogIn tempSensor2;
         private AnalogIn vInSensor;
+        private InterruptPort gammaInput;
 
         private TelemetryData cachedTelemetry;
         private GpsPoint cachedGpsPoint;
@@ -109,6 +110,11 @@ namespace M3Space.Capsule
             tempSensor1 = new AnalogIn((AnalogIn.Pin)FEZ_Pin.AnalogIn.An4);
             tempSensor2 = new AnalogIn((AnalogIn.Pin)FEZ_Pin.AnalogIn.An5);
             vInSensor = new AnalogIn((AnalogIn.Pin)FEZ_Pin.AnalogIn.An2);
+            cachedTelemetry.GammaCount = 0;
+            // Ext. Pin 20 (MOD)
+            gammaInput = new InterruptPort((Cpu.Pin)FEZ_Pin.Interrupt.IO4, true, Port.ResistorMode.PullUp, Port.InterruptMode.InterruptEdgeHigh);
+            gammaInput.OnInterrupt += new NativeEventHandler(OnGammaPulseDetected);
+            gammaInput.EnableInterrupt();
 
             currentImageTimestamp = DateTime.Now;
             lastSentImage = DateTime.Now;
@@ -338,6 +344,7 @@ namespace M3Space.Capsule
         /// </summary>
         private void StartTelemetryThread()
         {
+            cachedTelemetry.GammaCount = 0;
             int count = TELEMETRY_TX_INTERVAL;
             while (true)
             {
@@ -469,7 +476,8 @@ namespace M3Space.Capsule
                 data.Pressure.ToString() + ';' +
                 data.PressureAltitude.ToString() + ';' +
                 data.VinRaw.ToString() + ';' +
-                data.DutyCycle.ToString() +
+                data.DutyCycle.ToString() + ';' +
+                data.GammaCount.ToString() +
                 "\r\n";
 
             byte[] writeData = Encoding.UTF8.GetBytes(text);
@@ -691,6 +699,17 @@ namespace M3Space.Capsule
             Debug.Print(text);
 #endif
             Monitor.Exit(logFileLock);
+        }
+
+        /// <summary>
+        /// Received impulse from geiger counter.
+        /// </summary>
+        /// <param name="port">the port</param>
+        /// <param name="state">the state</param>
+        /// <param name="time">the event timestamp</param>
+        private void OnGammaPulseDetected(uint port, uint state, DateTime time)
+        {
+            cachedTelemetry.GammaCount++;
         }
     }
 }

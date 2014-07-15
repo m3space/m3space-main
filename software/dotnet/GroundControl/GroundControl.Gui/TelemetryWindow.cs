@@ -54,6 +54,7 @@ namespace GroundControl.Gui
             pressureLbl.Text = String.Format("{0:0.####} bar", data.Pressure);
             pAltLbl.Text = String.Format("{0:0.#} m", data.PressureAltitude);
             vinLbl.Text = String.Format("{0:0.#} V", data.Vin);
+            gammaLbl.Text = String.Format("{0} counts", data.GammaCount);
         }
 
     }

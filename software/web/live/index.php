@@ -35,6 +35,7 @@
 		<tr><td>Temp. 2:</td><td><div id="t_t2"></div></td></tr>
 		<tr><td>Pressure:</td><td><div id="t_press"></div></td></tr>
 		<tr><td>P. Altitude:</td><td><div id="t_palt"></div></td></tr>
+		<tr><td>Gamma:</td><td><div id="t_gamma"></div></td></tr>
 		<tr><td>Vin:</td><td><div id="t_vin"></div></td></tr>
 	</table>
 	<div id="refreshbtn" class="button">Refresh</div>
@@ -62,7 +63,7 @@
 	<div id="lastimageupdate"></div>
 </div>
 <div id="footer">
-&copy;2012 M3 Space
+&copy;2012-2014 M3 Space
 </div>
 </body>
 </html>
