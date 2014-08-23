@@ -52,9 +52,10 @@
             this.predictorMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.blogMessageMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.flightradar24ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.flightradar24MenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.settingsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.preferencesMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.exportGoogleEarthTourMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusBar.SuspendLayout();
             this.mainMenu.SuspendLayout();
             this.SuspendLayout();
@@ -240,7 +241,8 @@
             // 
             this.toolsMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.blogMessageMenuItem,
-            this.flightradar24ToolStripMenuItem});
+            this.flightradar24MenuItem,
+            this.exportGoogleEarthTourMenuItem});
             this.toolsMenuItem.Name = "toolsMenuItem";
             this.toolsMenuItem.Size = new System.Drawing.Size(48, 20);
             this.toolsMenuItem.Text = "&Tools";
@@ -248,17 +250,17 @@
             // blogMessageMenuItem
             // 
             this.blogMessageMenuItem.Name = "blogMessageMenuItem";
-            this.blogMessageMenuItem.Size = new System.Drawing.Size(184, 22);
+            this.blogMessageMenuItem.Size = new System.Drawing.Size(206, 22);
             this.blogMessageMenuItem.Text = "&Blog message";
             this.blogMessageMenuItem.Click += new System.EventHandler(this.blogMessageMenuItem_Click);
             // 
-            // flightradar24ToolStripMenuItem
+            // flightradar24MenuItem
             // 
-            this.flightradar24ToolStripMenuItem.CheckOnClick = true;
-            this.flightradar24ToolStripMenuItem.Name = "flightradar24ToolStripMenuItem";
-            this.flightradar24ToolStripMenuItem.Size = new System.Drawing.Size(184, 22);
-            this.flightradar24ToolStripMenuItem.Text = "Enable Flightradar 24";
-            this.flightradar24ToolStripMenuItem.Click += new System.EventHandler(this.flightradar24ToolStripMenuItem_Click);
+            this.flightradar24MenuItem.CheckOnClick = true;
+            this.flightradar24MenuItem.Name = "flightradar24MenuItem";
+            this.flightradar24MenuItem.Size = new System.Drawing.Size(206, 22);
+            this.flightradar24MenuItem.Text = "Enable Flightradar 24";
+            this.flightradar24MenuItem.Click += new System.EventHandler(this.flightradar24ToolStripMenuItem_Click);
             // 
             // settingsMenuItem
             // 
@@ -271,9 +273,16 @@
             // preferencesMenuItem
             // 
             this.preferencesMenuItem.Name = "preferencesMenuItem";
-            this.preferencesMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.preferencesMenuItem.Size = new System.Drawing.Size(135, 22);
             this.preferencesMenuItem.Text = "&Preferences";
             this.preferencesMenuItem.Click += new System.EventHandler(this.preferencesMenuItem_Click);
+            // 
+            // exportGoogleEarthTourMenuItem
+            // 
+            this.exportGoogleEarthTourMenuItem.Name = "exportGoogleEarthTourMenuItem";
+            this.exportGoogleEarthTourMenuItem.Size = new System.Drawing.Size(206, 22);
+            this.exportGoogleEarthTourMenuItem.Text = "Export &Google Earth Tour";
+            this.exportGoogleEarthTourMenuItem.Click += new System.EventHandler(this.exportGoogleEarthTourMenuItem_Click);
             // 
             // MainWindow
             // 
@@ -324,7 +333,8 @@
         private System.Windows.Forms.ToolStripMenuItem predictorMenuItem;
         private System.Windows.Forms.ToolStripMenuItem toolsMenuItem;
         private System.Windows.Forms.ToolStripMenuItem blogMessageMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem flightradar24ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem flightradar24MenuItem;
+        private System.Windows.Forms.ToolStripMenuItem exportGoogleEarthTourMenuItem;
     }
 }
 

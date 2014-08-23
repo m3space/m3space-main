@@ -33,6 +33,9 @@
     <DocumentationFile>bin\Release\GroundControl.Core.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="SharpKml">
+      <HintPath>lib\SharpKml.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -42,6 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="TourGenerator.cs" />
     <Compile Include="DataCache.cs" />
     <Compile Include="DataFormat.cs" />
     <Compile Include="DataLoader.cs" />

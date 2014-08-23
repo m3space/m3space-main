@@ -80,6 +80,12 @@
       <DependentUpon>BlogMessageDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="FlightRadar24.cs" />
+    <Compile Include="ExportTourDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ExportTourDialog.Designer.cs">
+      <DependentUpon>ExportTourDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="GMapMarkerFlightRadar24.cs" />
     <Compile Include="GMapMarkerImage.cs" />
     <Compile Include="GraphWindow.cs">
@@ -134,6 +140,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="BlogMessageDialog.resx">
       <DependentUpon>BlogMessageDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ExportTourDialog.resx">
+      <DependentUpon>ExportTourDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="GraphWindow.resx">
       <DependentUpon>GraphWindow.cs</DependentUpon>

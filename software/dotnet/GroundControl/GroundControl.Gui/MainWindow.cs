@@ -555,7 +555,9 @@ namespace GroundControl.Gui
 
         private void LoadPrediction(string filename)
         {
-            KmlFile kml = KmlFile.Load(filename);
+            TextReader reader = File.OpenText(filename);
+            KmlFile kml = KmlFile.Load(reader);
+            reader.Close();
 
             List<PointLatLng> coords = new List<PointLatLng>();
             List<GMapMarker> markers = new List<GMapMarker>();
@@ -596,7 +598,35 @@ namespace GroundControl.Gui
 
         private void flightradar24ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            mapWindow.EnableFlightRadar24(flightradar24ToolStripMenuItem.Checked);
+            mapWindow.EnableFlightRadar24(flightradar24MenuItem.Checked);
+        }
+
+        private void exportGoogleEarthTourMenuItem_Click(object sender, EventArgs e)
+        {
+            if (dataCache.Telemetry.Count > 0)
+            {
+                ExportTourDialog dialog = new ExportTourDialog();
+                DialogResult result = dialog.ShowDialog();
+                if (result == DialogResult.OK)
+                {
+                    TourGenerator generator = new TourGenerator();
+                    try
+                    {
+                        KmlFile kml = generator.createTour(dataCache.Telemetry, dialog.MinTimeDifference, dialog.Speed);
+                        FileStream stream = File.OpenWrite(dialog.FileName);
+                        kml.Save(stream);
+                        stream.Close();
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Failed to create tour:\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
+            else
+            {
+                MessageBox.Show("No flight data available.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
         }
     }
 }
