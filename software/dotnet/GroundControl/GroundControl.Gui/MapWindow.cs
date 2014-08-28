@@ -16,11 +16,6 @@ namespace GroundControl.Gui
 {
     public partial class MapWindow : Form
     {
-        /// <summary>
-        /// Minimal descending speed to detect burst (m/s).
-        /// </summary>
-        const float BurstSpeed = -15.0f;
-
         //private GMapControl map;
         private GMapOverlay balloonOverlay;
         private GMapOverlay predictionOverlay;
@@ -77,7 +72,7 @@ namespace GroundControl.Gui
             //this.Controls.Add(map);
         }
 
-        public void AddTelemetryPoint(TelemetryData data)
+        public void AddTelemetryPoint(TelemetryData data, bool burst)
         {
             PointLatLng mapPoint = new PointLatLng(data.Latitude, data.Longitude);
             balloonCourse.Points.Add(mapPoint);
@@ -85,7 +80,7 @@ namespace GroundControl.Gui
             map.Position = mapPoint;
 
             // detect burst
-            if ((burstMarker == null) && (data.VerticalSpeed < BurstSpeed))
+            if (burst && (burstMarker == null))
             {
                 burstMarker = new GMapMarkerImage(mapPoint, Properties.Resources.Burst);
                 balloonOverlay.Markers.Add(burstMarker);

@@ -76,7 +76,19 @@ namespace GroundControl.Core
         public void AddTelemetry(TelemetryData data)
         {
             telemetry.Add(data);
+            if (TelemetryAdded != null)
+                TelemetryAdded(data);
+        }
 
+        /// <summary>
+        /// Adds new telemetry.
+        /// </summary>
+        /// <param name="data">the telemetry data</param>
+        /// <param name="burstDetected">true if burst detected, false otherwise</param>
+        public void AddTelemetry(TelemetryData data, out bool burstDetected)
+        {
+            telemetry.Add(data);            
+            burstDetected = CheckBurst();
             if (TelemetryAdded != null)
                 TelemetryAdded(data);
         }
@@ -137,5 +149,17 @@ namespace GroundControl.Core
             return null;
         }
 
+        private bool CheckBurst()
+        {
+            int last = telemetry.Count - 1;           
+            if ((last > 1) &&
+                (telemetry[last - 2].VerticalSpeed > 0.0f) &&
+                (telemetry[last - 1].VerticalSpeed < 0.0f) &&
+                (telemetry[last].VerticalSpeed < 0.0f))
+            {
+                return true;
+            }
+            return false;
+        }
     }
 }

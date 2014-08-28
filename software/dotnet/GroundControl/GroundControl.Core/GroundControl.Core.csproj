@@ -59,6 +59,7 @@
     <Compile Include="TelemetryDecoder.cs" />
     <Compile Include="TelemetryData.cs" />
     <Compile Include="TelemetryHandler.cs" />
+    <Compile Include="Utils.cs" />
     <Compile Include="WebAccess\FileParameter.cs" />
     <Compile Include="WebAccess\WebAccess.cs" />
   </ItemGroup>

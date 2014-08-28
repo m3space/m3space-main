@@ -175,13 +175,19 @@ namespace GroundControl.Gui
         /// <param name="data">the telemetry data</param>
         private void HandleTelemetry(TelemetryData data)
         {
-            dataCache.AddTelemetry(data);
+            bool burst = false;
+            dataCache.AddTelemetry(data, out burst);
 
-            string str = DataFormat.TelemetryDisplayString(data);
-            
+            string str = DataFormat.TelemetryDisplayString(data);           
             logWindow.Invoke(new WriteString(logWindow.WriteLine), new object[] { str });
+            if (burst)
+            {
+                string bstr = "[Info] Balloon burst detected";
+                logWindow.Invoke(new WriteString(logWindow.WriteLine), new object[] { bstr });
+            }
+
             telemetryWindow.Invoke(new TelemetryHandler(telemetryWindow.DisplayTelemetry), new object[] { data });
-            mapWindow.Invoke(new TelemetryHandler(mapWindow.AddTelemetryPoint), new object[] { data });
+            mapWindow.Invoke(new TelemetryBurstHandler(mapWindow.AddTelemetryPoint), new object[] { data, burst });
             graphWindow.Invoke(new TelemetryHandler(graphWindow.AddTelemetry), new object[] { data });
             predictorWindow.Invoke(new TelemetryHandler(predictorWindow.CapsulePositionChanged), new object[] { data });
         }
