@@ -27,7 +27,7 @@ namespace GroundControl.Core
                 TelemetryData cur = telemetry[2];
                 while (i < telemetry.Count)
                 {
-                    if ((prev2.VerticalSpeed > 0.0f) &&
+                    if ((prev2.VerticalSpeed >= 0.0f) &&
                         (prev.VerticalSpeed < 0.0f) &&
                         (cur.VerticalSpeed < 0.0f))
                     {

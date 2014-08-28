@@ -99,6 +99,13 @@ namespace GroundControl.Gui
             balloonCourse.Points.Clear();
             predictionOverlay.Routes.Clear();
             predictionOverlay.Markers.Clear();
+            if (burstMarker != null)
+            {
+                balloonOverlay.Markers.Remove(burstMarker);
+                burstMarker = null;
+            }
+            balloonMarker.MarkerImage = Properties.Resources.Ascending;
+            balloonMarker.Offset = new Point(-17, -43);
             map.ReloadMap();
         }
 
@@ -110,11 +117,22 @@ namespace GroundControl.Gui
             {
                 mapPoint = new PointLatLng(data.Latitude, data.Longitude);
                 balloonCourse.Points.Add(mapPoint);
-                balloonMarker.Position = mapPoint;
-            }            
-            
+            }
+
             if (dataCache.Size > 0)
+            {
+                int burstIdx = Utils.FindBurstIndex(dataCache.Telemetry);
+                if (burstIdx >= 0)
+                {
+                    PointLatLng burstPoint = new PointLatLng(dataCache.Telemetry[burstIdx].Latitude, dataCache.Telemetry[burstIdx].Longitude);
+                    burstMarker = new GMapMarkerImage(burstPoint, Properties.Resources.Burst);
+                    balloonOverlay.Markers.Add(burstMarker);
+                    balloonMarker.MarkerImage = Properties.Resources.Descending;
+                    balloonMarker.Offset = new Point(-10, -25);
+                }                
+                balloonMarker.Position = mapPoint;
                 map.Position = mapPoint;
+            }
         }
 
         public void LoadPredictedCourse(List<PointLatLng> points, List<GMapMarker> markers)

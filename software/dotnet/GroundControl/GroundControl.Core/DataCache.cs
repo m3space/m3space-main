@@ -153,7 +153,7 @@ namespace GroundControl.Core
         {
             int last = telemetry.Count - 1;           
             if ((last > 1) &&
-                (telemetry[last - 2].VerticalSpeed > 0.0f) &&
+                (telemetry[last - 2].VerticalSpeed >= 0.0f) &&
                 (telemetry[last - 1].VerticalSpeed < 0.0f) &&
                 (telemetry[last].VerticalSpeed < 0.0f))
             {
