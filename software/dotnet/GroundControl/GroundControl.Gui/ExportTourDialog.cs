@@ -23,17 +23,6 @@ namespace GroundControl.Gui
             }
         }
 
-        public double Speed
-        {
-            get
-            {
-                double s = 10.0;
-                Double.TryParse(speedTxt.Text, out s);
-                return s;
-            }
-        }
-
-
         public ExportTourDialog()
         {
             InitializeComponent();

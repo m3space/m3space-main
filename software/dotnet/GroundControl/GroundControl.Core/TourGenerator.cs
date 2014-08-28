@@ -26,9 +26,8 @@ namespace GroundControl.Core
         /// </summary>
         /// <param name="telemetry">the telemetry data</param>
         /// <param name="minTimeDelta">the minimal time difference between two tour points</param>
-        /// <param name="playbackSpeed">the tour playback speed (1.0 is normal)</param>
         /// <returns>a KML object</returns>
-        public KmlFile createTour(List<TelemetryData> telemetry, double minTimeDelta, double playbackSpeed)
+        public KmlFile createTour(List<TelemetryData> telemetry, double minTimeDelta)
         {
             // choose data points
             List<TelemetryData> dataPoints = new List<TelemetryData>();
@@ -50,7 +49,7 @@ namespace GroundControl.Core
             // build KML structure
             Tour tour = new Tour();
             tour.Name = "Balloon View";
-            tour.Playlist = buildPlaylist(dataPoints, playbackSpeed);
+            tour.Playlist = buildPlaylist(dataPoints);
             
             LineStyle lstyle = new LineStyle();
             lstyle.Color = new Color32(255, 0, 127, 255);
@@ -74,18 +73,7 @@ namespace GroundControl.Core
             return KmlFile.Create(root, false);
         }
 
-        /// <summary>
-        /// Creates a Google Earth tour from telemetry data.
-        /// </summary>
-        /// <param name="telemetry">the telemetry data</param>
-        /// <param name="minTimeDelta">the minimal time difference between two tour points</param>
-        /// <returns>a KML object</returns>
-        public KmlFile createTour(List<TelemetryData> telemetry, double minTimeDelta)
-        {
-            return createTour(telemetry, minTimeDelta, 1.0);
-        }
-
-        private Playlist buildPlaylist(List<TelemetryData> dataPoints, double playbackSpeed)
+        private Playlist buildPlaylist(List<TelemetryData> dataPoints)
         {
             Playlist playList = new Playlist();
             if (dataPoints.Count > 0)
@@ -114,7 +102,7 @@ namespace GroundControl.Core
                     c.Longitude = dataPoints[i].Longitude;
                     c.Tilt = 60.0;
                     FlyTo p = new FlyTo();
-                    p.Duration = (dataPoints[i].UtcTimestamp - dataPoints[i - 1].UtcTimestamp).TotalSeconds / playbackSpeed;
+                    p.Duration = (dataPoints[i].UtcTimestamp - dataPoints[i - 1].UtcTimestamp).TotalSeconds;
                     p.Mode = FlyToMode.Smooth;
                     p.View = c;
                     playList.AddTourPrimitive(p);

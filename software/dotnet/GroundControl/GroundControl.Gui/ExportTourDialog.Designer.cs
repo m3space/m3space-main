@@ -35,8 +35,7 @@
             this.selectBtn = new System.Windows.Forms.Button();
             this.minDeltaTxt = new System.Windows.Forms.TextBox();
             this.minDeltaLbl = new System.Windows.Forms.Label();
-            this.speedLbl = new System.Windows.Forms.Label();
-            this.speedTxt = new System.Windows.Forms.TextBox();
+            this.label1 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // cancelBtn
@@ -94,7 +93,7 @@
             // 
             this.minDeltaTxt.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.minDeltaTxt.Location = new System.Drawing.Point(87, 54);
+            this.minDeltaTxt.Location = new System.Drawing.Point(150, 54);
             this.minDeltaTxt.Name = "minDeltaTxt";
             this.minDeltaTxt.Size = new System.Drawing.Size(62, 20);
             this.minDeltaTxt.TabIndex = 8;
@@ -105,36 +104,25 @@
             this.minDeltaLbl.AutoSize = true;
             this.minDeltaLbl.Location = new System.Drawing.Point(12, 57);
             this.minDeltaLbl.Name = "minDeltaLbl";
-            this.minDeltaLbl.Size = new System.Drawing.Size(69, 13);
+            this.minDeltaLbl.Size = new System.Drawing.Size(124, 13);
             this.minDeltaLbl.TabIndex = 9;
-            this.minDeltaLbl.Text = "Min. time diff.";
+            this.minDeltaLbl.Text = "Min. time between points";
             // 
-            // speedLbl
+            // label1
             // 
-            this.speedLbl.AutoSize = true;
-            this.speedLbl.Location = new System.Drawing.Point(182, 57);
-            this.speedLbl.Name = "speedLbl";
-            this.speedLbl.Size = new System.Drawing.Size(38, 13);
-            this.speedLbl.TabIndex = 11;
-            this.speedLbl.Text = "Speed";
-            // 
-            // speedTxt
-            // 
-            this.speedTxt.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.speedTxt.Location = new System.Drawing.Point(226, 54);
-            this.speedTxt.Name = "speedTxt";
-            this.speedTxt.Size = new System.Drawing.Size(62, 20);
-            this.speedTxt.TabIndex = 10;
-            this.speedTxt.Text = "1.0";
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(218, 57);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(47, 13);
+            this.label1.TabIndex = 10;
+            this.label1.Text = "seconds";
             // 
             // ExportTourDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(440, 133);
-            this.Controls.Add(this.speedLbl);
-            this.Controls.Add(this.speedTxt);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.minDeltaLbl);
             this.Controls.Add(this.minDeltaTxt);
             this.Controls.Add(this.selectBtn);
@@ -159,7 +147,6 @@
         private System.Windows.Forms.Button selectBtn;
         private System.Windows.Forms.TextBox minDeltaTxt;
         private System.Windows.Forms.Label minDeltaLbl;
-        private System.Windows.Forms.Label speedLbl;
-        private System.Windows.Forms.TextBox speedTxt;
+        private System.Windows.Forms.Label label1;
     }
 }

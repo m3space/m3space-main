@@ -612,7 +612,7 @@ namespace GroundControl.Gui
                     TourGenerator generator = new TourGenerator();
                     try
                     {
-                        KmlFile kml = generator.createTour(dataCache.Telemetry, dialog.MinTimeDifference, dialog.Speed);
+                        KmlFile kml = generator.createTour(dataCache.Telemetry, dialog.MinTimeDifference);
                         FileStream stream = File.OpenWrite(dialog.FileName);
                         kml.Save(stream);
                         stream.Close();
