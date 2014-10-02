@@ -16,7 +16,17 @@ namespace GroundControl.Gui
 {
     public partial class MapWindow : Form
     {
-        //private GMapControl map;
+        /// <summary>
+        /// Define the allowed map providers here.
+        /// </summary>
+        static readonly GMapProvider[] allowedMapProviders = new GMapProvider[] {
+            GMapProviders.GoogleMap,
+            GMapProviders.GoogleHybridMap,
+            GMapProviders.GoogleSatelliteMap,
+            GMapProviders.GoogleTerrainMap,
+            GMapProviders.OpenStreetMap
+        };
+
         private GMapOverlay balloonOverlay;
         private GMapOverlay predictionOverlay;
         private GMapOverlay groundControlOverlay;
@@ -41,7 +51,7 @@ namespace GroundControl.Gui
 
             map.DragButton = MouseButtons.Right;
             map.Manager.Mode = AccessMode.ServerAndCache;
-            map.MapProvider = GMapProviders.GoogleMap;
+            map.MapProvider = allowedMapProviders[0];
             map.Position = new PointLatLng(47.558119, 7.587800);
 
             balloonOverlay = new GMapOverlay("Balloon");
@@ -65,11 +75,13 @@ namespace GroundControl.Gui
 
             burstMarker = null;
 
+            for (int i = 0; i < allowedMapProviders.Length; i++)
+            {
+                mapTypeDropDown.Items.Add(allowedMapProviders[i].Name);
+            }
             mapTypeDropDown.SelectedIndex = 0;
 
             flightRadar24 = new FlightRadar24(map);
-
-            //this.Controls.Add(map);
         }
 
         public void AddTelemetryPoint(TelemetryData data, bool burst)
@@ -148,24 +160,7 @@ namespace GroundControl.Gui
 
         private void mapTypeDropDown_SelectedIndexChanged(object sender, EventArgs e)
         {
-            switch (mapTypeDropDown.SelectedIndex)
-            {
-                case 0:
-                    map.MapProvider = GMapProviders.GoogleMap;
-                    break;
-
-                case 1:
-                    map.MapProvider = GMapProviders.GoogleHybridMap;
-                    break;
-
-                case 2:
-                    map.MapProvider = GMapProviders.GoogleTerrainMap;
-                    break;
-
-                default:
-                    map.MapProvider = GMapProviders.GoogleMap;
-                    break;
-            }
+            map.MapProvider = allowedMapProviders[mapTypeDropDown.SelectedIndex];
         }
 
         private void layerToolStripMenuItem_CheckedChanged(object sender, EventArgs e)

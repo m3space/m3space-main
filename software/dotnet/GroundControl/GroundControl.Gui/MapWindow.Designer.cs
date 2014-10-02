@@ -58,10 +58,6 @@
             // mapTypeDropDown
             // 
             this.mapTypeDropDown.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.mapTypeDropDown.Items.AddRange(new object[] {
-            "GMaps",
-            "GMaps Hybrid",
-            "GMaps Terrain"});
             this.mapTypeDropDown.Name = "mapTypeDropDown";
             this.mapTypeDropDown.Size = new System.Drawing.Size(121, 25);
             this.mapTypeDropDown.SelectedIndexChanged += new System.EventHandler(this.mapTypeDropDown_SelectedIndexChanged);
