@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using GroundControl.Core;
-using System.Threading;
 using System.IO;
+using System.Linq;
 using System.Net;
+using System.Text;
 
 namespace GroundControl.Core.WebAccess
 {
-    public class WebAccess
+    /// <summary>
+    /// A client for the live tracker web service.
+    /// </summary>
+    public class LiveTrackerWebClient
     {
         private static readonly string key = "gn8lgz7xg73d22e0xif";
         private static readonly Encoding encoding = Encoding.UTF8;
@@ -17,6 +18,9 @@ namespace GroundControl.Core.WebAccess
 
         private string url;
 
+        /// <summary>
+        /// Gets or sets the service URL.
+        /// </summary>
         public string Url
         {
             get { return url; }
@@ -29,109 +33,76 @@ namespace GroundControl.Core.WebAccess
         }
 
         /// <summary>
-        /// This event is fired in case of an error.
+        /// Uploads a telemetry data record.
         /// </summary>
-        public event ErrorHandler Error;
-
+        /// <param name="telemetry">the data</param>
         public void UploadTelemetry(TelemetryData telemetry)
         {
-            new Thread(delegate() { UploadTelemetryExec(telemetry); }).Start();
+            Dictionary<string, object> postParameters = new Dictionary<string, object>();
+            postParameters.Add("key", key);
+            postParameters.Add("utctimestamp", telemetry.UtcTimestamp.ToString("yyyy-MM-dd HH:mm:ss"));
+            postParameters.Add("latitude", telemetry.Latitude);
+            postParameters.Add("longitude", telemetry.Longitude);
+            postParameters.Add("galtitude", telemetry.GpsAltitude);
+            postParameters.Add("paltitude", telemetry.PressureAltitude);
+            postParameters.Add("heading", telemetry.Heading);
+            postParameters.Add("hspeed", telemetry.HorizontalSpeed);
+            postParameters.Add("vspeed", telemetry.VerticalSpeed);
+            postParameters.Add("satellites", telemetry.Satellites);
+            postParameters.Add("inttemperature", telemetry.IntTemperature);
+            postParameters.Add("temperature1", telemetry.Temperature1);
+            postParameters.Add("temperature2", telemetry.Temperature2);
+            postParameters.Add("pressure", telemetry.Pressure);
+            postParameters.Add("vin", telemetry.Vin);
+            postParameters.Add("gamma", telemetry.GammaCount);
+
+            HttpWebResponse webResponse = MultipartFormDataPost(url + "ws/uploadtelemetry.php", userAgent, postParameters);
+            if (webResponse.StatusCode != HttpStatusCode.OK)
+            {
+                throw new LiveTrackerException(String.Format("Failed to upload telemetry to web server ({0}).", (int)webResponse.StatusCode));
+            }
         }
 
+        /// <summary>
+        /// Posts a blog message.
+        /// </summary>
+        /// <param name="utcTs">the time stamp</param>
+        /// <param name="message">the message</param>
         public void PostBlog(DateTime utcTs, string message)
         {
-            new Thread(delegate() { PostBlogExec(utcTs, message); }).Start();
+            Dictionary<string, object> postParameters = new Dictionary<string, object>();
+            postParameters.Add("key", key);
+            postParameters.Add("utctimestamp", utcTs.ToString("yyyy-MM-dd HH:mm:ss"));
+            postParameters.Add("message", message);                
+
+            HttpWebResponse webResponse = MultipartFormDataPost(url + "ws/postblog.php", userAgent, postParameters);
+            if (webResponse.StatusCode != HttpStatusCode.OK)
+            {
+                throw new LiveTrackerException(String.Format("Failed to post blog message ({0}).", (int)webResponse.StatusCode));
+            }
         }
 
-        public void UploadLiveImage(DateTime utcTs, byte[] imgData, bool ok)
+        /// <summary>
+        /// Uploads a live image.
+        /// </summary>
+        /// <param name="utcTs">the time stamp</param>
+        /// <param name="imgData">the binary image data</param>
+        public void UploadLiveImage(DateTime utcTs, byte[] imgData)
         {
-            new Thread(delegate() { UploadLiveImageExec(utcTs, imgData); }).Start();
-        }
+            string filename = utcTs.ToString("yyyyMMdd_HHmmss") + ".jpg";
+            Dictionary<string, object> postParameters = new Dictionary<string, object>();
+            postParameters.Add("key", key);
+            postParameters.Add("utctimestamp", utcTs.ToString("yyyy-MM-dd HH:mm:ss"));
+            postParameters.Add("uploadedfile", new FileParameter(imgData, filename, "image/jpeg"));
 
-        private void UploadTelemetryExec(TelemetryData telemetry)
-        {
-            try
+            HttpWebResponse webResponse = MultipartFormDataPost(url + "ws/uploadliveimage.php", userAgent, postParameters);
+            if (webResponse.StatusCode != HttpStatusCode.OK)
             {
-                Dictionary<string, object> postParameters = new Dictionary<string, object>();
-                postParameters.Add("key", key);
-                postParameters.Add("utctimestamp", telemetry.UtcTimestamp.ToString("yyyy-MM-dd HH:mm:ss"));
-                postParameters.Add("latitude", telemetry.Latitude);
-                postParameters.Add("longitude", telemetry.Longitude);
-                postParameters.Add("galtitude", telemetry.GpsAltitude);
-                postParameters.Add("paltitude", telemetry.PressureAltitude);
-                postParameters.Add("heading", telemetry.Heading);
-                postParameters.Add("hspeed", telemetry.HorizontalSpeed);
-                postParameters.Add("vspeed", telemetry.VerticalSpeed);
-                postParameters.Add("satellites", telemetry.Satellites);
-                postParameters.Add("inttemperature", telemetry.IntTemperature);
-                postParameters.Add("temperature1", telemetry.Temperature1);
-                postParameters.Add("temperature2", telemetry.Temperature2);
-                postParameters.Add("pressure", telemetry.Pressure);
-                postParameters.Add("vin", telemetry.Vin);
-                postParameters.Add("gamma", telemetry.GammaCount);
-
-                HttpWebResponse webResponse = MultipartFormDataPost(url + "ws/uploadtelemetry.php", userAgent, postParameters);
-                if (webResponse.StatusCode != HttpStatusCode.OK)
-                {
-                    OnError("Failed to upload telemetry to web server.");
-                }
-            }
-            catch (Exception e)
-            {
-                OnError("Web access exception: " + e.Message);
+                throw new LiveTrackerException(String.Format("Failed to upload live image to web server ({0}).", (int)webResponse.StatusCode));
             }
         }
 
-        private void PostBlogExec(DateTime utcTs, string message)
-        {
-            try
-            {
-                Dictionary<string, object> postParameters = new Dictionary<string, object>();
-                postParameters.Add("key", key);
-                postParameters.Add("utctimestamp", utcTs.ToString("yyyy-MM-dd HH:mm:ss"));
-                postParameters.Add("message", message);                
-
-                HttpWebResponse webResponse = MultipartFormDataPost(url + "ws/postblog.php", userAgent, postParameters);
-                if (webResponse.StatusCode != HttpStatusCode.OK)
-                {
-                    OnError("Failed to post blog message.");
-                }
-            }
-            catch (Exception e)
-            {
-                OnError("Web access exception: " + e.Message);
-            }
-        }
-
-        private void UploadLiveImageExec(DateTime utcTs, byte[] imgData)
-        {
-            try
-            {
-                string filename = utcTs.ToString("yyyyMMdd_HHmmss") + ".jpg";
-                Dictionary<string, object> postParameters = new Dictionary<string, object>();
-                postParameters.Add("key", key);
-                postParameters.Add("utctimestamp", utcTs.ToString("yyyy-MM-dd HH:mm:ss"));
-                postParameters.Add("uploadedfile", new FileParameter(imgData, filename, "image/jpeg"));
-
-                HttpWebResponse webResponse = MultipartFormDataPost(url + "ws/uploadliveimage.php", userAgent, postParameters);
-                if (webResponse.StatusCode != HttpStatusCode.OK)
-                {
-                    OnError("Failed to upload live image to web server.");
-                }
-            }
-            catch (Exception e)
-            {
-                OnError("Web access exception: " + e.Message);
-            }
-        }
-
-        private void OnError(string message)
-        {
-            if (Error != null)
-                Error(message);
-        }
-
-        public static HttpWebResponse MultipartFormDataPost(string postUrl, string userAgent, Dictionary<string, object> postParameters)
+        private static HttpWebResponse MultipartFormDataPost(string postUrl, string userAgent, Dictionary<string, object> postParameters)
         {
             string formDataBoundary = String.Format("----------{0:N}", Guid.NewGuid());
             string contentType = "multipart/form-data; boundary=" + formDataBoundary;

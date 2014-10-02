@@ -60,8 +60,10 @@
     <Compile Include="TelemetryData.cs" />
     <Compile Include="TelemetryHandler.cs" />
     <Compile Include="Utils.cs" />
+    <Compile Include="WebAccess\LiveTrackerWebAccess.cs" />
     <Compile Include="WebAccess\FileParameter.cs" />
-    <Compile Include="WebAccess\WebAccess.cs" />
+    <Compile Include="WebAccess\LiveTrackerException.cs" />
+    <Compile Include="WebAccess\LiveTrackerWebClient.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

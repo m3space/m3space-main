@@ -37,7 +37,7 @@ namespace GroundControl.Gui
         private DataTransceiver transceiver;
         private DataProtocol protocol;
         private DataCache dataCache;
-        private WebAccess webAccess;
+        private LiveTrackerWebAccess webAccess;
 
         private NMEA.GPSReceiverWrapper gpsReceiver;
 
@@ -120,7 +120,7 @@ namespace GroundControl.Gui
                 predictorMenuItem.Checked = true;
             }
 
-            webAccess = new WebAccess();
+            webAccess = new LiveTrackerWebAccess();
             persistHandler = new PersistenceHandler();
             persistHandler.DataDirectory = dataDirectory;
             transceiver = new DataTransceiver(comPortRadio);
@@ -383,6 +383,10 @@ namespace GroundControl.Gui
                     persistHandler.CreateTelemetryFile(DateTime.UtcNow);
                     filenameLbl.Text = persistHandler.TelemetryFileName;
                 }
+                if (Settings.Default.WebAccessEnabled)
+                {
+                    webAccess.Start();
+                }
                 transceiver.Start();
                 startTime = DateTime.Now;
                 stopCaptureMenuItem.Enabled = true;
@@ -397,8 +401,9 @@ namespace GroundControl.Gui
             }
             catch (Exception ex)
             {
-                DisplayExecption(ex);
+                DisplayExecption(ex);                
                 transceiver.Stop();
+                webAccess.Stop();
             }
         }
 
@@ -407,6 +412,7 @@ namespace GroundControl.Gui
             try
             {
                 transceiver.Stop();
+                webAccess.Stop();
                 elapsedTimer.Stop();
                 stopCaptureMenuItem.Enabled = false;
                 startCaptureMenuItem.Enabled = true;

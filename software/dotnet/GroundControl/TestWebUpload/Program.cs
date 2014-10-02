@@ -16,9 +16,8 @@ namespace TestWebUpload
         {
             Random rnd = new Random();
 
-            WebAccess webaccess = new WebAccess();
+            LiveTrackerWebClient webaccess = new LiveTrackerWebClient();
             webaccess.Url = "http://localhost/live";
-            webaccess.Error += DisplayError;
 
             TelemetryData telemetry = new TelemetryData();
             telemetry.UtcTimestamp = DateTime.UtcNow;
@@ -41,15 +40,12 @@ namespace TestWebUpload
 
             byte[] img = File.ReadAllBytes("test.jpg");
 
-            webaccess.UploadLiveImage(DateTime.UtcNow, img, true);
+            webaccess.UploadLiveImage(DateTime.UtcNow, img);
+
+            webaccess.PostBlog(DateTime.Now, "Test message");
 
             Console.Write("Press [Enter]...");
             Console.ReadLine();
-        }
-
-        static void DisplayError(string message)
-        {
-            Console.WriteLine("[Error] " + message);
         }
     }
 }
