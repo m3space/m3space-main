@@ -68,6 +68,14 @@ namespace CapsuleSimulator
                 try
                 {
                     TelemetryData data = m_datacache.Telemetry[m_index];
+
+                    // HOT FIXES
+                    // always use today's date to display in live tracker
+                    DateTime todayFix = DateTime.Now.Date.Add(data.UtcTimestamp.TimeOfDay);
+                    data.UtcTimestamp = todayFix;
+                    // simulate gamma count
+                    data.GammaCount = m_index;
+
                     int len = DataProtocol.PreparePacket(m_txBuffer, DataProtocol.GetTelemetry(data));
                     if (m_serialPort.IsOpen)
                     {

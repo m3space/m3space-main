@@ -122,5 +122,5 @@ $(document).ready(function() {
 		refresh();
 	});
 	
-	window.setInterval(refresh, 30000);
+	window.setInterval(refresh, 15000);
 });

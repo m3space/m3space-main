@@ -279,8 +279,9 @@ namespace GroundControl.Gui
             Settings.Default.TelemetryWindowVisible = telemetryWindow.Visible;
             Settings.Default.PredictorWindowVisible = predictorWindow.Visible;
             Settings.Default.GraphWindowVisible = graphWindow.Visible;
-            Settings.Default.Save();
+            Settings.Default.Save();            
             transceiver.Stop();
+            webAccess.Stop();
         }
 
         private void eventLogMenuItem_Click(object sender, EventArgs e)

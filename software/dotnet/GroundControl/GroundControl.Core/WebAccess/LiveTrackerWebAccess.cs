@@ -6,17 +6,18 @@ using GroundControl.Core;
 using System.Threading;
 using System.IO;
 using System.Net;
+using System.Collections.Concurrent;
 
 namespace GroundControl.Core.WebAccess
 {
     public class LiveTrackerWebAccess
     {
         private LiveTrackerWebClient webClient;
-        private Queue<WebTask> taskQueue;
-        private Semaphore semaphore;
+        private BlockingCollection<WebTask> taskQueue;
         private bool doRun;
+        private bool running;
 
-        public bool IsRunning { get { return doRun; } }
+        public bool IsRunning { get { return running; } }
 
         public string Url
         {
@@ -32,16 +33,16 @@ namespace GroundControl.Core.WebAccess
         public LiveTrackerWebAccess()
         {
             webClient = new LiveTrackerWebClient();
-            taskQueue = new Queue<WebTask>();
-            semaphore = new Semaphore(0, 10000);
+            running = false;
             doRun = false;
         }
 
         public void Start()
         {
-            if (!doRun)
+            if (!running)
             {
                 doRun = true;
+                running = true;
                 try
                 {
                     new Thread(new ThreadStart(Run)).Start();
@@ -49,55 +50,68 @@ namespace GroundControl.Core.WebAccess
                 catch (Exception)
                 {
                     doRun = false;
+                    running = false;
                 }
             }
         }
 
         public void Stop()
         {
+            if (taskQueue != null)
+            {
+                taskQueue.CompleteAdding();
+            }
             doRun = false;
-            taskQueue.Clear();
         }
 
         private void Run()
         {
-            taskQueue.Clear();
+            taskQueue = new BlockingCollection<WebTask>();
             while (doRun)
             {
-                semaphore.WaitOne();
-                if (taskQueue.Count > 0)
+                WebTask task = null;
+                try
                 {
-                    WebTask task = taskQueue.Peek();
+                    task = taskQueue.Take();                    
+                }
+                catch (InvalidOperationException)
+                {
+                    // completed for adding
+                    doRun = false;
+                    break;
+                }
+                bool repeat = false;
+                do
+                {
                     try
                     {
                         task.Execute(webClient);
-                        taskQueue.Dequeue();
+                        repeat = false;
                     }
                     catch (LiveTrackerException e1)
                     {
+                        // service error, abort
                         OnError(e1.Message);
-                        taskQueue.Dequeue();
                     }
                     catch (Exception e2)
                     {
+                        // web exception like timeout
                         OnError(e2.Message);
-                        semaphore.Release();
+                        repeat = true;
                     }
                 }
-                else
-                {
-                    doRun = false;
-                }
+                while (repeat);
+   
             }
-            taskQueue.Clear();
+            running = false;
+            taskQueue = null;
         }
 
         public void UploadTelemetry(TelemetryData telemetry)
         {
-            if (doRun)
+            if (running && (taskQueue != null))
             {
-                taskQueue.Enqueue(new UploadTelemetryTask(telemetry));
-                semaphore.Release();
+                taskQueue.Add(new UploadTelemetryTask(telemetry));
             }
             else
             {
@@ -107,10 +121,9 @@ namespace GroundControl.Core.WebAccess
 
         public void PostBlog(DateTime utcTs, string message)
         {
-            if (doRun)
+            if (running && (taskQueue != null))
             {
-                taskQueue.Enqueue(new PostBlogTask(utcTs, message));
-                semaphore.Release();
+                taskQueue.Add(new PostBlogTask(utcTs, message));
             }
             else
             {
@@ -120,10 +133,9 @@ namespace GroundControl.Core.WebAccess
 
         public void UploadLiveImage(DateTime utcTs, byte[] imgData, bool ok)
         {
-            if (doRun)
+            if (running && (taskQueue != null))
             {
-                taskQueue.Enqueue(new UploadLiveImageTask(utcTs, imgData));
-                semaphore.Release();
+                taskQueue.Add(new UploadLiveImageTask(utcTs, imgData));
             }
             else
             {
