@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.IO.Ports;
 using System.Text;
 using System.Threading;
 using GHIElectronics.NETMF.FEZ;
@@ -10,14 +9,13 @@ using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;
 using Microsoft.SPOT.IO;
 using M3Space.Capsule.Drivers;
-using M3Space.Capsule.Util;
 
 
 namespace M3Space.Capsule
 {
     /// <summary>
     /// M3 Space Balloon Capsule.
-    /// Version 5.0
+    /// Version 5.0.2
     /// </summary>
     public class M3SpaceCapsule
     {
@@ -27,11 +25,14 @@ namespace M3Space.Capsule
         private const int TELEMETRY_TX_INTERVAL = 5;
         private const int IMAGE_TX_INTERVAL = 5;
         private const int IMAGE_CHUNK_SIZE = 64;
+#if WITH_MOTION
         private const int MOTION_BUFFER_SIZE = 10;
-        
+#endif
 
         private const string TelemetryFormat = "Utc;Lat;Lng;Alt;HSpd;VSpd;Head;Sat;IntTemp;Temp1;Temp2;Pressure;PAlt;Vin;Duty;Gamma\r\n";
+#if WITH_MOTION
         private const string MotionFormat = "Utc;Ax;Ay;Az;Gx;Gy;Gz\r\n";
+#endif
         private const string FileDateFormat = "yyyyMMdd_HHmmss";
         private const string DisplayDateFormat = "dd.MM.yyyy HH:mm:ss.fff";
 
@@ -41,7 +42,9 @@ namespace M3Space.Capsule
 
         private PersistentStorage sdStorage;
         private string telemetryFileName;
+#if WITH_MOTION
         private string motionFileName;
+#endif
         private string logFileName;
 
         private AnalogIn tempSensor1;
@@ -64,9 +67,11 @@ namespace M3Space.Capsule
         
         private GpsReader gps;
 
+#if WITH_MOTION
         private Mpu6050 mpu6050;
         private MotionData[] motionBuffer;
         private int motionBufferIndex;
+#endif
 
         private Barometer barometer;
         private ushort cachedPressureAltitude;
@@ -79,7 +84,9 @@ namespace M3Space.Capsule
         private object barometerLock = new object();
         private AutoResetEvent waitTimeSync;
 
+#if WITH_MOTION
         private FileStream motionFileHandle = null;
+#endif
         private FileStream telemetryFileHandle = null;
         private FileStream imageFileHandle = null;
 
@@ -91,7 +98,9 @@ namespace M3Space.Capsule
         private Thread xbeeTransmitThread;
         private Thread telemetryThread;
         private Thread cameraThread;
+#if WITH_MOTION
         private Thread motionThread;
+#endif
         private Thread barometerThread;
 
         /// <summary>
@@ -111,8 +120,8 @@ namespace M3Space.Capsule
             tempSensor2 = new AnalogIn((AnalogIn.Pin)FEZ_Pin.AnalogIn.An5);
             vInSensor = new AnalogIn((AnalogIn.Pin)FEZ_Pin.AnalogIn.An2);
             cachedTelemetry.GammaCount = 0;
-            // Ext. Pin 20 (MOD)
-            gammaInput = new InterruptPort((Cpu.Pin)FEZ_Pin.Interrupt.IO4, true, Port.ResistorMode.PullUp, Port.InterruptMode.InterruptEdgeHigh);
+
+            gammaInput = new InterruptPort((Cpu.Pin)FEZ_Pin.Interrupt.An0, true, Port.ResistorMode.Disabled, Port.InterruptMode.InterruptEdgeHigh);
             gammaInput.OnInterrupt += new NativeEventHandler(OnGammaPulseDetected);
             gammaInput.EnableInterrupt();
 
@@ -129,9 +138,11 @@ namespace M3Space.Capsule
             gps = new GpsReader("COM4");
             gps.GpsDataReceived += SetTimeFromGps;
 
+#if WITH_MOTION
             mpu6050 = new Mpu6050();
             motionBuffer = new MotionData[MOTION_BUFFER_SIZE];
             motionBufferIndex = 0;
+#endif
 
             barometer = new Barometer("COM2");
             cachedPressureAltitude = 0;
@@ -184,7 +195,9 @@ namespace M3Space.Capsule
                 xbeeTransmitThread = new Thread(new ThreadStart(StartXbeeTransmitThread));
                 telemetryThread = new Thread(new ThreadStart(StartTelemetryThread));
                 cameraThread = new Thread(new ThreadStart(StartCameraThread));
+#if WITH_MOTION
                 motionThread = new Thread(new ThreadStart(StartMotionThread));
+#endif
                 barometerThread = new Thread(new ThreadStart(StartBarometerThread));
 
                 // start GPS thread to get time.
@@ -196,7 +209,9 @@ namespace M3Space.Capsule
                 // initialize SD card files
                 string now = DateTime.Now.ToString(FileDateFormat);
                 telemetryFileName = sdRootDirectory + @"\telemetry_" + now + ".csv";
+#if WITH_MOTION
                 motionFileName = sdRootDirectory + @"\motiondata_" + now + ".csv";
+#endif
                 logFileName = sdRootDirectory + @"\log_" + now + ".csv";
                 currentImageFileName = sdRootDirectory + @"\images\" + now + ".jpg";
 
@@ -206,18 +221,22 @@ namespace M3Space.Capsule
                 telemetryFileHandle.Write(writeData, 0, writeData.Length);
                 telemetryFileHandle.Flush();
 
+#if WITH_MOTION
                 motionFileHandle = new FileStream(motionFileName, FileMode.OpenOrCreate);
                 writeData = Encoding.UTF8.GetBytes(MotionFormat);
                 motionFileHandle.Position = motionFileHandle.Length;
                 motionFileHandle.Write(writeData, 0, writeData.Length);
                 motionFileHandle.Flush();
+#endif
 
                 // start all threads
                 xbeeTransmitThread.Start();
                 barometerThread.Start();
                 telemetryThread.Start();
                 cameraThread.Start();
+#if WITH_MOTION
                 motionThread.Start();
+#endif
 
                 return true;
             }
@@ -381,6 +400,7 @@ namespace M3Space.Capsule
             }
         }
 
+#if WITH_MOTION
         /// <summary>
         /// Starts the gyro/accelerometer thread.
         /// </summary>
@@ -407,6 +427,31 @@ namespace M3Space.Capsule
         }
 
         /// <summary>
+        /// Stores the buffered gyro/accelerometer data.
+        /// </summary>
+        private void StoreMotionBuffer()
+        {
+            for (int i = 0; i < MOTION_BUFFER_SIZE; i++)
+            {
+                string text = motionBuffer[i].UtcTimestamp.ToString(DisplayDateFormat) + ';' +
+                    motionBuffer[i].Ax.ToString() + ';' +
+                    motionBuffer[i].Ay.ToString() + ';' +
+                    motionBuffer[i].Az.ToString() + ';' +
+                    motionBuffer[i].Gx.ToString() + ';' +
+                    motionBuffer[i].Gy.ToString() + ';' +
+                    motionBuffer[i].Gz.ToString() +
+                    "\r\n";
+
+                byte[] writeData = Encoding.UTF8.GetBytes(text);
+
+                motionFileHandle.Position = motionFileHandle.Length;
+                motionFileHandle.Write(writeData, 0, writeData.Length);
+            }
+            motionFileHandle.Flush();
+        }
+#endif
+
+        /// <summary>
         /// Starts the barometer thread.
         /// </summary>
         private void StartBarometerThread()
@@ -430,30 +475,6 @@ namespace M3Space.Capsule
 
                 Thread.Sleep(5000);
             }
-        }
-
-        /// <summary>
-        /// Stores the buffered gyro/accelerometer data.
-        /// </summary>
-        private void StoreMotionBuffer()
-        {
-            for (int i = 0; i < MOTION_BUFFER_SIZE; i++)
-            {
-                string text = motionBuffer[i].UtcTimestamp.ToString(DisplayDateFormat) + ';' +
-                    motionBuffer[i].Ax.ToString() + ';' +
-                    motionBuffer[i].Ay.ToString() + ';' +
-                    motionBuffer[i].Az.ToString() + ';' +
-                    motionBuffer[i].Gx.ToString() + ';' +
-                    motionBuffer[i].Gy.ToString() + ';' +
-                    motionBuffer[i].Gz.ToString() +
-                    "\r\n";
-
-                byte[] writeData = Encoding.UTF8.GetBytes(text);
-
-                motionFileHandle.Position = motionFileHandle.Length;
-                motionFileHandle.Write(writeData, 0, writeData.Length);
-            }
-            motionFileHandle.Flush();
         }
 
         /// <summary>
@@ -669,12 +690,14 @@ namespace M3Space.Capsule
                 cameraThread.Start();
                 LogError("Camera Thread restarted");
             }
+#if WITH_MOTION
             if (!motionThread.IsAlive)
             {
                 motionThread = new Thread(new ThreadStart(StartMotionThread));
                 motionThread.Start();
                 LogError("Motion Thread restarted");
             }
+#endif
             if (!barometerThread.IsAlive)
             {
                 barometerThread = new Thread(new ThreadStart(StartBarometerThread));
