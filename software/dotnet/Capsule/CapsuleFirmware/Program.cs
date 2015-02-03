@@ -11,7 +11,7 @@ namespace M3Space.Capsule
         {
             Debug.EnableGCMessages(false);  // set true for garbage collector output
 #if DEBUG
-            Debug.Print("Starting up FEZ Panda II.");
+            Debug.Print("Starting up FEZ Panda II");
             Debug.Print("OEM String: " + SystemInfo.OEMString);
             Debug.Print("Version: " + SystemInfo.Version.ToString());
 #endif

@@ -108,6 +108,11 @@ namespace M3Space.Capsule
         /// </summary>
         public M3SpaceCapsule()
         {
+            gammaInput = new InterruptPort((Cpu.Pin)FEZ_Pin.Interrupt.An0, true, Port.ResistorMode.Disabled, Port.InterruptMode.InterruptEdgeHigh);
+            vInSensor = new AnalogIn((AnalogIn.Pin)FEZ_Pin.AnalogIn.An2);
+            tempSensor1 = new AnalogIn((AnalogIn.Pin)FEZ_Pin.AnalogIn.An4);
+            tempSensor2 = new AnalogIn((AnalogIn.Pin)FEZ_Pin.AnalogIn.An5);
+
             CheckSDcard();
 
             txQueue = new BoundedBuffer();
@@ -116,12 +121,7 @@ namespace M3Space.Capsule
             
             sdStorage = new PersistentStorage("SD");
 
-            tempSensor1 = new AnalogIn((AnalogIn.Pin)FEZ_Pin.AnalogIn.An4);
-            tempSensor2 = new AnalogIn((AnalogIn.Pin)FEZ_Pin.AnalogIn.An5);
-            vInSensor = new AnalogIn((AnalogIn.Pin)FEZ_Pin.AnalogIn.An2);
             cachedTelemetry.GammaCount = 0;
-
-            gammaInput = new InterruptPort((Cpu.Pin)FEZ_Pin.Interrupt.An0, true, Port.ResistorMode.Disabled, Port.InterruptMode.InterruptEdgeHigh);
             gammaInput.OnInterrupt += new NativeEventHandler(OnGammaPulseDetected);
             gammaInput.EnableInterrupt();
 
@@ -161,7 +161,10 @@ namespace M3Space.Capsule
         private void CheckSDcard()
         {
             // wait for SD-card
-            OnboardLed.Blink(100);
+            OnboardLed.Blink(50);
+#if DEBUG
+            Debug.Print("Looking for SD card");
+#endif
             while (!PersistentStorage.DetectSDCard())
             {
 #if DEBUG
@@ -181,12 +184,15 @@ namespace M3Space.Capsule
             try
             {
                 sdStorage.MountFileSystem();
+#if DEBUG
+                    Debug.Print("Mounted SD card");
+#endif
                 sdRootDirectory = VolumeInfo.GetVolumes()[0].RootDirectory;
                 if (!Directory.Exists(sdRootDirectory + @"\images\"))
                 {
                     Directory.CreateDirectory(sdRootDirectory + @"\images\");
 #if DEBUG
-                    Debug.Print("Create image directory.");
+                    Debug.Print("Create image directory");
 #endif
                 }
 
@@ -256,7 +262,10 @@ namespace M3Space.Capsule
         private void StartGpsThread()
         {
             gps.Initialize();
-
+#if DEBUG
+            Debug.Print("GPS initialized");
+#endif
+            OnboardLed.Blink(500);
             while (true)
             {
                 gps.ReadNmeaData();
@@ -282,6 +291,7 @@ namespace M3Space.Capsule
         /// <param name="gpsPoint">the GPS data</param>
         private void SetTimeFromGps(GpsPoint gpsPoint)
         {
+            OnboardLed.Off();
             gps.GpsDataReceived -= SetTimeFromGps;          // deactivate handler
             Utility.SetLocalTime(gpsPoint.UtcTimestamp);    // set system time to UTC, therefore DateTime.Now returns UTC.
 #if DEBUG
@@ -733,6 +743,9 @@ namespace M3Space.Capsule
         private void OnGammaPulseDetected(uint port, uint state, DateTime time)
         {
             cachedTelemetry.GammaCount++;
+#if DEBUG
+            Debug.Print("Gamma pulse");
+#endif
         }
     }
 }
