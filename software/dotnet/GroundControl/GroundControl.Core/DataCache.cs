@@ -11,6 +11,8 @@ namespace GroundControl.Core
     public class DataCache
     {
         private readonly List<TelemetryData> telemetry;
+        private float peakAltitude;
+        private bool burstWasDetected;
 
         /// <summary>
         /// Telemetry delegate.
@@ -54,6 +56,8 @@ namespace GroundControl.Core
         public DataCache()
         {
             telemetry = new List<TelemetryData>();
+            peakAltitude = 0.0f;
+            burstWasDetected = false;
             Locked = false;
         }
 
@@ -63,6 +67,8 @@ namespace GroundControl.Core
         public void Clear()
         {
             telemetry.Clear();
+            peakAltitude = 0.0f;
+            burstWasDetected = false;
             Locked = false;
 
             if (Cleared != null)
@@ -76,6 +82,11 @@ namespace GroundControl.Core
         public void AddTelemetry(TelemetryData data)
         {
             telemetry.Add(data);
+            if (data.GpsAltitude > peakAltitude)
+            {
+                peakAltitude = data.GpsAltitude;
+            }
+            CheckBurst(data.GpsAltitude);
             if (TelemetryAdded != null)
                 TelemetryAdded(data);
         }
@@ -87,8 +98,12 @@ namespace GroundControl.Core
         /// <param name="burstDetected">true if burst detected, false otherwise</param>
         public void AddTelemetry(TelemetryData data, out bool burstDetected)
         {
-            telemetry.Add(data);            
-            burstDetected = CheckBurst();
+            telemetry.Add(data);
+            if (data.GpsAltitude > peakAltitude)
+            {
+                peakAltitude = data.GpsAltitude;
+            }
+            burstDetected = CheckBurst(data.GpsAltitude);
             if (TelemetryAdded != null)
                 TelemetryAdded(data);
         }
@@ -149,17 +164,14 @@ namespace GroundControl.Core
             return null;
         }
 
-        private bool CheckBurst()
+        private bool CheckBurst(float altitude)
         {
-            int last = telemetry.Count - 1;           
-            if ((last > 1) &&
-                (telemetry[last - 2].VerticalSpeed >= 0.0f) &&
-                (telemetry[last - 1].VerticalSpeed < 0.0f) &&
-                (telemetry[last].VerticalSpeed < 0.0f))
+            bool detected = (!burstWasDetected && (altitude < peakAltitude - 75.0f));
+            if (detected)
             {
-                return true;
+                burstWasDetected = true;
             }
-            return false;
+            return detected;
         }
     }
 }

@@ -18,9 +18,10 @@ namespace M3Space.Capsule
 
         public byte[] GetTelemetry(TelemetryData data)
         {
+            // packet size = 3 + 44
             byte[] packet = new byte[47];
             packet[0] = TransmitTelemetry;
-            Array.Copy(BitConverter.GetBytes((ushort)42), 0, packet, 1, 2);
+            Array.Copy(BitConverter.GetBytes((ushort)44), 0, packet, 1, 2);
             Array.Copy(BitConverter.GetBytes(data.UtcTimestamp.Ticks), 0, packet, 3, 8);
             Array.Copy(BitConverter.GetBytes(data.GpsData.Latitude), 0, packet, 11, 4);
             Array.Copy(BitConverter.GetBytes(data.GpsData.Longitude), 0, packet, 15, 4);
@@ -42,6 +43,7 @@ namespace M3Space.Capsule
 
         public byte[] GetBeginImage(DateTime utcTs, int length)
         {
+            // packet size = 3 + 10
             byte[] packet = new byte[13];
             packet[0] = BeginImage;
             Array.Copy(BitConverter.GetBytes((ushort)10), 0, packet, 1, 2);
@@ -52,6 +54,7 @@ namespace M3Space.Capsule
 
         public byte[] GetImageData(int imgOffset, byte[] data, int dataLength)
         {
+            // packet size = 3 + dataLength + 2
             byte[] packet = new byte[dataLength + 5];
             packet[0] = ImageData;
             Array.Copy(BitConverter.GetBytes((ushort)dataLength + 2), 0, packet, 1, 2);

@@ -21,15 +21,16 @@ namespace GroundControl.Gui
             addNewDataSource("Alt.GPS[m]", Color.Red, true, 0, 35000);
             addNewDataSource("Alt.P[m]", Color.Blue, false, 0, 35000);
             addNewDataSource("Bat.[V]", Color.Green, false, 6, 9);
-            addNewDataSource("Tin[°C]", Color.DarkBlue, true, -60, 30);
-            addNewDataSource("T1[°C]", Color.DarkCyan, true, -60, 30);
-            addNewDataSource("T2[°C]", Color.LightCyan, true, -60, 30);
+            addNewDataSource("Tin[°C]", Color.DarkBlue, true, -60, 50);
+            addNewDataSource("T1[°C]", Color.DarkCyan, true, -60, 35);
+            addNewDataSource("T2[°C]", Color.LightCyan, true, -60, 35);
             addNewDataSource("P[bar]", Color.DarkGreen, true, 0, 1);
             addNewDataSource("hor.V[m/s]", Color.DarkMagenta, true, 0, 100);
             addNewDataSource("ver.V[m/s]", Color.Magenta, true, 0, 100);
             addNewDataSource("Dir[°]", Color.DarkOliveGreen, false, 0, 360);
             addNewDataSource("Sat[#]", Color.Orange, false, 0, 15);
             addNewDataSource("DutyCycle[%]", Color.Brown, false, 0, 100);
+            addNewDataSource("Gamma[c]", Color.DarkKhaki, true, 0, 65000);
         }
 
         private void addNewDataSource( String name, Color color, bool visible, float minValue, float maxValue)
@@ -58,7 +59,7 @@ namespace GroundControl.Gui
             m_display.DataSources[9].Samples.Add(new cPoint(m_display.DataSources[9].Samples.Count, telemetry.UtcTimestamp, telemetry.Heading));
             m_display.DataSources[10].Samples.Add(new cPoint(m_display.DataSources[10].Samples.Count, telemetry.UtcTimestamp, telemetry.Satellites));
             m_display.DataSources[11].Samples.Add(new cPoint(m_display.DataSources[11].Samples.Count, telemetry.UtcTimestamp, telemetry.DutyCycle));
-            
+            m_display.DataSources[12].Samples.Add(new cPoint(m_display.DataSources[12].Samples.Count, telemetry.UtcTimestamp, telemetry.GammaCount));
         }
 
         private String RenderXLabel(DataSource s, int idx)

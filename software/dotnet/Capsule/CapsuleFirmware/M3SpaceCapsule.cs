@@ -15,7 +15,7 @@ namespace M3Space.Capsule
 {
     /// <summary>
     /// M3 Space Balloon Capsule.
-    /// Version 5.0.2
+    /// Version 5.0.3
     /// </summary>
     public class M3SpaceCapsule
     {
@@ -23,7 +23,9 @@ namespace M3Space.Capsule
         private const uint XBEE_RESET_THRESHOLD = 40;
         private const uint XBEE_CRITICAL_THRESHOLD = 80;
         private const int TELEMETRY_TX_INTERVAL = 5;
+#if WITH_LIVE_IMAGES
         private const int IMAGE_TX_INTERVAL = 5;
+#endif
         private const int IMAGE_CHUNK_SIZE = 64;
 #if WITH_MOTION
         private const int MOTION_BUFFER_SIZE = 10;
@@ -39,13 +41,15 @@ namespace M3Space.Capsule
         private BoundedBuffer txQueue;
         private byte[] txBuffer;
         private DataProtocol dataProtocol;
+        private byte xBeeDutyCycle;
+        private DateTime lastXBeeResetCheck;
+        private bool transmitReady;
 
         private PersistentStorage sdStorage;
+        private string sdRootDirectory;
         private string telemetryFileName;
-#if WITH_MOTION
-        private string motionFileName;
-#endif
         private string logFileName;
+        
 
         private AnalogIn tempSensor1;
         private AnalogIn tempSensor2;
@@ -55,15 +59,12 @@ namespace M3Space.Capsule
         private TelemetryData cachedTelemetry;
         private GpsPoint cachedGpsPoint;
 
-        private byte xBeeDutyCycle;
-        private DateTime lastXBeeResetCheck;
-
-        private string sdRootDirectory;
+#if WITH_CAMERA        
         private string currentImageFileName;
         private DateTime currentImageTimestamp;
-        private DateTime lastSentImage;
+        private DateTime lastSentImage;        
+#endif
         private bool imageTransmitting;
-        private bool transmitReady;
         
         private GpsReader gps;
 
@@ -71,6 +72,9 @@ namespace M3Space.Capsule
         private Mpu6050 mpu6050;
         private MotionData[] motionBuffer;
         private int motionBufferIndex;
+        private FileStream motionFileHandle = null;
+        private Thread motionThread;
+        private string motionFileName;
 #endif
 
         private Barometer barometer;
@@ -85,22 +89,23 @@ namespace M3Space.Capsule
         private AutoResetEvent waitTimeSync;
 
 #if WITH_MOTION
-        private FileStream motionFileHandle = null;
+        
 #endif
-        private FileStream telemetryFileHandle = null;
-        private FileStream imageFileHandle = null;
+        private FileStream telemetryFileHandle = null;        
 
+#if WITH_CAMERA
+        private FileStream imageFileHandle = null;
         private LinkspriteCamera camera;
+        private Thread cameraThread;
+#endif
 
         private Xbee xbee;
 
         private Thread gpsThread;
         private Thread xbeeTransmitThread;
         private Thread telemetryThread;
-        private Thread cameraThread;
-#if WITH_MOTION
-        private Thread motionThread;
-#endif
+       
+
         private Thread barometerThread;
 
         /// <summary>
@@ -108,7 +113,7 @@ namespace M3Space.Capsule
         /// </summary>
         public M3SpaceCapsule()
         {
-            gammaInput = new InterruptPort((Cpu.Pin)FEZ_Pin.Interrupt.An0, true, Port.ResistorMode.Disabled, Port.InterruptMode.InterruptEdgeHigh);
+            gammaInput = new InterruptPort((Cpu.Pin)FEZ_Pin.Interrupt.An0, false, Port.ResistorMode.PullDown, Port.InterruptMode.InterruptEdgeHigh);
             vInSensor = new AnalogIn((AnalogIn.Pin)FEZ_Pin.AnalogIn.An2);
             tempSensor1 = new AnalogIn((AnalogIn.Pin)FEZ_Pin.AnalogIn.An4);
             tempSensor2 = new AnalogIn((AnalogIn.Pin)FEZ_Pin.AnalogIn.An5);
@@ -124,14 +129,11 @@ namespace M3Space.Capsule
             cachedTelemetry.GammaCount = 0;
             gammaInput.OnInterrupt += new NativeEventHandler(OnGammaPulseDetected);
             gammaInput.EnableInterrupt();
-
-            currentImageTimestamp = DateTime.Now;
-            lastSentImage = DateTime.Now;
+            
             cachedGpsPoint.UtcTimestamp = DateTime.Now;
 
             lastXBeeResetCheck = DateTime.Now;
-            xBeeDutyCycle = 0;
-            imageTransmitting = false;
+            xBeeDutyCycle = 0;            
             transmitReady = false;
             xbee = new Xbee("COM1");
 
@@ -149,8 +151,13 @@ namespace M3Space.Capsule
             cachedPressure = 0;
             cachedTemperature = 0;
 
+            imageTransmitting = false;
+#if WITH_CAMERA
+            currentImageTimestamp = DateTime.Now;
+            lastSentImage = DateTime.Now;
             camera = new LinkspriteCamera("COM3", 38400);
             camera.ImageChunkReceived += CameraImageDataReceived;
+#endif
 
             waitTimeSync = new AutoResetEvent(false);
         }
@@ -200,7 +207,9 @@ namespace M3Space.Capsule
                 gpsThread = new Thread(new ThreadStart(StartGpsThread));
                 xbeeTransmitThread = new Thread(new ThreadStart(StartXbeeTransmitThread));
                 telemetryThread = new Thread(new ThreadStart(StartTelemetryThread));
+#if WITH_CAMERA
                 cameraThread = new Thread(new ThreadStart(StartCameraThread));
+#endif
 #if WITH_MOTION
                 motionThread = new Thread(new ThreadStart(StartMotionThread));
 #endif
@@ -219,8 +228,9 @@ namespace M3Space.Capsule
                 motionFileName = sdRootDirectory + @"\motiondata_" + now + ".csv";
 #endif
                 logFileName = sdRootDirectory + @"\log_" + now + ".csv";
+#if WITH_CAMERA
                 currentImageFileName = sdRootDirectory + @"\images\" + now + ".jpg";
-
+#endif
                 telemetryFileHandle = new FileStream(telemetryFileName, FileMode.OpenOrCreate);
                 byte[] writeData = Encoding.UTF8.GetBytes(TelemetryFormat);
                 telemetryFileHandle.Position = telemetryFileHandle.Length;
@@ -239,7 +249,9 @@ namespace M3Space.Capsule
                 xbeeTransmitThread.Start();
                 barometerThread.Start();
                 telemetryThread.Start();
+#if WITH_CAMERA
                 cameraThread.Start();
+#endif
 #if WITH_MOTION
                 motionThread.Start();
 #endif
@@ -298,8 +310,10 @@ namespace M3Space.Capsule
             Debug.Print("Time synchronized to " + gpsPoint.UtcTimestamp.ToString(DisplayDateFormat));
 #endif
             // reinitialize some datetime objects
+#if WITH_CAMERA
             currentImageTimestamp = DateTime.Now;
             lastSentImage = DateTime.Now;
+#endif
             cachedGpsPoint.UtcTimestamp = DateTime.Now;
             lastXBeeResetCheck = DateTime.Now;
 
@@ -518,6 +532,7 @@ namespace M3Space.Capsule
             telemetryFileHandle.Flush();
         }
 
+#if WITH_CAMERA
         /// <summary>
         /// Starts the serial camera thread.
         /// </summary>
@@ -670,6 +685,7 @@ namespace M3Space.Capsule
             imageFileHandle.Write(data, 0, size);
             imageFileHandle.Flush();
         }
+#endif
 
         /// <summary>
         /// Checks if any threads have crashed.
@@ -694,12 +710,14 @@ namespace M3Space.Capsule
                 telemetryThread.Start();
                 LogError("Telemetry Thread restarted");
             }
+#if WITH_CAMERA
             if (!cameraThread.IsAlive)
             {
                 cameraThread = new Thread(new ThreadStart(StartCameraThread));
                 cameraThread.Start();
                 LogError("Camera Thread restarted");
             }
+#endif
 #if WITH_MOTION
             if (!motionThread.IsAlive)
             {
