@@ -81,7 +81,7 @@ namespace GroundControl.Gui
             }
             mapTypeDropDown.SelectedIndex = 0;
 
-            flightRadar24 = new FlightRadar24(map);
+            flightRadar24 = new FlightRadar24(map, 10);
         }
 
         public void AddTelemetryPoint(TelemetryData data, bool burst)

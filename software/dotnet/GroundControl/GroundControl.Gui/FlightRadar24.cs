@@ -79,7 +79,7 @@ namespace GroundControl.Gui
                     Debug.WriteLine("flight_DoWork: " + ex.ToString());
                 }
                 int endTime = Environment.TickCount;
-                int timeToWait = m_updateRate - ((endTime - startTime) / 1000);
+                int timeToWait = m_updateRate * 1000 - (endTime - startTime);
                 if (timeToWait > 0)
                 {
                     Thread.Sleep(timeToWait);
@@ -95,9 +95,12 @@ namespace GroundControl.Gui
 
         private void GetFlightRadarData()
         {
+            //Debug.WriteLine("GetFlightRadarData()");
             m_flightList.Clear();
             string responseString = string.Empty;
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create("http://www.flightradar24.com/zones/france.json");
+            RectLatLng bounds = m_map.ViewArea;
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(
+                String.Format("http://krk.data.fr24.com/zones/fcgi/feed.js?bounds={0},{1},{2},{3}&maxage=900", bounds.Top, bounds.Bottom, bounds.Left, bounds.Right));
             using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
             {
                 using (Stream responseStream = response.GetResponseStream())
@@ -109,30 +112,42 @@ namespace GroundControl.Gui
                 }
                 response.Close();
             }
+            responseString = responseString.Replace("\n", string.Empty);
+            // remove stuff before first flight object
+            int begin = responseString.IndexOf("\"version\":4");
+            if (begin >= 0)
+            {
+                responseString = responseString.Substring(begin + 12);
+            }
+            // split at end of json arrays
             var items = responseString.Split(']');
             foreach (var it in items)
             {
-                try
+                if (it.Length > 2)
                 {
-                    var par = it.Substring(2).Replace(":", ",").Replace("\"", string.Empty).Replace("[", string.Empty).Split(',');
-                    if (par.Length >= 12)
+                    try
                     {
-                        FlightRadar24Data fd = new FlightRadar24Data()
+                        var par = it.Substring(2).Replace(":", ",").Replace("\"", string.Empty).Replace("[", string.Empty).Split(',');
+                        if (par.Length == 19)
                         {
-                            Name = par[0],
-                            Heading = int.Parse(par[4]),
-                            Altitude = (int)(int.Parse(par[5]) * 0.3048),
-                            Speed = (int)(int.Parse(par[6]) * 1.852),
-                            Position = new PointLatLng(double.Parse(par[2], CultureInfo.InvariantCulture), double.Parse(par[3], CultureInfo.InvariantCulture)),
-                            Id = Convert.ToInt32(par[1], 16),
-                            AircraftType = par[9],
-                            AircraftReg = par[10]
-                        };
-                        m_flightList.Add(fd);
+                            FlightRadar24Data fd = new FlightRadar24Data()
+                            {
+                                Name = par[1],
+                                Heading = int.Parse(par[4]),
+                                Altitude = (int)(int.Parse(par[5]) * 0.3048),
+                                Speed = (int)(int.Parse(par[6]) * 1.852),
+                                Position = new PointLatLng(double.Parse(par[2], CultureInfo.InvariantCulture), double.Parse(par[3], CultureInfo.InvariantCulture)),
+                                Id = Convert.ToInt32(par[0], 16),
+                                AircraftType = par[9],
+                                AircraftReg = par[10]
+                            };
+                            m_flightList.Add(fd);
+                        }
                     }
-                }
-                catch (Exception ex)
-                {
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine("GetFlightRadarData: " + ex.ToString());
+                    }
                 }
             }
         }

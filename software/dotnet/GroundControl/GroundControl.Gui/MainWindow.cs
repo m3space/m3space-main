@@ -436,6 +436,7 @@ namespace GroundControl.Gui
             if (res == DialogResult.Yes)
             {
                 dataCache.Clear();
+                telemetryWindow.Clear();
                 mapWindow.Clear();
                 graphWindow.Clear();
                 filenameLbl.Text = "no file";
