@@ -12,6 +12,7 @@ namespace CapsuleSimulator
         private SerialPort  m_serialPort;
         private DataCache   m_datacache;
         private int         m_index;
+        private int         m_step;
 
         public SimulatorWindow()
         {
@@ -22,6 +23,7 @@ namespace CapsuleSimulator
             tboxComPort.Text = Settings.Default.ComPort;
             numTelemetryInterval.Value = Settings.Default.TelemetryInterval;
 
+            m_step = 1;
             m_index = 0;
             m_txBuffer = new byte[256];
             m_datacache = new DataCache();
@@ -35,6 +37,7 @@ namespace CapsuleSimulator
                 return;
             }
             btnStart.Enabled = false;
+            m_step = (int)numericStep.Value;
             m_serialPort = new SerialPort(tboxComPort.Text, 38400, Parity.None, 8, StopBits.One);
             m_serialPort.WriteTimeout = 100;
             m_serialPort.Open();
@@ -74,12 +77,12 @@ namespace CapsuleSimulator
                     DateTime todayFix = DateTime.Now.Date.Add(data.UtcTimestamp.TimeOfDay);
                     data.UtcTimestamp = todayFix;
                     // simulate gamma count
-                    data.GammaCount = m_index;
+                    //data.GammaCount = m_index;
 
                     int len = DataProtocol.PreparePacket(m_txBuffer, DataProtocol.GetTelemetry(data));
                     if (m_serialPort.IsOpen)
                     {
-                        m_index++;
+                        m_index += m_step;
                         tboxLogger.AppendText(DataFormat.TelemetryDisplayString(data) + Environment.NewLine);
                         m_serialPort.Write(m_txBuffer, 0, len);
                     }

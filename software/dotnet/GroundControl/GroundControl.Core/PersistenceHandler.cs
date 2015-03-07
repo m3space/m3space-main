@@ -92,7 +92,7 @@ namespace GroundControl.Core
             if (!File.Exists(filename))
             {
                 StreamWriter writer = File.CreateText(filename);
-                writer.WriteLine(DataFormat.TelemetryFormatCurrent);
+                writer.WriteLine(DataFormat.TelemetryFormatV5);
                 writer.Close();
             }
             telemetryFileName = filename;
@@ -108,7 +108,7 @@ namespace GroundControl.Core
             if (telemetryFileName != null)
             {
                 StreamWriter writer = File.AppendText(telemetryFileName);
-                writer.WriteLine(String.Format("{0:dd.MM.yyyy HH:mm:ss.fff};{1:0.####};{2:0.####};{3:0.#};{4:0.#};{5:0.#};{6:0.#};{7:0.#};{8};{9};{10:0.#};{11:0.#};{12:0.####};{13:0.##};{14};{15};{16};{17};{18}",
+                writer.WriteLine(String.Format("{0:dd.MM.yyyy HH:mm:ss.fff};{1:0.####};{2:0.####};{3:0.#};{4:0.#};{5:0.#};{6:0.#};{7:0.#};{8};{9};{10:0.#};{11:0.#};{12:0.####};{13:0.##};{14};{15};{16};{17};{18};{19:0.#}",
                     telemetry.UtcTimestamp,
                     telemetry.Latitude,
                     telemetry.Longitude,
@@ -127,7 +127,8 @@ namespace GroundControl.Core
                     telemetry.Temperature2Raw,
                     telemetry.VinRaw,
                     telemetry.DutyCycle,
-                    telemetry.GammaCount));
+                    telemetry.GammaCount,
+                    telemetry.GammaCPM));
                 writer.Close();
             }
         }

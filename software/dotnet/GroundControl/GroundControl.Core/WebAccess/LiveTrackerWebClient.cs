@@ -55,6 +55,7 @@ namespace GroundControl.Core.WebAccess
             postParameters.Add("pressure", telemetry.Pressure);
             postParameters.Add("vin", telemetry.Vin);
             postParameters.Add("gamma", telemetry.GammaCount);
+            postParameters.Add("gammacpm", telemetry.GammaCPM);
 
             HttpWebResponse webResponse = MultipartFormDataPost(url + "ws/uploadtelemetry.php", userAgent, postParameters);
             if (webResponse.StatusCode != HttpStatusCode.OK)

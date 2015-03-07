@@ -42,6 +42,7 @@ namespace GroundControl.Core
 
         private TelemetryDecoder telemetryDecoder;
         private ImageDecoder imageDecoder;
+        private CpmCounter cpmCounter;
 
         /// <summary>
         /// This event is fired in case of an error.
@@ -65,6 +66,7 @@ namespace GroundControl.Core
         {
             telemetryDecoder = new TelemetryDecoder();
             imageDecoder = new ImageDecoder();
+            cpmCounter = new CpmCounter();
         }
 
         /// <summary>
@@ -87,6 +89,9 @@ namespace GroundControl.Core
                             TelemetryData telemetry = telemetryDecoder.DecodeRawTelemetry(payload);
                             if (telemetry != null)
                             {
+                                // compute CPM separately.
+                                cpmCounter.Update(telemetry);
+                                telemetry.GammaCPM = (float)cpmCounter.CPM;
                                 OnTelemetryReceived(telemetry);
                             }
                             else
@@ -253,6 +258,14 @@ namespace GroundControl.Core
             packet[44] = data.DutyCycle;
             Array.Copy(BitConverter.GetBytes((ushort)(data.GammaCount)), 0, packet, 45, 2);
             return packet;
+        }
+
+        /// <summary>
+        /// Resets counters etc.
+        /// </summary>
+        public void Reset()
+        {
+            cpmCounter.Reset();
         }
     }
 }

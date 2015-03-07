@@ -101,5 +101,10 @@ namespace GroundControl.Core
         /// The gamma impulse count.
         /// </summary>
         public int GammaCount { get; set; }
+
+        /// <summary>
+        /// The gamma impulse counts per minute (approximate).
+        /// </summary>
+        public float GammaCPM { get; set; }
     }
 }

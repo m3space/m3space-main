@@ -126,13 +126,32 @@ namespace GroundControl.Core
                     Temperature1 = telemetry.First().Temperature1,
                     Temperature2 = telemetry.First().Temperature2,
                     Satellites = telemetry.First().Satellites,
+                    Pressure = telemetry.First().Pressure,
+                    PressureAltitude = telemetry.First().PressureAltitude,
                     Vin = telemetry.First().Vin,
                     DutyCycle = telemetry.First().DutyCycle,
+                    GammaCount = telemetry.First().GammaCount,
+                    GammaCPM = telemetry.First().GammaCPM
                 };
             }
             if (datetime.CompareTo(telemetry.Last().UtcTimestamp) > 0)
             {
-                return new TelemetryData() { UtcTimestamp = datetime, Latitude = telemetry.Last().Latitude, Longitude = telemetry.Last().Longitude };
+                return new TelemetryData()
+                {
+                    UtcTimestamp = datetime,
+                    Latitude = telemetry.Last().Latitude,
+                    Longitude = telemetry.Last().Longitude,
+                    GpsAltitude = telemetry.Last().GpsAltitude,
+                    Temperature1 = telemetry.Last().Temperature1,
+                    Temperature2 = telemetry.Last().Temperature2,
+                    Satellites = telemetry.Last().Satellites,
+                    Pressure = telemetry.Last().Pressure,
+                    PressureAltitude = telemetry.Last().PressureAltitude,
+                    Vin = telemetry.Last().Vin,
+                    DutyCycle = telemetry.Last().DutyCycle,
+                    GammaCount = telemetry.Last().GammaCount,
+                    GammaCPM = telemetry.Last().GammaCPM
+                };
             }
             for (int i = 1; i < telemetry.Count; i++)
             {
@@ -155,8 +174,10 @@ namespace GroundControl.Core
                     data.DutyCycle = (byte)(telemetry[i - 1].DutyCycle + (telemetry[i].DutyCycle - telemetry[i - 1].DutyCycle) * factor);
                     data.PressureAltitude = telemetry[i - 1].PressureAltitude + (telemetry[i].PressureAltitude - telemetry[i - 1].PressureAltitude) * factor;
                     data.IntTemperature = (int)(telemetry[i - 1].IntTemperature + (telemetry[i].IntTemperature - telemetry[i - 1].IntTemperature) * factor);
+                    data.GammaCount = (int)(telemetry[i - 1].GammaCount + (telemetry[i].GammaCount - telemetry[i - 1].GammaCount) * factor);
+                    data.GammaCPM = telemetry[i - 1].GammaCPM + (telemetry[i].GammaCPM - telemetry[i - 1].GammaCPM) * factor;
 
-                    data.Satellites = telemetry[i - 1].Satellites;
+                    data.Satellites = (byte)(telemetry[i - 1].Satellites + (telemetry[i].Satellites - telemetry[i - 1].Satellites) * factor);
                     data.UtcTimestamp = datetime;
                     return data;
                 }

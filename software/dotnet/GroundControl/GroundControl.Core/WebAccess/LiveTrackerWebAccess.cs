@@ -12,8 +12,12 @@ namespace GroundControl.Core.WebAccess
 {
     public class LiveTrackerWebAccess
     {
+        private const int InitialDelay = 1000;
+        private const int MaxDelay = 5000;
+
         private LiveTrackerWebClient webClient;
         private BlockingCollection<WebTask> taskQueue;
+        private AutoResetEvent delayHandle;
         private bool doRun;
         private bool running;
 
@@ -35,6 +39,7 @@ namespace GroundControl.Core.WebAccess
             webClient = new LiveTrackerWebClient();
             running = false;
             doRun = false;
+            delayHandle = new AutoResetEvent(false);
         }
 
         public void Start()
@@ -56,16 +61,18 @@ namespace GroundControl.Core.WebAccess
         }
 
         public void Stop()
-        {
+        { 
             if (taskQueue != null)
             {
                 taskQueue.CompleteAdding();
             }
             doRun = false;
+            delayHandle.Set();
         }
 
         private void Run()
         {
+            int delay = InitialDelay;
             taskQueue = new BlockingCollection<WebTask>();
             while (doRun)
             {
@@ -86,6 +93,7 @@ namespace GroundControl.Core.WebAccess
                     try
                     {
                         task.Execute(webClient);
+                        delay = InitialDelay;
                         repeat = false;
                     }
                     catch (LiveTrackerException e1)
@@ -98,10 +106,11 @@ namespace GroundControl.Core.WebAccess
                         // web exception like timeout
                         OnError(e2.Message);
                         repeat = true;
+                        delayHandle.WaitOne(delay);
+                        delay += 500;
                     }
                 }
-                while (repeat);
-   
+                while (doRun && repeat);   
             }
             running = false;
             taskQueue = null;

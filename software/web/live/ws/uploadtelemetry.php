@@ -14,7 +14,7 @@
 	
 	try {
 		$dbh = new PDO("mysql:host=$dbhost;dbname=$dbname", $dbuser, $dbpass);
-		$stmt = $dbh->prepare('INSERT INTO live_telemetry (utctimestamp, latitude, longitude, galtitude, paltitude, heading, hspeed, vspeed, satellites, inttemperature, temperature1, temperature2, pressure, vin, gamma) value (:utctimestamp, :latitude, :longitude, :galtitude, :paltitude, :heading, :hspeed, :vspeed, :satellites, :inttemperature, :temperatureone, :temperaturetwo, :pressure, :vin, :gamma)');
+		$stmt = $dbh->prepare('INSERT INTO live_telemetry (utctimestamp, latitude, longitude, galtitude, paltitude, heading, hspeed, vspeed, satellites, inttemperature, temperature1, temperature2, pressure, vin, gamma, gammacpm) value (:utctimestamp, :latitude, :longitude, :galtitude, :paltitude, :heading, :hspeed, :vspeed, :satellites, :inttemperature, :temperatureone, :temperaturetwo, :pressure, :vin, :gamma, :gammacpm)');
 		$stmt->bindParam(':utctimestamp', $_POST['utctimestamp']);
 		$stmt->bindParam(':latitude', $_POST['latitude']);
 		$stmt->bindParam(':longitude', $_POST['longitude']);
@@ -30,6 +30,7 @@
 		$stmt->bindParam(':pressure', $_POST['pressure']);
 		$stmt->bindParam(':vin', $_POST['vin']);
 		$stmt->bindParam(':gamma', $_POST['gamma']);
+		$stmt->bindParam(':gammacpm', $_POST['gammacpm']);
 		$stmt->execute();
 	}
 	catch (Exception $e) {

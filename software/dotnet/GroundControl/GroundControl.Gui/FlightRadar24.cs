@@ -16,12 +16,12 @@ namespace GroundControl.Gui
 {
     public struct FlightRadar24Data
     {
+        public int          Id;
         public string       Name;
         public PointLatLng  Position;
         public int          Heading;
         public int          Altitude;
         public int          Speed;
-        public int          Id;
         public string       AircraftType;
         public string       AircraftReg;
     }
@@ -93,12 +93,19 @@ namespace GroundControl.Gui
             NewFlightData();
         }
 
+        /// <summary>
+        /// Gets all flights within the view area of the map
+        /// from Flightradar24 web service.
+        /// </summary>
         private void GetFlightRadarData()
         {
-            //Debug.WriteLine("GetFlightRadarData()");
+#if DEBUG
+            Debug.WriteLine("GetFlightRadarData()");
+#endif
             m_flightList.Clear();
             string responseString = string.Empty;
             RectLatLng bounds = m_map.ViewArea;
+            // get flights within the map bounds
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(
                 String.Format("http://krk.data.fr24.com/zones/fcgi/feed.js?bounds={0},{1},{2},{3}&maxage=900", bounds.Top, bounds.Bottom, bounds.Left, bounds.Right));
             using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
@@ -152,33 +159,45 @@ namespace GroundControl.Gui
             }
         }
 
+        /// <summary>
+        /// Iterates through current list of flights.
+        /// Updates markers within the view area of the map
+        /// and removes all markers outside the view area.
+        /// </summary>
         private void NewFlightData()
         {
             m_map.Invoke(new MethodInvoker(delegate
             {
                 m_map.HoldInvalidation = true;
+                RectLatLng viewArea = m_map.ViewArea;
                 lock (m_flightList)
                 {
-                    // add new flightmarker or update position of all flights in visible map area
-                    foreach (var flight in m_flightList.Where(x => m_map.ViewArea.Contains(x.Position)))
+                    // add new flightmarker or update position of all flights in list
+                    foreach (var flight in m_flightList)
                     {
                         GMapMarkerFlightRadar24 marker = m_overlay.Markers.FirstOrDefault(m => m.Tag.Equals(flight.Id)) as GMapMarkerFlightRadar24;
-                        if (marker == null)
+                        if (viewArea.Contains(flight.Position))
                         {
-                            marker = new GMapMarkerFlightRadar24(flight.Position) { Tag = flight.Id };
-                            m_overlay.Markers.Add(marker);
+                            if (marker == null)
+                            {
+                                marker = new GMapMarkerFlightRadar24(flight.Position) { Tag = flight.Id };
+                                m_overlay.Markers.Add(marker);
+                            }
+                            marker.FlightRadarData = flight;
                         }
-                        marker.FlightRadarData = flight;
+                        else
+                        {
+                            if (marker != null)
+                            {
+                                m_overlay.Markers.Remove(marker);
+                            }
+                        }
                     }
-                    // remove all other flightmarkers
-                    var flightsToRemove = m_flightList.Where(x => !m_map.ViewArea.Contains(x.Position)).ToList();
-                    foreach (var flight in flightsToRemove)
+                    // remove other markers outside map
+                    var markersToRemove = m_overlay.Markers.Where(m => (!viewArea.Contains(m.Position)) && (m is GMapMarkerFlightRadar24)).ToList();
+                    foreach (var marker in markersToRemove)
                     {
-                        GMapMarkerFlightRadar24 marker = m_overlay.Markers.FirstOrDefault(m => m.Tag.Equals(flight.Id)) as GMapMarkerFlightRadar24;
-                        if (marker != null)
-                        {
-                            m_overlay.Markers.Remove(marker);
-                        }
+                        m_overlay.Markers.Remove(marker);
                     }
                 }
                 m_map.Refresh();

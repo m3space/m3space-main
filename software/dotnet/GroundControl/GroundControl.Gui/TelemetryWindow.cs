@@ -16,15 +16,11 @@ namespace GroundControl.Gui
     /// </summary>
     public partial class TelemetryWindow : Form
     {
-        private CpmCounter cpmCounter;
-
         /// <summary>
         /// Constructor.
         /// </summary>
         public TelemetryWindow()
         {
-            cpmCounter = new CpmCounter();
-
             InitializeComponent();
         }
 
@@ -45,8 +41,6 @@ namespace GroundControl.Gui
             float lngDecMins = (lngAbs - lngDegs) * 60;
             char lngOri = (data.Latitude >= 0.0f) ? 'E' : 'W';
 
-            cpmCounter.Update(data);
-
             dateLbl.Text = String.Format("{0:dd.MM.yyyy HH:mm:ss}", data.UtcTimestamp.ToLocalTime());
             latLbl.Text = String.Format("{0}° {1:0.###}' {2}", latDegs, latDecMins, latOri);
             lngLbl.Text = String.Format("{0}° {1:0.###}' {2}", lngDegs, lngDecMins, lngOri);
@@ -60,12 +54,28 @@ namespace GroundControl.Gui
             pressureLbl.Text = String.Format("{0:0.####} bar", data.Pressure);
             pAltLbl.Text = String.Format("{0:0.#} m", data.PressureAltitude);
             vinLbl.Text = String.Format("{0:0.#} V", data.Vin);
-            gammaLbl.Text = String.Format("{0} C {1:0.#} CPM", cpmCounter.Count, cpmCounter.CPM);
+            gammaLbl.Text = String.Format("{0} C {1:0.#} CPM", data.GammaCount, data.GammaCPM);
         }
 
+        /// <summary>
+        /// Clears all text labels.
+        /// </summary>
         public void Clear()
         {
-            cpmCounter.Reset();
+            dateLbl.Text = "";
+            latLbl.Text = "";
+            lngLbl.Text = "";
+            altLbl.Text = "";
+            headLbl.Text = "";
+            hspdLbl.Text = "";
+            vspdLbl.Text = "";
+            temp1Lbl.Text = "";
+            temp2Lbl.Text = "";
+            intTempLbl.Text = "";
+            pressureLbl.Text = "";
+            pAltLbl.Text = "";
+            vinLbl.Text = "";
+            gammaLbl.Text = "";
         }
 
     }

@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS live_telemetry (
   pressure float NOT NULL,
   vin float NOT NULL,
   gamma int(11) NOT NULL,
+  gammacpm float NOT NULL,
   PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 

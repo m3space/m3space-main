@@ -13,7 +13,7 @@ namespace GroundControl.Core
         public const float Rad2Deg = 180.0f / (float)Math.PI;
         public const float Deg2Rad = (float)Math.PI / 180.0f;
 
-        public const string TelemetryFormatCurrent = "UtcDate;Lat;Long;GpsAlt;PressureAlt;Heading;HSpeed;VSpeed;Sat;IntTemp;Temp1;Temp2;Press;Vin;Temp1Raw;Temp2Raw;VinRaw;DutyCycle;Gamma";
+        public const string TelemetryFormatV5 = "UtcDate;Lat;Long;GpsAlt;PressureAlt;Heading;HSpeed;VSpeed;Sat;IntTemp;Temp1;Temp2;Press;Vin;Temp1Raw;Temp2Raw;VinRaw;DutyCycle;Gamma;CPM";
         public const string TelemetryFormatV3 = "UtcDate;Lat;Long;GpsAlt;PressureAlt;Heading;HSpeed;VSpeed;Sat;IntTemp;Temp1;Temp2;Press;Vin;Temp1Raw;Temp2Raw;VinRaw;DutyCycle";
         public const string TelemetryFormatV2 = "UtcDate;Lat;Long;GpsAlt;PressureAlt;Heading;Speed;Sat;IntTemp;ExtTemp;Press;Vin;IntTempRaw;ExtTempRaw;PressRaw;VinRaw;DutyCycle";
         public const string TelemetryFormatCapsule = "Utc;Lat;Lng;Alt;HSpd;VSpd;Head;Sat;IntTemp;Temp1;Temp2;Pressure;PAlt;Vin;Duty;Gamma";

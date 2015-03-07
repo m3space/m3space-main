@@ -55,10 +55,16 @@ function refresh() {
 	for (var i = 0; i < params.length; i++) {
 		query += params[i] + '&';
 	}
+	var msg = 'Last query: ' + new Date().toUTCString() + ' - ';
 	$.getJSON(query)
 	.success(function(data, status, jqXHR) {
 	
 		if (data.telemetry != null) {
+			if (data.telemetry.length > 0) {
+				msg += 'fetched ' + data.telemetry.length + ' data points';
+			} else {
+				msg += 'no data'
+			}
 			var last = null;
 			$.each(data.telemetry, function() {
 				last = this;
@@ -86,7 +92,7 @@ function refresh() {
 				$('#t_press').html(last.pressure + ' bar');
 				$('#t_palt').html(last.paltitude + ' m');
 				$('#t_vin').html(last.vin + ' V');
-				$('#t_gamma').html(last.gamma + ' counts');
+				$('#t_gamma').html(last.gamma + ' C, ' + last.gammacpm + ' CPM');
 			}
 		}
 	
@@ -105,9 +111,11 @@ function refresh() {
 				lastBlog = lastb.utctimestamp;
 			}
 		}
+		$('#message').html(msg);
 	})
 	.error(function(jqXHR, status, error) {
-		$('#message').html('Data access error.');
+		msg += 'data access error'
+		$('#message').html(msg);
 	});
 }
 

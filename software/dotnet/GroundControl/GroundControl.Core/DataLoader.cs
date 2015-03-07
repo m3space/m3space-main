@@ -34,9 +34,10 @@ namespace GroundControl.Core
                 {
                     string firstLine = reader.ReadLine();
 
-                    if (firstLine.Equals(DataFormat.TelemetryFormatCurrent))
+                    if (firstLine.Equals(DataFormat.TelemetryFormatV5))
                     {
-                        parseTelemetry = ParseLineCurrent;
+                        // current
+                        parseTelemetry = ParseLineV5;
                         dataCache.Locked = false;
                     }
                     else if (firstLine.Equals(DataFormat.TelemetryFormatV3))
@@ -95,9 +96,9 @@ namespace GroundControl.Core
         /// </summary>
         /// <param name="dataCache">the data cache</param>
         /// <param name="parts">the CSV fields</param>
-        private static void ParseLineCurrent(DataCache dataCache, string[] parts)
+        private static void ParseLineV5(DataCache dataCache, string[] parts)
         {
-            if ((parts != null) && (parts.Length >= 18))
+            if ((parts != null) && (parts.Length >= 20))
             {
                 TelemetryData data = new TelemetryData();
                 data.UtcTimestamp = DateTime.ParseExact(parts[0], "dd.MM.yyyy HH:mm:ss.fff", null);
@@ -119,6 +120,7 @@ namespace GroundControl.Core
                 data.VinRaw = UInt16.Parse(parts[16]);
                 data.DutyCycle = Byte.Parse(parts[17]);
                 data.GammaCount = Int32.Parse(parts[18]);
+                data.GammaCPM = Single.Parse(parts[19]);
 
                 dataCache.AddTelemetry(data);
             }

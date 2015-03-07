@@ -2,17 +2,12 @@
 	position:absolute;
 	top: 0px;
 	left: 10px;
-}
-
-#message {
-	font-size: 12pt;
-	font-weight: normal;
-	color: #ff0000;
+	width: 870px;
 }
 
 #telemetry {
 	position:absolute;
-	top: 100px;
+	top: 90px;
 	left: 10px;
 	width: 260px;
 	background-color: #ffffff;
@@ -20,7 +15,7 @@
 
 #blog {
 	position:absolute;
-	top: 490px;
+	top: 480px;
 	left: 10px;
 	width: 260px;
 	min-height: 100px;
@@ -29,7 +24,7 @@
 
 #liveimage {
 	position:absolute;
-	top: 610px;
+	top: 600px;
 	left: 280px;
 	width: 640px;
 	min-width: 640px;
@@ -39,7 +34,7 @@
 
 #map {
 	position:absolute;
-	top: 100px;
+	top: 90px;
 	left: 280px;
 	width: 640px;
 	min-width: 640px;
@@ -54,7 +49,7 @@
 
 #footer {
 	position:absolute;
-	top: 1150px;
+	top: 1140px;
 	left: 10px;
 	width: 870px;
 	font-size: 9pt;
@@ -65,7 +60,7 @@
 }
 
 h1 {
-	font-size: 18pt;
+	font-size: 16pt;
 	font-weight: bold;
 	color: #0000A0;
 }
@@ -79,7 +74,7 @@ table.blog {
 }
 
 div.title {
-	font-size: 11pt;
+	font-size: 10pt;
 	font-weight: bold;
 	padding: 2px;
 	color: #ffffff;
@@ -100,6 +95,18 @@ div.button {
 	background-color: #002000;
 	padding: 2px;
 	font-weight: bold;
+}
+
+div.message {
+	font-size: 9pt;
+	font-weight: normal;
+	color: #800000;
+}
+
+div.error {
+	font-size: 10pt;
+	font-weight: bold;
+	color: #A00000;
 }
 
 img.live {

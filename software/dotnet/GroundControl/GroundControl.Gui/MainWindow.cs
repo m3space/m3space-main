@@ -435,6 +435,7 @@ namespace GroundControl.Gui
             DialogResult res = MessageBox.Show("Clear ALL the data?", "Clear data", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (res == DialogResult.Yes)
             {
+                protocol.Reset();
                 dataCache.Clear();
                 telemetryWindow.Clear();
                 mapWindow.Clear();

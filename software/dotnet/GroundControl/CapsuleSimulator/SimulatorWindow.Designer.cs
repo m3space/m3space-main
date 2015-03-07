@@ -42,7 +42,10 @@
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.m_timer = new System.Windows.Forms.Timer(this.components);
             this.btnStop = new System.Windows.Forms.Button();
+            this.numericStep = new System.Windows.Forms.NumericUpDown();
+            this.label5 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.numTelemetryInterval)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericStep)).BeginInit();
             this.SuspendLayout();
             // 
             // btnSelectTelemetryFile
@@ -60,14 +63,14 @@
             // 
             this.tboxTelemetryFile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.tboxTelemetryFile.Location = new System.Drawing.Point(102, 6);
+            this.tboxTelemetryFile.Location = new System.Drawing.Point(80, 6);
             this.tboxTelemetryFile.Name = "tboxTelemetryFile";
-            this.tboxTelemetryFile.Size = new System.Drawing.Size(197, 20);
+            this.tboxTelemetryFile.Size = new System.Drawing.Size(219, 20);
             this.tboxTelemetryFile.TabIndex = 9;
             // 
             // tboxComPort
             // 
-            this.tboxComPort.Location = new System.Drawing.Point(102, 32);
+            this.tboxComPort.Location = new System.Drawing.Point(80, 32);
             this.tboxComPort.Name = "tboxComPort";
             this.tboxComPort.Size = new System.Drawing.Size(74, 20);
             this.tboxComPort.TabIndex = 11;
@@ -87,9 +90,9 @@
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(12, 9);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(72, 13);
+            this.label1.Size = new System.Drawing.Size(23, 13);
             this.label1.TabIndex = 10;
-            this.label1.Text = "Telemetry File";
+            this.label1.Text = "File";
             // 
             // tboxLogger
             // 
@@ -110,7 +113,7 @@
             // 
             // numTelemetryInterval
             // 
-            this.numTelemetryInterval.Location = new System.Drawing.Point(102, 58);
+            this.numTelemetryInterval.Location = new System.Drawing.Point(80, 58);
             this.numTelemetryInterval.Maximum = new decimal(new int[] {
             60,
             0,
@@ -136,18 +139,18 @@
             this.label3.AutoSize = true;
             this.label3.Location = new System.Drawing.Point(12, 60);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(85, 13);
+            this.label3.Size = new System.Drawing.Size(61, 13);
             this.label3.TabIndex = 16;
-            this.label3.Text = "Send data every";
+            this.label3.Text = "Send every";
             // 
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(153, 60);
+            this.label4.Location = new System.Drawing.Point(131, 60);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(47, 13);
+            this.label4.Size = new System.Drawing.Size(12, 13);
             this.label4.TabIndex = 17;
-            this.label4.Text = "seconds";
+            this.label4.Text = "s";
             // 
             // btnStart
             // 
@@ -180,11 +183,44 @@
             this.btnStop.UseVisualStyleBackColor = true;
             this.btnStop.Click += new System.EventHandler(this.btnStop_Click);
             // 
-            // Form1
+            // numericStep
+            // 
+            this.numericStep.Location = new System.Drawing.Point(149, 58);
+            this.numericStep.Maximum = new decimal(new int[] {
+            60,
+            0,
+            0,
+            0});
+            this.numericStep.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numericStep.Name = "numericStep";
+            this.numericStep.Size = new System.Drawing.Size(37, 20);
+            this.numericStep.TabIndex = 20;
+            this.numericStep.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(192, 60);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(27, 13);
+            this.label5.TabIndex = 21;
+            this.label5.Text = "step";
+            // 
+            // SimulatorWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(390, 171);
+            this.Controls.Add(this.label5);
+            this.Controls.Add(this.numericStep);
             this.Controls.Add(this.btnStop);
             this.Controls.Add(this.btnStart);
             this.Controls.Add(this.label4);
@@ -197,10 +233,11 @@
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.MinimumSize = new System.Drawing.Size(406, 209);
-            this.Name = "Form1";
+            this.Name = "SimulatorWindow";
             this.Text = "Capsule Simulator";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.SimulatorWindow_FormClosed);
             ((System.ComponentModel.ISupportInitialize)(this.numTelemetryInterval)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericStep)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -221,6 +258,8 @@
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.Timer m_timer;
         private System.Windows.Forms.Button btnStop;
+        private System.Windows.Forms.NumericUpDown numericStep;
+        private System.Windows.Forms.Label label5;
     }
 }
 

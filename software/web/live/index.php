@@ -14,7 +14,16 @@
 <body>
 <div id="header">
 	<h1>M3 Space Live Tracker</h1>
-	<div id="message">Data is displayed for today, <?php echo date('Y-m-d'); ?></div>
+	<div class="message" style="float: left;">
+		Data is displayed for today, <?php echo date('Y-m-d'); ?>.&nbsp;
+	</div>
+	<div id="message" class="message">
+	</div>
+	<noscript>
+		<div class="error">
+			Sorry, this web application cannot work without JavaScript!
+		</div>
+	</noscript>
 </div>
 
 <div id="telemetry">
@@ -38,11 +47,13 @@
 		<tr><td>Gamma:</td><td><div id="t_gamma"></div></td></tr>
 		<tr><td>Vin:</td><td><div id="t_vin"></div></td></tr>
 	</table>
-	<div id="refreshbtn" class="button">Refresh</div>
+	<div id="refreshbtn" class="button">
+		<button onclick="refresh();">Refresh</button> 
+	</div>
 </div>
 <div id="blog">
 	<div class="title">
-	Blog
+	Newsfeed
 	</div>
 	<table id="blogitems" class="blog">
 	</table>
@@ -58,12 +69,12 @@
 	Latest Live Image
 	</div>
 	<div class="liveimage">
-	<img id="lastimage" class="live" src="" title="Live Image" alt="Image not available" />
+	<img id="lastimage" class="live" src="" title="Live Image" alt="No images available in this flight" />
 	</div>
 	<div id="lastimageupdate"></div>
 </div>
 <div id="footer">
-&copy;2012-2014 M3 Space
+&copy;2012-2015 M3 Space
 </div>
 </body>
 </html>
