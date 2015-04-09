@@ -4,6 +4,7 @@ var lastBlog;
 var endmarker;
 var polyline;
 var blog;
+var gpspos;
 
 function initializeBlog() {
 	blog = [];
@@ -22,12 +23,24 @@ function initializeMap() {
 		new google.maps.Point(0,0),
 		new google.maps.Point(14, 37));
 	
-	var markerOptions = {
+	var car = new google.maps.MarkerImage('car.png',
+		new google.maps.Size(44, 23),
+		new google.maps.Point(0,0),
+		new google.maps.Point(22, 15));
+	
+	var balloonOptions = {
 		visible: false,
 		map: gmap,
 		icon: balloon
 	}
-	endmarker = new google.maps.Marker(markerOptions);
+	endmarker = new google.maps.Marker(balloonOptions);
+	
+	var carOptions = {
+		visible: false,
+		map: gmap,
+		icon: car
+	}
+	carmarker = new google.maps.Marker(carOptions);
 	
 	var polyOptions = {
 		strokeColor: '#000080',
@@ -94,6 +107,13 @@ function refresh() {
 				$('#t_vin').html(last.vin + ' V');
 				$('#t_gamma').html(last.gamma + ' C, ' + last.gammacpm + ' CPM');
 			}
+		}
+		
+		if (data.gpspos != null) {
+			gpspos = data.gpspos;
+			var pos = new google.maps.LatLng(gpspos.latitude, gpspos.longitude);
+			carmarker.setPosition(pos);
+			carmarker.setVisible(true);
 		}
 	
 		if (data.liveimage != null) {

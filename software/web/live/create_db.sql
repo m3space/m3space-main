@@ -28,6 +28,15 @@ CREATE TABLE IF NOT EXISTS live_telemetry (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 
+CREATE TABLE IF NOT EXISTS live_gpspos (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  utctimestamp datetime NOT NULL,
+  latitude float NOT NULL,
+  longitude float NOT NULL,
+  PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+
 CREATE TABLE IF NOT EXISTS live_blog (
   id int(11) NOT NULL AUTO_INCREMENT,
   utctimestamp datetime NOT NULL,

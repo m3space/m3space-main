@@ -1,6 +1,8 @@
 <?php
 	$authkey = 'gn8lgz7xg73d22e0xif';
 	
+	$clearkey = 'm3sp@c3.15';
+	
 	$imagedir = './images/';
 	
 	$dbhost = 'webdb.cs.technik.fhnw.ch';
