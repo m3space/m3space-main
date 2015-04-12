@@ -128,6 +128,18 @@ namespace GroundControl.Core.WebAccess
             }
         }
 
+        public void UploadGpsPosition(GpsData gpsPos)
+        {
+            if (running && (taskQueue != null))
+            {
+                taskQueue.Add(new UploadGpsPositionTask(gpsPos));
+            }
+            else
+            {
+                OnError("Web uploader not running.");
+            }
+        }
+
         public void PostBlog(DateTime utcTs, string message)
         {
             if (running && (taskQueue != null))
@@ -175,6 +187,21 @@ namespace GroundControl.Core.WebAccess
             public void Execute(LiveTrackerWebClient webClient)
             {
                 webClient.UploadTelemetry(data);
+            }
+        }
+
+        class UploadGpsPositionTask : WebTask
+        {
+            private GpsData data;
+
+            public UploadGpsPositionTask(GpsData data)
+            {
+                this.data = data;
+            }
+
+            public void Execute(LiveTrackerWebClient webClient)
+            {
+                webClient.UploadGpsPosition(data);
             }
         }
 

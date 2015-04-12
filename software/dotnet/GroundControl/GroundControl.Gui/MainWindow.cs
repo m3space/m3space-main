@@ -40,6 +40,7 @@ namespace GroundControl.Gui
         private LiveTrackerWebAccess webAccess;
 
         private NMEA.GPSReceiverWrapper gpsReceiver;
+        private DateTime lastUploadedGpsPos;
 
         private DateTime startTime;
         private Timer elapsedTimer;
@@ -134,6 +135,7 @@ namespace GroundControl.Gui
             transceiver.Error += HandleError;
             webAccess.Error += HandleError;
 
+            lastUploadedGpsPos = DateTime.Now;
             gpsReceiver = new GPSReceiverWrapper();
             gpsReceiver.PortSettings = new SerialPortSettings(comPortGPS, BaudRate.baudRate57600, System.IO.Ports.Parity.None, DataBits.dataBits8, System.IO.Ports.StopBits.One, System.IO.Ports.Handshake.None);
             gpsReceiver.NewFix += new GPSReceiverWrapper.NewFixHandler(gpsReceiver_NewFix);
@@ -143,6 +145,7 @@ namespace GroundControl.Gui
             {
                 protocol.TelemetryReceived += webAccess.UploadTelemetry;
                 protocol.ImageComplete += webAccess.UploadLiveImage;
+                gpsReceiver.NewFix += gpsReceiver_UploadGpsPosition;
             }
 
             blogMessageMenuItem.Enabled = Settings.Default.WebAccessEnabled;
@@ -167,6 +170,25 @@ namespace GroundControl.Gui
         {
             mapWindow.Invoke(new PositionDelegate(mapWindow.UpdateGroundPosition), new object[] { latitude.Angle, longitude.Angle });
             predictorWindow.GroundControlPositionChanged(new PointLatLng(latitude.Angle, longitude.Angle));
+        }
+
+        private void gpsReceiver_UploadGpsPosition(DateTime fixTime, GeographicDimension latitude, GeographicDimension longitude)
+        {
+            if ((fixTime - lastUploadedGpsPos).TotalSeconds > 30)
+            {
+                GpsData gpsPos = new GpsData();
+                gpsPos.UtcTimestamp = fixTime;
+                gpsPos.Latitude = (float)latitude.Angle;
+                gpsPos.Longitude = (float)longitude.Angle;
+                try
+                {
+                    webAccess.UploadGpsPosition(gpsPos);
+                }
+                catch (Exception)
+                {
+                }
+                lastUploadedGpsPos = fixTime;
+            }
         }
 
         /// <summary>
@@ -463,23 +485,25 @@ namespace GroundControl.Gui
                 transceiver.SetPort(comPortRadio);
                 Settings.Default.ComPortRadio = comPortRadio;
 
+                comPortGPS = dialog.ComPortGPS;
+                gpsReceiver.PortSettings.PortName = comPortGPS;
+                Settings.Default.ComPortGPS = comPortGPS;
+
                 Settings.Default.WebAccessUrl = dialog.WebAccessUrl;
                 webAccess.Url = dialog.WebAccessUrl;
                 if (!Settings.Default.WebAccessEnabled && dialog.WebAccessEnabled)
                 {
                     protocol.TelemetryReceived += webAccess.UploadTelemetry;
                     protocol.ImageComplete += webAccess.UploadLiveImage;
+                    gpsReceiver.NewFix += gpsReceiver_UploadGpsPosition;
                 }
                 else if (Settings.Default.WebAccessEnabled && !dialog.WebAccessEnabled)
                 {
                     protocol.TelemetryReceived -= webAccess.UploadTelemetry;
                     protocol.ImageComplete -= webAccess.UploadLiveImage;
+                    gpsReceiver.NewFix -= gpsReceiver_UploadGpsPosition;
                 }
                 Settings.Default.WebAccessEnabled = dialog.WebAccessEnabled;
-
-                comPortGPS = dialog.ComPortGPS;
-                gpsReceiver.PortSettings.PortName = comPortGPS;
-                Settings.Default.ComPortGPS = comPortGPS;
 
                 blogMessageMenuItem.Enabled = dialog.WebAccessEnabled;
 

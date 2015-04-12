@@ -45,6 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GpsData.cs" />
     <Compile Include="CpmCounter.cs" />
     <Compile Include="TourGenerator.cs" />
     <Compile Include="DataCache.cs" />

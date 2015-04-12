@@ -65,6 +65,25 @@ namespace GroundControl.Core.WebAccess
         }
 
         /// <summary>
+        /// Uploads a GPS position record.
+        /// </summary>
+        /// <param name="gpsPos">the GPS position</param>
+        public void UploadGpsPosition(GpsData gpsPos)
+        {
+            Dictionary<string, object> postParameters = new Dictionary<string, object>();
+            postParameters.Add("key", key);
+            postParameters.Add("utctimestamp", gpsPos.UtcTimestamp.ToString("yyyy-MM-dd HH:mm:ss"));
+            postParameters.Add("latitude", gpsPos.Latitude);
+            postParameters.Add("longitude", gpsPos.Longitude);
+
+            HttpWebResponse webResponse = MultipartFormDataPost(url + "ws/uploadgpspos.php", userAgent, postParameters);
+            if (webResponse.StatusCode != HttpStatusCode.OK)
+            {
+                throw new LiveTrackerException(String.Format("Failed to upload GPS position to web server ({0}).", (int)webResponse.StatusCode));
+            }
+        }
+
+        /// <summary>
         /// Posts a blog message.
         /// </summary>
         /// <param name="utcTs">the time stamp</param>
