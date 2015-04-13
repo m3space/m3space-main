@@ -15,7 +15,7 @@ namespace GroundControl.Core
         private DateTime ageLimit;
         private LinkedList<TelemetryData> cache;
 
-        private static readonly TimeSpan MaxAge = new TimeSpan(0, 1, 30);
+        private static readonly TimeSpan MaxAge = new TimeSpan(0, 1, 0);
 
         /// <summary>
         /// Gets the absolute count.
