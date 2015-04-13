@@ -62,7 +62,7 @@ namespace GroundControl.Core
                     cache.RemoveFirst();
                 }
                 TimeSpan ts = cache.Last.Value.UtcTimestamp.Subtract(cache.First.Value.UtcTimestamp);
-                if (ts.TotalMinutes > 1.0)
+                if (cache.Count > 1)
                 {
                     cpm = (cache.Last.Value.GammaCount - cache.First.Value.GammaCount) / ts.TotalMinutes;
                 }
