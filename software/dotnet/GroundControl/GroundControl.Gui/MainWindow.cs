@@ -53,6 +53,8 @@ namespace GroundControl.Gui
         private delegate void VoidDelegate();
         private delegate void PositionDelegate(double latitude, double longitude);
 
+        private GPSReceiverWrapper.NewFixHandler gpsUploadHandler;
+
         /// <summary>
         /// Cosntructor.
         /// </summary>
@@ -135,17 +137,19 @@ namespace GroundControl.Gui
             transceiver.Error += HandleError;
             webAccess.Error += HandleError;
 
-            lastUploadedGpsPos = DateTime.Now;
+
+            lastUploadedGpsPos = DateTime.UtcNow;
             gpsReceiver = new GPSReceiverWrapper();
             gpsReceiver.PortSettings = new SerialPortSettings(comPortGPS, BaudRate.baudRate57600, System.IO.Ports.Parity.None, DataBits.dataBits8, System.IO.Ports.StopBits.One, System.IO.Ports.Handshake.None);
             gpsReceiver.NewFix += new GPSReceiverWrapper.NewFixHandler(gpsReceiver_NewFix);
+            gpsUploadHandler = new GPSReceiverWrapper.NewFixHandler(gpsReceiver_UploadGpsPosition);
 
             webAccess.Url = Settings.Default.WebAccessUrl;
             if (Settings.Default.WebAccessEnabled)
             {
                 protocol.TelemetryReceived += webAccess.UploadTelemetry;
                 protocol.ImageComplete += webAccess.UploadLiveImage;
-                gpsReceiver.NewFix += gpsReceiver_UploadGpsPosition;
+                gpsReceiver.NewFix += gpsUploadHandler;
             }
 
             blogMessageMenuItem.Enabled = Settings.Default.WebAccessEnabled;
@@ -174,7 +178,7 @@ namespace GroundControl.Gui
 
         private void gpsReceiver_UploadGpsPosition(DateTime fixTime, GeographicDimension latitude, GeographicDimension longitude)
         {
-            if ((fixTime - lastUploadedGpsPos).TotalSeconds > 30)
+            if (webAccess.IsRunning && (fixTime - lastUploadedGpsPos).TotalSeconds > 30)
             {
                 GpsData gpsPos = new GpsData();
                 gpsPos.UtcTimestamp = fixTime;
@@ -184,8 +188,9 @@ namespace GroundControl.Gui
                 {
                     webAccess.UploadGpsPosition(gpsPos);
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
+                    logWindow.WriteLine("GPS upload error: " + e.Message);
                 }
                 lastUploadedGpsPos = fixTime;
             }
@@ -495,13 +500,13 @@ namespace GroundControl.Gui
                 {
                     protocol.TelemetryReceived += webAccess.UploadTelemetry;
                     protocol.ImageComplete += webAccess.UploadLiveImage;
-                    gpsReceiver.NewFix += gpsReceiver_UploadGpsPosition;
+                    gpsReceiver.NewFix += gpsUploadHandler;
                 }
                 else if (Settings.Default.WebAccessEnabled && !dialog.WebAccessEnabled)
                 {
                     protocol.TelemetryReceived -= webAccess.UploadTelemetry;
                     protocol.ImageComplete -= webAccess.UploadLiveImage;
-                    gpsReceiver.NewFix -= gpsReceiver_UploadGpsPosition;
+                    gpsReceiver.NewFix -= gpsUploadHandler;
                 }
                 Settings.Default.WebAccessEnabled = dialog.WebAccessEnabled;
 
