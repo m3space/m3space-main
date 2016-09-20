@@ -15,7 +15,8 @@ namespace M3Space.Capsule
 {
     /// <summary>
     /// M3 Space Balloon Capsule.
-    /// Version 5.0.3
+    /// Version 6.0.0
+    /// Made some components optional for Mission 6.
     /// </summary>
     public class M3SpaceCapsule
     {
@@ -23,10 +24,10 @@ namespace M3Space.Capsule
         private const uint XBEE_RESET_THRESHOLD = 40;
         private const uint XBEE_CRITICAL_THRESHOLD = 80;
         private const int TELEMETRY_TX_INTERVAL = 5;
-#if WITH_LIVE_IMAGES
+#if WITH_LIVE_IMAGES && WITH_CAMERA
         private const int IMAGE_TX_INTERVAL = 5;
-#endif
         private const int IMAGE_CHUNK_SIZE = 64;
+#endif
 #if WITH_MOTION
         private const int MOTION_BUFFER_SIZE = 10;
 #endif
@@ -49,22 +50,23 @@ namespace M3Space.Capsule
         private string sdRootDirectory;
         private string telemetryFileName;
         private string logFileName;
-        
 
         private AnalogIn tempSensor1;
         private AnalogIn tempSensor2;
         private AnalogIn vInSensor;
+#if WITH_GAMMA
         private InterruptPort gammaInput;
+#endif
 
         private TelemetryData cachedTelemetry;
         private GpsPoint cachedGpsPoint;
 
-#if WITH_CAMERA        
+#if WITH_CAMERA
         private string currentImageFileName;
         private DateTime currentImageTimestamp;
         private DateTime lastSentImage;        
 #endif
-        private bool imageTransmitting;
+        private bool imageTransmitting;     // required for XBee transmission, even without live images
         
         private GpsReader gps;
 
@@ -77,20 +79,21 @@ namespace M3Space.Capsule
         private string motionFileName;
 #endif
 
+#if WITH_BAROMETER
         private Barometer barometer;
         private ushort cachedPressureAltitude;
         private ushort cachedPressure;
         private short cachedTemperature;
+#endif
 
         private object logFileLock = new object();
         private object gpsLock = new object();
         private object dutyCycleLock = new object();
+#if WITH_BAROMETER
         private object barometerLock = new object();
+#endif
         private AutoResetEvent waitTimeSync;
 
-#if WITH_MOTION
-        
-#endif
         private FileStream telemetryFileHandle = null;        
 
 #if WITH_CAMERA
@@ -104,16 +107,20 @@ namespace M3Space.Capsule
         private Thread gpsThread;
         private Thread xbeeTransmitThread;
         private Thread telemetryThread;
-       
 
+#if WITH_BAROMETER
         private Thread barometerThread;
+#endif
 
         /// <summary>
         /// Constructor.
         /// </summary>
         public M3SpaceCapsule()
         {
+#if WITH_GAMMA
             gammaInput = new InterruptPort((Cpu.Pin)FEZ_Pin.Interrupt.An0, false, Port.ResistorMode.PullDown, Port.InterruptMode.InterruptEdgeHigh);
+#endif
+
             vInSensor = new AnalogIn((AnalogIn.Pin)FEZ_Pin.AnalogIn.An2);
             tempSensor1 = new AnalogIn((AnalogIn.Pin)FEZ_Pin.AnalogIn.An4);
             tempSensor2 = new AnalogIn((AnalogIn.Pin)FEZ_Pin.AnalogIn.An5);
@@ -126,10 +133,12 @@ namespace M3Space.Capsule
             
             sdStorage = new PersistentStorage("SD");
 
+#if WITH_GAMMA
             cachedTelemetry.GammaCount = 0;
             gammaInput.OnInterrupt += new NativeEventHandler(OnGammaPulseDetected);
             gammaInput.EnableInterrupt();
-            
+#endif
+
             cachedGpsPoint.UtcTimestamp = DateTime.Now;
 
             lastXBeeResetCheck = DateTime.Now;
@@ -145,11 +154,12 @@ namespace M3Space.Capsule
             motionBuffer = new MotionData[MOTION_BUFFER_SIZE];
             motionBufferIndex = 0;
 #endif
-
+#if WITH_BAROMETER
             barometer = new Barometer("COM2");
             cachedPressureAltitude = 0;
             cachedPressure = 0;
             cachedTemperature = 0;
+#endif
 
             imageTransmitting = false;
 #if WITH_CAMERA
@@ -213,7 +223,9 @@ namespace M3Space.Capsule
 #if WITH_MOTION
                 motionThread = new Thread(new ThreadStart(StartMotionThread));
 #endif
+#if WITH_BAROMETER
                 barometerThread = new Thread(new ThreadStart(StartBarometerThread));
+#endif
 
                 // start GPS thread to get time.
                 gpsThread.Start();
@@ -247,7 +259,9 @@ namespace M3Space.Capsule
 
                 // start all threads
                 xbeeTransmitThread.Start();
+#if WITH_BAROMETER
                 barometerThread.Start();
+#endif
                 telemetryThread.Start();
 #if WITH_CAMERA
                 cameraThread.Start();
@@ -388,6 +402,7 @@ namespace M3Space.Capsule
         private void StartTelemetryThread()
         {
             cachedTelemetry.GammaCount = 0;
+
             int count = TELEMETRY_TX_INTERVAL;
             while (true)
             {
@@ -403,11 +418,17 @@ namespace M3Space.Capsule
                 Monitor.Enter(dutyCycleLock);
                 cachedTelemetry.DutyCycle = xBeeDutyCycle;
                 Monitor.Exit(dutyCycleLock);
+#if WITH_BAROMETER
                 Monitor.Enter(barometerLock);
                 cachedTelemetry.PressureAltitude = cachedPressureAltitude;
                 cachedTelemetry.Pressure = cachedPressure;
                 cachedTelemetry.IntTemperature = cachedTemperature;
                 Monitor.Exit(barometerLock);
+#else
+                cachedTelemetry.PressureAltitude = 0;
+                cachedTelemetry.Pressure = 0;
+                cachedTelemetry.IntTemperature = 0;
+#endif
                 StoreTelemetry(cachedTelemetry);
                 count--;
                 if (count <= 0)
@@ -475,6 +496,7 @@ namespace M3Space.Capsule
         }
 #endif
 
+#if WITH_BAROMETER
         /// <summary>
         /// Starts the barometer thread.
         /// </summary>
@@ -500,6 +522,7 @@ namespace M3Space.Capsule
                 Thread.Sleep(5000);
             }
         }
+#endif
 
         /// <summary>
         /// Stores telemetry data on SD card.
@@ -556,12 +579,12 @@ namespace M3Space.Capsule
                     {
                         new Thread(new ThreadStart(StartTransmitImageThread)).Start();
                     }
-    #if DEBUG
+#if DEBUG
                     else
                     {
                         Debug.Print("Do not transmit image.");
                     }
-    #endif
+#endif
 #endif
                     Thread.Sleep(60000);
                 }
@@ -621,9 +644,9 @@ namespace M3Space.Capsule
         /// </summary>
         private void StartTransmitImageThread()
         {
-    #if DEBUG
+#if DEBUG
             Debug.Print("Image transmission start.");
-    #endif
+#endif
             string fileToSend = currentImageFileName;
             lastSentImage = currentImageTimestamp;
             FileStream fileHandle = new FileStream(fileToSend, FileMode.Open);
@@ -658,9 +681,9 @@ namespace M3Space.Capsule
             imageTransmitting = false;
             fileHandle.Close();
             
-    #if DEBUG
+#if DEBUG
             Debug.Print("Image transmission end.");
-    #endif      
+#endif
         }
 #endif
 
@@ -726,12 +749,14 @@ namespace M3Space.Capsule
                 LogError("Motion Thread restarted");
             }
 #endif
+#if WITH_BAROMETER
             if (!barometerThread.IsAlive)
             {
                 barometerThread = new Thread(new ThreadStart(StartBarometerThread));
                 barometerThread.Start();
                 LogError("Barometer Thread restarted");
             }
+#endif
         }
 
         /// <summary>
@@ -752,6 +777,7 @@ namespace M3Space.Capsule
             Monitor.Exit(logFileLock);
         }
 
+#if WITH_GAMMA
         /// <summary>
         /// Received impulse from geiger counter.
         /// </summary>
@@ -765,5 +791,6 @@ namespace M3Space.Capsule
             Debug.Print("Gamma pulse");
 #endif
         }
+#endif
     }
 }

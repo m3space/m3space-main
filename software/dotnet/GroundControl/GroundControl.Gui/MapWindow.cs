@@ -1,16 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using GMap.NET.WindowsForms;
 using GMap.NET.MapProviders;
 using GMap.NET;
 using GroundControl.Core;
-using GMap.NET.WindowsForms.Markers;
 
 namespace GroundControl.Gui
 {
@@ -47,6 +43,8 @@ namespace GroundControl.Gui
 
         public MapWindow()
         {
+            GMapProvider.UserAgent = "M3Space-GroundControl";   // required to display OpenStreetMap
+
             InitializeComponent();
 
             map.DragButton = MouseButtons.Right;
@@ -192,11 +190,25 @@ namespace GroundControl.Gui
                 MessageBox.Show("Load prediction file before calculating route!", "No prediction file", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
-            PointLatLng start = predictionOverlay.Markers.First().Position;
-            PointLatLng end = predictionOverlay.Markers.Last().Position;
-            MapRoute route = GMapProviders.GoogleMap.GetRoute(start, end, false, false, 10);
-            routeOverlay.Routes.Clear();
-            routeOverlay.Routes.Add(new GMapRoute(route.Points, "Route"));
+            if (predictionOverlay.Markers.Count >= 2)
+            {
+                PointLatLng start = predictionOverlay.Markers.First().Position;
+                PointLatLng end = predictionOverlay.Markers.Last().Position;
+                MapRoute route = GMapProviders.GoogleMap.GetRoute(start, end, false, false, 10);
+                if (route != null)
+                {
+                    routeOverlay.Routes.Clear();
+                    routeOverlay.Routes.Add(new GMapRoute(route.Points, "Route"));
+                }
+                else
+                {
+                    MessageBox.Show("Could not calculate route!", "Route unavailable", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+            }
+            else
+            {
+                MessageBox.Show("Not enough points to calculate route!", "Route unavailable", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
         }
 
         private void toBalloonToolStripMenuItem_Click(object sender, EventArgs e)
@@ -204,25 +216,19 @@ namespace GroundControl.Gui
             PointLatLng start = groundControlMarker.Position;
             PointLatLng end = balloonMarker.Position;
             MapRoute route = GMapProviders.GoogleMap.GetRoute(start, end, false, false, 10);
-            routeOverlay.Routes.Clear();
-            routeOverlay.Routes.Add(new GMapRoute(route.Points, "Route"));
-
-            //GDirections s;
-            //var result = GMapProviders.GoogleMap.GetDirections(out s, start, end, false, false, false, false, true);
-            //if (result == DirectionsStatusCode.OK)
-            //{
-            //    Console.WriteLine(s.Summary + ", " + s.Copyrights);
-            //    Console.WriteLine(s.StartAddress + " -> " + s.EndAddress);
-            //    Console.WriteLine(s.Distance);
-            //    Console.WriteLine(s.Duration);
-
-            //    foreach (var step in s.Steps)
-            //    {
-            //        Console.WriteLine(step);
-            //    }
-            //}
+            if (route != null)
+            {
+                routeOverlay.Routes.Clear();
+                routeOverlay.Routes.Add(new GMapRoute(route.Points, "Route"));
+            }
+            else
+            {
+                MessageBox.Show("Could not calculate route!", "Route unavailable", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
         }
+
         public event GMap.NET.PositionChanged MapPositionChanged;
+
         private void map_OnPositionChanged(PointLatLng point)
         {
             if (MapPositionChanged != null)

@@ -14,6 +14,14 @@
             can receive input
             </summary>
         </member>
+        <member name="M:GMap.NET.WindowsForms.GMapPolygon.IsInsideLocal(System.Int32,System.Int32)">
+            <summary>
+            Indicates whether the specified point is contained within this System.Drawing.Drawing2D.GraphicsPath
+            </summary>
+            <param name="x"></param>
+            <param name="y"></param>
+            <returns></returns>
+        </member>
         <member name="F:GMap.NET.WindowsForms.GMapPolygon.Stroke">
             <summary>
             specifies how the outline is painted
@@ -277,12 +285,12 @@
             is overlay visible
             </summary>
         </member>
-        <member name="T:GMap.NET.WindowsForms.WindowsFormsImage">
+        <member name="T:GMap.NET.WindowsForms.GMapImage">
             <summary>
             image abstraction
             </summary>
         </member>
-        <member name="T:GMap.NET.WindowsForms.WindowsFormsImageProxy">
+        <member name="T:GMap.NET.WindowsForms.GMapImageProxy">
             <summary>
             image abstraction proxy
             </summary>
@@ -450,12 +458,6 @@
             update objects when map is draged/zoomed
             </summary>
         </member>
-        <member name="M:GMap.NET.WindowsForms.GMapControl.DrawMap(System.Drawing.Graphics)">
-            <summary>
-            render map in GDI+
-            </summary>
-            <param name="g"></param>
-        </member>
         <member name="M:GMap.NET.WindowsForms.GMapControl.UpdateMarkerLocalPosition(GMap.NET.WindowsForms.GMapMarker)">
             <summary>
             updates markers local position
@@ -536,16 +538,16 @@
             <param name="x"></param>
             <param name="y"></param>
         </member>
-        <member name="M:GMap.NET.WindowsForms.GMapControl.UpdateRotationMatrix">
-            <summary>
-            updates rotation matrix
-            </summary>
-        </member>
         <member name="M:GMap.NET.WindowsForms.GMapControl.OnPaintOverlays(System.Drawing.Graphics)">
             <summary>
             override, to render something more
             </summary>
             <param name="g"></param>
+        </member>
+        <member name="M:GMap.NET.WindowsForms.GMapControl.UpdateRotationMatrix">
+            <summary>
+            updates rotation matrix
+            </summary>
         </member>
         <member name="M:GMap.NET.WindowsForms.GMapControl.ApplyRotationInversion(System.Int32,System.Int32)">
             <summary>
